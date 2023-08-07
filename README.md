@@ -54,6 +54,6 @@ Finally, you can align your input data using a pronunciation dictionary and the 
 mfa align /path/to/input/wavs/and/txt/ ~/mfa_data/dictionary.txt acoustic_model /path/to/aligned/outputs/
 ```
 
-Make sure to replace `/path/to/input/wavs/and/txt/` with the actual path to your input data, and `/path/to/aligned/outputs/` with the desired location for the aligned output files.
+Make sure to replace `/path/to/input/wavs/and/txt/` with the actual path to your input data, and `/path/to/aligned/outputs/` with the desired location for the aligned output files. The above command will output the TextGrid file with word and phoneme level alignments for each wav/txt input pair.
 
 For more details and advanced usage, please refer to the official documentation of Montreal Forced Aligner.
