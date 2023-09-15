@@ -27,7 +27,7 @@ mfa validate ~/mfa_data/corpus ~/mfa_data/dictionary.txt --clean
 To train the acoustic model and export it to a zip file, use the following command:
 
 ```bash
-mfa train ~/mfa_data/corpus ~/mfa_data/lexicon_all.txt ~/mfa_data/acoustic_model.zip
+mfa train ~/mfa_data/corpus ~/mfa_data/dictionary.txt ~/mfa_data/acoustic_model.zip
 ```
 
 Alternatively, a pretrained model and the pronunciation dictionary can be downloaded from [here](https://unilj-my.sharepoint.com/:f:/g/personal/janezkrfe_fe1_uni-lj_si/EpYgD7Y3PrlFgtIwSH7nkJoByWgpE2beKOpoP4R_NnkobQ?e=JcTKVM). If using the pretrained model, skip the training step.
