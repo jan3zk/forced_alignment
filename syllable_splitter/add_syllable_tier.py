@@ -65,7 +65,7 @@ def create_syllable_tier(phoneme_intervals, word_intervals):
         # Converting phoneme labels of the word into a single string
         phoneme_labels_str = ' '.join([label for _, _, label in word_phoneme_intervals])
         
-        # Using syllabize_phonemes to identify syllables within the word for time intervals
+        # Getting phoneme-based syllables using slovene_phoneme_syllable_splitter
         phoneme_syllables = syllable_phoneme_splitter.syllabize_phonemes(phoneme_labels_str)
         
         if grapheme_syllables:
@@ -87,43 +87,6 @@ def create_syllable_tier(phoneme_intervals, word_intervals):
                     syllable_intervals.append((start_time, end_time, grapheme_syllable.replace(" ", "")))
     
     return syllable_intervals
-
-def map_syllable_labels(word_intervals, syllable_intervals, grapheme_syllables):
-    """
-    Map phoneme-based syllable labels with grapheme-based labels using word intervals and grapheme syllables.
-
-    Parameters:
-    - word_intervals: List of tuples containing word intervals (start, end, label).
-    - syllable_intervals: List of tuples containing syllable intervals (start, end, label).
-    - grapheme_syllables: List of lists containing grapheme-based syllables for each word.
-    
-    Returns:
-    - mapped_syllable_intervals: List of tuples containing syllable intervals (start, end, label) with mapped labels.
-    """
-    mapped_syllable_intervals = []
-    syllable_idx = 0
-
-    # Iterate through word intervals and grapheme syllables simultaneously
-    for (word_start, word_end, _), word_syllables in zip(word_intervals, grapheme_syllables):
-        # Find the corresponding syllable intervals for the current word
-        while syllable_idx < len(syllable_intervals) and syllable_intervals[syllable_idx][1] <= word_end:
-            # If the syllable interval falls within the word interval, replace the label
-            if syllable_intervals[syllable_idx][0] >= word_start:
-                # Extracting start and end times of the syllable interval
-                syllable_start, syllable_end, _ = syllable_intervals[syllable_idx]
-                
-                # Check for syllable availability and mapping the label
-                if word_syllables:
-                    syllable_label = word_syllables.pop(0)
-                    mapped_syllable_intervals.append((syllable_start, syllable_end, syllable_label))
-                else:
-                    # If no syllables are available, add an empty label interval
-                    mapped_syllable_intervals.append((syllable_start, syllable_end, ""))
-            
-            # Move to the next syllable interval
-            syllable_idx += 1
-    
-    return mapped_syllable_intervals
 
 def write_textgrid(file_path, tiers):
     """
