@@ -73,3 +73,4 @@ Similary, other tiers can be added by utilizing the:
 * [add_cnvrstl-wrd-sgmnt_tier.py](additional_tiers/add_cnvrstl-wrd-sgmnt_tier.py)
 * [add_pitch-reset_tier.py](additional_tiers/add_pitch-reset_tier.py)
 * [add_speaker-change_tier.py](additional_tiers/add_speaker-change_tier.py)
+* [add_pause_tier.py](additional_tiers/add_pause_tier.py)
