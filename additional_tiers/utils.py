@@ -1,11 +1,14 @@
 import re
 
 
-def parse_textgrid(textgrid_content):
+def parse_textgrid(textgrid_path):
     """
     Parse the content of a TextGrid file and extract relevant information.
     Returns a dictionary with tiers, each containing intervals with start time, end time, and label.
     """
+    with open(textgrid_path, "r") as file:
+        textgrid_content = file.read()
+
     # Extracting tiers using regex
     tier_pattern = re.compile(r'item \[\d+\]:\s*class = "IntervalTier"\s*name = "(.*?)"\s*xmin = [\d.]+\s*xmax = [\d.]+\s*intervals: size = \d+\s*((?:\s*intervals \[\d+\]:\s*xmin = [\d.]+\s*xmax = [\d.]+\s*text = ".*?"\s*)*)', re.DOTALL)
     interval_pattern = re.compile(r'intervals \[\d+\]:\s*xmin = ([\d.]+)\s*xmax = ([\d.]+)\s*text = "(.*?)"\s*', re.DOTALL)

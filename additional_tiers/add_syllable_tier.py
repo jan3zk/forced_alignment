@@ -82,13 +82,9 @@ def create_syllable_tier(phoneme_intervals, word_intervals):
 
     return syllable_intervals
 
-def main(input_textgrid_path, output_textgrid_path):
-    # Read the TextGrid file content
-    with open(input_textgrid_path, 'r') as f:
-        textgrid_content = f.read()
-
+def main(input_textgrid, output_textgrid):
     # Parse the TextGrid file to extract phoneme and word intervals
-    parsed_textgrid = parse_textgrid(textgrid_content)
+    parsed_textgrid = parse_textgrid(input_textgrid)
     phoneme_intervals = parsed_textgrid['phones']
     word_intervals = parsed_textgrid['words']
 
@@ -104,7 +100,7 @@ def main(input_textgrid_path, output_textgrid_path):
         ('syllables', concatenated_syllable_intervals),
         ('phones', phoneme_intervals)
     ])
-    write_textgrid(output_textgrid_path, extended_tiers)
+    write_textgrid(output_textgrid, extended_tiers)
 
 
 if __name__ == "__main__":
