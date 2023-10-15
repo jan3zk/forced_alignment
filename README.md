@@ -58,10 +58,18 @@ Make sure to replace `/path/to/input/wavs/and/txt/` with the actual path to your
 
 For more details and advanced usage, please refer to the official documentation of Montreal Forced Aligner.
 
-## Enhancing TextGrid files with a syllable tier
+## Enhancing TextGrid files with a additional tiers
 
-The MFA delivers alignments at both the word and phoneme levels. To introduce a syllable level into your alignments, you can utilize the [add_syllable_tier.py](syllable_splitter/add_syllable_tier.py) function:
-
+The MFA delivers alignments at both the word and phoneme levels. To introduce a syllable level, [add_syllable_tier.py](additional_tiers/add_syllable_tier.py) function can be utilized as follows:
 ```bash
 python add_syllable_tier.py /path/to/input.TextGrid /path/to/output.TextGrid
 ```
+
+Similary, other tiers can be added by utilizing the:
+* [add_syllable_tier.py](additional_tiers/add_syllable_tier.py)
+* [add_cnvrstl-wrd-sgmnt_tier.py](additional_tiers/add_cnvrstl-wrd-sgmnt_tier.py)
+* [conversational-trs_tier.py](additional_tiers/conversational-trs_tier.py)
+* [pitch-reset_tier.py](additional_tiers/pitch-reset_tier.py)
+* [speaker-ID_tier.py](additional_tiers/speaker-ID_tier.py)
+* [standardized-trs_tier.py](additional_tiers/standardized-trs_tier.py)
+* [syllable_tier.py](additional_tiers/syllable_tier.py)

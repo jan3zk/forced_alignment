@@ -96,8 +96,8 @@ def main(input_textgrid, output_textgrid):
     
     # Write the extended TextGrid file
     extended_tiers = OrderedDict([
-        ('words', word_intervals),
-        ('syllables', concatenated_syllable_intervals),
+        ('strd-wrd-sgmnt', word_intervals),
+        ('cnvrstl-syllables', concatenated_syllable_intervals),
         ('phones', phoneme_intervals)
     ])
     write_textgrid(output_textgrid, extended_tiers)
