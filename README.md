@@ -67,9 +67,9 @@ python add_syllable_tier.py /path/to/input.TextGrid /path/to/output.TextGrid
 
 Similary, other tiers can be added by utilizing the:
 * [add_syllable_tier.py](additional_tiers/add_syllable_tier.py)
+* [add_speaker-ID_tier.py](additional_tiers/add_speaker-ID_tier.py)
+* [add_standardized-trs_tier.py](additional_tiers/add_standardized-trs_tier.py)
+* [add_conversational-trs_tier.py](additional_tiers/add_conversational-trs_tier.py)
 * [add_cnvrstl-wrd-sgmnt_tier.py](additional_tiers/add_cnvrstl-wrd-sgmnt_tier.py)
-* [conversational-trs_tier.py](additional_tiers/conversational-trs_tier.py)
-* [pitch-reset_tier.py](additional_tiers/pitch-reset_tier.py)
-* [speaker-ID_tier.py](additional_tiers/speaker-ID_tier.py)
-* [standardized-trs_tier.py](additional_tiers/standardized-trs_tier.py)
-* [syllable_tier.py](additional_tiers/syllable_tier.py)
+* [add_pitch-reset_tier.py](additional_tiers/add_pitch-reset_tier.py)
+* [add_speaker-change_tier.py](additional_tiers/add_speaker-change_tier.py)
