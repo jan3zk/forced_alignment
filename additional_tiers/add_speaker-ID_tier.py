@@ -24,7 +24,7 @@ def main(input_wav, input_textgrid, output_textgrid, auth_token):
         use_auth_token=auth_token)
     
     # send pipeline to GPU (when available)
-    pipeline.to(torch.device("cuda"))
+    #pipeline.to(torch.device("cuda"))
     
     # apply pretrained pipeline
     diarization = pipeline(input_wav)

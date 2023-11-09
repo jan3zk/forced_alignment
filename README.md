@@ -56,7 +56,7 @@ Make sure to replace `/path/to/input/wavs/and/txt/` with the actual path to your
 
 For more details and advanced usage, please refer to the official documentation of Montreal Forced Aligner.
 
-## Enhancing TextGrid files with a additional tiers
+## Enhancing TextGrid files with additional tiers
 
 The MFA delivers alignments at both the word and phoneme levels. To introduce a syllable level, [add_syllable_tier.py](additional_tiers/add_syllable_tier.py) function can be utilized as follows:
 ```bash
