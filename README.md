@@ -68,6 +68,21 @@ Similary, other tiers can be added by utilizing the:
 * [add_standardized-trs_tier.py](additional_tiers/add_standardized-trs_tier.py)
 * [add_conversational-trs_tier.py](additional_tiers/add_conversational-trs_tier.py)
 * [add_cnvrstl-wrd-sgmnt_tier.py](additional_tiers/add_cnvrstl-wrd-sgmnt_tier.py)
+* [add_discourse-marker_tier.py](additional_tiers/add_discourse-marker_tier.py)
 * [add_pitch-reset_tier.py](additional_tiers/add_pitch-reset_tier.py)
-* [add_speaker-change_tier.py](additional_tiers/add_speaker-change_tier.py)
+* [add_intensity-reset_tier.py](additional_tiers/add_intensity-reset_tier.py)
+* [add_speech-rate-reduction_tier.py](additional_tiers/add_speech-rate-reduction_tier.py)
 * [add_pause_tier.py](additional_tiers/add_pause_tier.py)
+* [add_speaker-change_tier.py](additional_tiers/add_speaker-change_tier.py)
+
+
+python add_speaker-ID_tier.py ../data/example/mfa_input/Artur-J-Gvecg-P580041-avd-IZSEK.wav ../data/example/tmp_1.TextGrid ../data/example/tmp_2.TextGrid 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
+python add_standardized-trs_tier.py ../data/example/mfa_input/Artur-J-Gvecg-P580041-avd-IZSEK.txt ../data/example/tmp_2.TextGrid ../data/example/tmp_3.TextGrid
+python add_conversational-trs_tier.py ../data/example/Artur-J-Gvecg-P580041-avd-IZSEK-pog.txt ../data/example/tmp_3.TextGrid ../data/example/tmp_4.TextGrid
+python add_cnvrstl-wrd-sgmnt_tier.py ../data/example/Artur-J-Gvecg-P580041-avd-IZSEK-pog.txt ../data/example/tmp_4.TextGrid ../data/example/tmp_5.TextGrid
+python add_discourse-marker_tier.py ../data/example/tmp_5.TextGrid ../data/example/tmp_6.TextGrid
+python add_pitch-reset_tier.py ../data/example/mfa_input/Artur-J-Gvecg-P580041-avd-IZSEK.wav ../data/example/tmp_6.TextGrid ../data/example/tmp_7.TextGrid 40
+python add_intensity-reset_tier.py ../data/example/mfa_input/Artur-J-Gvecg-P580041-avd-IZSEK.wav ../data/example/tmp_7.TextGrid ../data/example/tmp_8.TextGrid 5
+python add_speech-rate-reduction_tier.py ../data/example/mfa_input/Artur-J-Gvecg-P580041-avd-IZSEK.wav ../data/example/tmp_8.TextGrid ../data/example/tmp_9.TextGrid 0.5
+python add_pause_tier.py ../data/example/tmp_9.TextGrid ../data/example/tmp_10.TextGrid
+python add_speaker-change_tier.py ../data/example/tmp_10.TextGrid ../data/example/tmp_11.TextGrid
