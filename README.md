@@ -38,8 +38,6 @@ You can save the acoustic model stored in zip file for later convenience by runn
 mfa model save acoustic ~/mfa_data/acoustic_model.zip
 ```
 
-## Acoustic Model Inspection
-
 To inspect the acoustic model, run the following command:
 
 ```bash
@@ -66,7 +64,6 @@ python add_syllable_tier.py /path/to/input.TextGrid /path/to/output.TextGrid
 ```
 
 Similary, other tiers can be added by utilizing the:
-* [add_syllable_tier.py](additional_tiers/add_syllable_tier.py)
 * [add_speaker-ID_tier.py](additional_tiers/add_speaker-ID_tier.py)
 * [add_standardized-trs_tier.py](additional_tiers/add_standardized-trs_tier.py)
 * [add_conversational-trs_tier.py](additional_tiers/add_conversational-trs_tier.py)
