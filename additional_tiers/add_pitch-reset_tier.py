@@ -1,6 +1,5 @@
 import sys
 import parselmouth
-from parselmouth.praat import call
 from utils import parse_textgrid, write_textgrid  
 
 
