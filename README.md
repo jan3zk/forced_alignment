@@ -58,9 +58,9 @@ For more details and advanced usage, please refer to the official documentation 
 
 ## Enhancing TextGrid files with additional tiers
 
-The MFA delivers alignments at both the word and phoneme levels. To introduce a syllable level, [add_syllable_tier.py](additional_tiers/add_syllable_tier.py) function can be utilized as follows:
+The MFA delivers alignments at both the word and phoneme levels. To introduce a syllable level, [add_cnvrstl-syllables_tier.py](additional_tiers/add_cnvrstl-syllables_tier.py) function can be utilized as follows:
 ```bash
-python add_syllable_tier.py /path/to/input.TextGrid /path/to/output.TextGrid
+python add_cnvrstl-syllables_tier.py /path/to/input.TextGrid /path/to/output.TextGrid
 ```
 
 Similary, other tiers can be added by utilizing the:
