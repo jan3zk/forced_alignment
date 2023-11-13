@@ -7,7 +7,7 @@ def detect_speech_rate_reduction(audio_path, input_textgrid, output_textgrid, re
     sound = parselmouth.Sound(audio_path)
     tiers = parse_textgrid(input_textgrid)
     
-    # Get the syllable tier (assuming it is named 'syllables' in the TextGrid)
+    # Get the syllable tier (assuming it is named 'cnvrstl-syllables' in the TextGrid)
     syllable_tier = tiers.get('cnvrstl-syllables', [])
 
     # Create a new tier for speech rate reduction
