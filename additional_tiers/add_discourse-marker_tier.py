@@ -16,7 +16,7 @@ MULTI_DISCOURSE_MARKERS = [
 
 def detect_discourse_markers(tiers):
     word_intervals = tiers.get('strd-wrd-sgmnt', [])
-    
+
     discourse_marker_tier = []
     index = 0
     while index < len(word_intervals):
@@ -79,55 +79,3 @@ if __name__ == "__main__":
         print("Usage: python add_discourse-marker_tier.py [input.TextGrid] [output.TextGrid]")
     else:
         main(sys.argv[1], sys.argv[2])
-
-#import sys
-#from utils import parse_textgrid, write_textgrid
-#from collections import OrderedDict
-#
-#
-## Define the set of discourse markers to look for
-#DISCOURSE_MARKERS = {
-#    'ja', 'in', 'pa', 'tudi', 'ker', 'saj', 'kajti', 'namreč',
-#    'pač', 'zato', 'torej', 'skratka', 'če', 'npr.', 'tj.',
-#    'recimo', 'ampak', 'vendar', 'čeprav', 'pravzaprav'
-#}
-#
-#def detect_discourse_markers(tiers):
-#    word_intervals = tiers.get('strd-wrd-sgmnt', [])
-#    
-#    discourse_marker_tier = []
-#    for start, end, label in word_intervals:
-#        # Normalize label to handle case-insensitivity and stripping whitespace
-#        normalized_label = label.strip().lower()
-#
-#        # Append 'POS' if the label is in the set of discourse markers
-#        if normalized_label in DISCOURSE_MARKERS:
-#            discourse_marker_tier.append((start, end, 'POS'))
-#    
-#    return discourse_marker_tier
-#
-#
-#def main(input_textgrid, output_textgrid):
-#    # Load and parse the TextGrid file
-#    tiers = parse_textgrid(input_textgrid)
-#
-#    discourse_marker_tier = detect_discourse_markers(tiers)
-#
-#    # Add the new tier after the 'strd-wrd-sgmnt' tier in the TextGrid
-#    extended_tiers = OrderedDict()
-#    for tier_name, tier_data in tiers.items():
-#        extended_tiers[tier_name] = tier_data
-#        if tier_name == 'strd-wrd-sgmnt':
-#            extended_tiers['discourse-marker'] = discourse_marker_tier
-#
-#
-#    # Save the modified TextGrid
-#    write_textgrid(output_textgrid, extended_tiers)
-#
-#
-#if __name__ == "__main__":
-#    if len(sys.argv) != 3:
-#        print("Usage: python add_discourse-marker_tier.py [input.TextGrid] [output.TextGrid]")
-#    else:
-#        main(sys.argv[1], sys.argv[2])
-#
