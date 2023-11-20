@@ -69,7 +69,7 @@ Similary, other tiers can be added. A list of implemented tiers and their brief 
 * [add_conversational-trs_tier.py](additional_tiers/add_conversational-trs_tier.py)
 * [add_cnvrstl-wrd-sgmnt_tier.py](additional_tiers/add_cnvrstl-wrd-sgmnt_tier.py)
 * [add_discourse-marker_tier.py](additional_tiers/add_discourse-marker_tier.py)
-* [add_pitch-reset_tier.py](additional_tiers/add_pitch-reset_tier.py): Pitch reset is detected by comparing the mean pitch of each syllable with the average of the mean pitches of its adjacent (previous and next) syllables. If the difference exceeds a predefined threshold, a pitch reset is identified
+* [add_pitch-reset_tier.py](additional_tiers/add_pitch-reset_tier.py): The script features two methods for detecting pitch resets: the Average-Neighboring Method, which compares a syllable's mean pitch with the average of its neighbors and labels significant differences as pitch resets, and the Intrasyllabic Method, which examines pitch changes within a single syllable, identifying a pitch reset if the difference exceeds 4 semitones.
 * [add_intensity-reset_tier.py](additional_tiers/add_intensity-reset_tier.py)
 * [add_speech-rate-reduction_tier.py](additional_tiers/add_speech-rate-reduction_tier.py)
 * [add_pause_tier.py](additional_tiers/add_pause_tier.py)
