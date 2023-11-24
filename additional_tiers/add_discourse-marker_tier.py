@@ -5,9 +5,9 @@ from collections import OrderedDict
 def load_discourse_markers(file_path):
     with open(file_path, 'r') as file:
         markers = file.read().splitlines()
-    # Either include or remove makrers that start with an asterisk
+    # Either include or exclude makrers that start with an asterisk
     #markers = [marker.replace('*', '').strip() for marker in markers] # include
-    markers = [marker.strip() for marker in markers if not marker.startswith('*')] # remove
+    markers = [marker.strip() for marker in markers if not marker.startswith('*')] # exclude
     # Sort markers by length (longest first)
     markers.sort(key=lambda x: len(x), reverse=True)
     return markers

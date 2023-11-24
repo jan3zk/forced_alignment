@@ -1,73 +1,65 @@
 import sys
 from utils import parse_textgrid, write_textgrid
+import xml.etree.ElementTree as ET
 from collections import OrderedDict
 
+def parse_trs_file(file_path):
+    # Parse the XML file
+    tree = ET.parse(file_path)
+    root = tree.getroot()
 
-def align_transcription_to_speaker(tiers, transcription):
-    # Tokenize the transcription into words
-    words = transcription.split()
-    
-    # Assume 'word_intervals' tier contains word intervals
-    word_intervals = tiers.get('strd-wrd-sgmnt', [])
-    speaker_intervals = tiers.get('speaker-ID', [])
+    # List to hold the parsed transcription intervals
+    transcription_intervals = []
 
-    # Remove empty or whitespace-only word intervals
-    word_intervals = [interval for interval in word_intervals if interval[2].strip()]
+    # Iterate through the XML tree to find 'Turn' elements
+    for turn in root.iter('Turn'):
+        start_time = float(turn.get('startTime', '0'))
+        end_time = float(turn.get('endTime', '0'))
 
-    # Ensure word count matches
-    if len(words) != len(word_intervals):
-        raise ValueError("Word count in transcription and TextGrid do not match.")
-    
-    # Associate transcription words with their respective intervals
-    transcription_intervals = [
-        (interval[0], interval[1], word) 
-        for interval, word in zip(word_intervals, words)
-    ]
-    
-    # Placeholder for aligned transcription segments
-    aligned_transcription = []
+        # Initialize variables for tracking sync times and text
+        last_sync_time = start_time
+        turn_texts = []
 
-    # Logic for assigning each word to a speaker
-    for speaker_interval in speaker_intervals:
-        speaker_start, speaker_end, speaker_label = speaker_interval
+        # Process each element within a 'Turn'
+        for element in turn:
+            # Check if element is 'Sync', and update last_sync_time accordingly
+            if element.tag == 'Sync':
+                sync_time = float(element.get('time', '0'))
+                if turn_texts:
+                    transcription_intervals.append((last_sync_time, sync_time, ' '.join(turn_texts).strip()))
+                    turn_texts = []
+                last_sync_time = sync_time
 
-        # Concatenate words falling into the speaker interval
-        # More than half of the word's duration should fall within the speaker interval.
-        words_in_speaker_interval = [
-            word for start, end, word in transcription_intervals
-            if max(0, min(end, speaker_end) - max(start, speaker_start)) >= 0.5 * (end - start)
-        ]
-        concatenated_words = ' '.join(words_in_speaker_interval)
-        
-        # Add to aligned transcription
-        aligned_transcription.append((speaker_start, speaker_end, concatenated_words))
+            # Append text and tail (if available) to turn_texts
+            if element.text:
+                turn_texts.append(element.text)
+            if element.tail:
+                turn_texts.append(element.tail)
 
-    # Return aligned_transcription
-    return aligned_transcription
+        # Append the remaining text after the last sync, if any
+        if turn_texts:
+            transcription_intervals.append((last_sync_time, end_time, ' '.join(turn_texts).strip()))
 
+    return transcription_intervals
 
 def main(input_trs, input_textgrid, output_textgrid):
-    # Load transcription
-    with open(input_trs) as f:
-        transcription = f.read()
+    transcription_intervals = parse_trs_file(input_trs)
 
     # Load and parse the TextGrid file
     tiers = parse_textgrid(input_textgrid)
-
-    aligned_transcription = align_transcription_to_speaker(tiers, transcription)
 
     # Add the new tier after the 'speaker-ID' tier in the TextGrid
     extended_tiers = OrderedDict()
     for tier_name, tier_data in tiers.items():
         extended_tiers[tier_name] = tier_data
         if tier_name == 'strd-wrd-sgmnt':
-            extended_tiers['conversational-trs'] = aligned_transcription
+            extended_tiers['conversational-trs'] = transcription_intervals
 
     # Save the modified TextGrid
     write_textgrid(output_textgrid, extended_tiers)
 
 if __name__ == "__main__":
     if len(sys.argv) != 4:
-        print("Usage: python add_conversational-trs_tier.py [cnv-transcription.txt] [input.TextGrid] [output.TextGrid]")
+        print("Usage: python add_conversational-trs_tier.py [input.trs] [input.TextGrid] [output.TextGrid]")
     else:
         main(sys.argv[1], sys.argv[2], sys.argv[3])
