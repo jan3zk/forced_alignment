@@ -36,28 +36,32 @@ def word_id_intervals(tiers, word_ids):
     # Remove empty or whitespace-only word intervals
     strd_wrd_sgmnt = [interval for interval in strd_wrd_sgmnt if interval[2].strip()]
 
-    # Concatenate the tuples from strd_wrd_sgmnt when they are part of the same word in words
-    concatenated_intervals = []
-    interval_index = 0
+    # Remove intervals with square brackets (annonimized names that lack word-IDs)
+    strd_wrd_sgmnt = [t for t in strd_wrd_sgmnt if '[' not in t[-1] and ']' not in t[-1]]
 
-    for word in words:
-        dash_count = word.count('-') # Count dashes
-        intervals_to_concatenate = 1 + dash_count
-
-        # Start with the initial interval
-        start_time, end_time, combined_word = strd_wrd_sgmnt[interval_index]
-        interval_index += 1
-
-        # Concatenate additional intervals
-        for _ in range(dash_count):
-            end_time = strd_wrd_sgmnt[interval_index][1]
-            combined_word += strd_wrd_sgmnt[interval_index][2]
+    if len(words) == len(strd_wrd_sgmnt):
+        concatenated_intervals = strd_wrd_sgmnt
+    else:
+        # Concatenate the tuples from strd_wrd_sgmnt when they are part of the same word in words
+        concatenated_intervals = []
+        interval_index = 0
+        for word in words:
+            dash_count = word.count('-') # Count dashes
+            intervals_to_concatenate = 1 + dash_count
+            # Start with the initial interval
+            start_time, end_time, combined_word = strd_wrd_sgmnt[interval_index]
             interval_index += 1
-
-        concatenated_intervals.append((start_time, end_time, combined_word))
+            # Concatenate additional intervals
+            for _ in range(dash_count):
+                end_time = strd_wrd_sgmnt[interval_index][1]
+                combined_word += strd_wrd_sgmnt[interval_index][2]
+                interval_index += 1
+            concatenated_intervals.append((start_time, end_time, combined_word))
 
     # Ensure word count matches
     if len(ids) != len(concatenated_intervals):
+        words_fa = [t[-1] for t in concatenated_intervals]
+        print("\n".join(f"{a} {b}" for a, b in zip(words, words_fa)))
         raise ValueError("Word count in transcription and TextGrid do not match.")
     
     # Associate transcription words with their respective intervals
@@ -71,7 +75,10 @@ def word_id_intervals(tiers, word_ids):
 def main(input_textgrid, input_xml, output_textgrid):
     # Parse XML to get speaker intervals
     word_ids = parse_xml(input_xml)
+    # Remove intervals containing only punctuation
     word_ids = [t for t in word_ids if t[1][-1] not in string.punctuation]
+    # Remove intervals containing only ellipsis
+    word_ids = [t for t in word_ids if t[-1] != '…']
 
     # Load and parse the TextGrid file
     tiers = parse_textgrid(input_textgrid)
