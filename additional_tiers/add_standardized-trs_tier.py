@@ -44,6 +44,8 @@ def parse_trs_file(file_path):
 
 def main(input_trs, input_textgrid, output_textgrid):
     transcription_intervals = parse_trs_file(input_trs)
+    # Handle quotes in trs
+    transcription_intervals = [(t[0], t[1], t[2].replace('"', '""')) for t in transcription_intervals]
 
     # Load and parse the TextGrid file
     tiers = parse_textgrid(input_textgrid)

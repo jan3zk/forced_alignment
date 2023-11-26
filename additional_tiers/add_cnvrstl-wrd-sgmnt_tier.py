@@ -33,6 +33,8 @@ def align_pog_transcription_to_words(tiers, transcription):
     
     # Remove empty elements and elements containing only punctuation
     words = [s for s in words if s and not all(char in string.punctuation for char in s)]
+    # Remove elements containing only specific symbols
+    words = [s for s in words if not (s in ['-', '+', '–'])]
 
     # Assume 'strd-wrd-sgmnt' tier contains word intervals
     strd_wrd_sgmnt = tiers.get('strd-wrd-sgmnt', [])

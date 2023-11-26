@@ -1,7 +1,7 @@
 import sys
 import xml.etree.ElementTree as ET
-from utils import parse_textgrid, write_textgrid
-from collections import OrderedDict
+from textgrid import TextGrid, IntervalTier, Interval
+
 
 def parse_xml(xml_file_path):
     # Parse the XML file
@@ -39,15 +39,18 @@ def main(input_textgrid, input_xml, output_textgrid):
     xml_speaker_intervals = parse_xml(input_xml)
 
     # Load and parse the TextGrid file
-    tiers = parse_textgrid(input_textgrid)
-    
-    # Add the new speaker tier as the first tier
-    extended_tiers = OrderedDict()
-    extended_tiers['speaker-ID'] = xml_speaker_intervals
-    extended_tiers.update(tiers)
+    tg = TextGrid.fromFile(input_textgrid)
 
+    # Create a new interval tier
+    new_tier_name = "speaker-ID"
+    new_tier = IntervalTier(name=new_tier_name)
+    for start_time, end_time, label in xml_speaker_intervals:
+        interval = Interval(minTime=start_time, maxTime=end_time, mark=label)
+        new_tier.addInterval(interval)
+    tg.append(new_tier)
+    
     # Write the modified TextGrid content to a new file
-    write_textgrid(output_textgrid, extended_tiers)
+    tg.write(output_textgrid)
 
 if __name__ == "__main__":
     if len(sys.argv) != 4:

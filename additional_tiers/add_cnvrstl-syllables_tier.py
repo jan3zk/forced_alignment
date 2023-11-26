@@ -103,15 +103,18 @@ def create_syllable_tier(phoneme_intervals, word_intervals):
 def align_std_transcription_to_words(strd_wrd_sgmnt, transcription):
     # Treat words inside brackets as single word
     transcription = re.sub(r'\[([^]]+)\]', lambda match: "[" + match.group(1).replace(" ", "_") + "]", transcription) 
-    
     # Remove ellipsis
     transcription = transcription.replace('...', '')
+    # Take care of quotes
+    transcription = transcription.replace('"', '""')
 
     # Tokenize the transcription into words
     words = transcription.split()
     
     # Remove empty elements and elements containing only punctuation
     words = [s for s in words if s and not all(char in string.punctuation for char in s)]
+    # Remove elements containing only '–', '+', '-'
+    words = [s for s in words if not (s in ['-', '+', '–'])]
 
     # Remove empty or whitespace-only word intervals
     strd_wrd_sgmnt = [interval for interval in strd_wrd_sgmnt if interval[2].strip()]
@@ -123,7 +126,7 @@ def align_std_transcription_to_words(strd_wrd_sgmnt, transcription):
         concatenated_intervals = []
         interval_index = 0
         for word in words:
-            dash_count = word.count('-') # Count dashes
+            dash_count = sum(1 for i in range(len(word) - 1) if word[i] == '-' and not word[i + 1] in '.,;:!?') + (word[-1] == '-')
             intervals_to_concatenate = 1 + dash_count
             # Start with the initial interval
             start_time, end_time, combined_word = strd_wrd_sgmnt[interval_index]

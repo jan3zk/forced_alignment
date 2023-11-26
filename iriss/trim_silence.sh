@@ -6,78 +6,54 @@ if [ "$#" -ne 2 ]; then
     exit 1
 fi
 
-INPUT_DIR=$1
-OUTPUT_DIR=$2
+# Assign input and output directories from script arguments
+input_dir="$1"
+output_dir="$2"
 
-# Create the output directory if it does not exist
-mkdir -p "$OUTPUT_DIR"
+# Function to convert seconds to HOURS:MM:SS.MILLISECONDS format
+convert_time_format() {
+    echo "$1" | awk '{
+        total_seconds=$1;
+        hours=int(total_seconds/3600);
+        minutes=int((total_seconds%3600)/60);
+        seconds=total_seconds%60;
+        printf "%02d:%02d:%06.3f", hours, minutes, seconds
+    }'
+}
 
-# Silence detection parameters
-SILENCE_THRESHOLD=-30dB  # Silence threshold
-SILENCE_DURATION=2.0    # Duration of silence to detect in seconds
-SILENCE_START_THRESHOLD=5.0
+# Function to extract trimmed start time from the TRS file
+extract_trimmed_start() {
+    awk '/<Sync time=/ { sync_time = $0; getline; if ($0 !~ /^</) { match(sync_time, /<Sync time="([0-9.]+)/, arr); print arr[1]; exit; } }' "$1"
+}
 
-# Process each .wav file in the input directory
-for FILE in "$INPUT_DIR"/*.wav; do
-    # Extract filename without the path and extension
-    BASENAME=$(basename "$FILE" .wav)
+# Function to extract trimmed end time from the TRS file
+extract_trimmed_end() {
+    grep -oP '(?<=<Sync time=")[\d.]+' "$1" | tail -1
+}
 
-    # Define output file paths
-    TRIMMED_FILE="$OUTPUT_DIR/${BASENAME}_trimmed.wav"
-    TRIMMED_START_FILE="$OUTPUT_DIR/trim_vals/${BASENAME}_trimmed_start.txt"
+# Iterate over all TRS files in the input directory
+for trs_file in "$input_dir"/*-std.trs; do
+    # Extract the start and end trim times
+    TRIMMED_START=$(extract_trimmed_start "$trs_file")
+    TRIMMED_END=$(extract_trimmed_end "$trs_file")
 
-    # Get the timestamps for silence periods
-    FFMPEG_OUTPUT=$(ffmpeg -i "$FILE" -af silencedetect=noise=$SILENCE_THRESHOLD:d=$SILENCE_DURATION -f null - 2>&1)
+    # Convert times to required format
+    TRIMMED_START_FORMATTED=$(convert_time_format "$TRIMMED_START")
+    TRIMMED_END_FORMATTED=$(convert_time_format "$TRIMMED_END")
 
-    # Parse the output to get the first silence_start
-    FIRST_SILENCE_START=$(echo "$FFMPEG_OUTPUT" | grep 'silence_start' | head -1 | awk -F'silence_start: ' '{print $2}' | xargs)
+    # Construct the corresponding WAV file path by replacing "-std" with "-avd"
+    wav_file_name=$(basename "$trs_file")
+    wav_file_name="${wav_file_name/-std.trs/-avd.wav}"
+    wav_file="$input_dir/$wav_file_name"
 
-    # Check if the first silence_start is greater than the threshold
-    if (( $(echo "$FIRST_SILENCE_START > $SILENCE_START_THRESHOLD" | bc -l) )); then
-        TRIMMED_START=0
+    # Output file path
+    trimmed_file="$output_dir/$(basename "${wav_file%.wav}.wav")"
+
+    # Check if corresponding WAV file exists
+    if [ -f "$wav_file" ]; then
+        # Trim the WAV file using ffmpeg
+        ffmpeg -i "$wav_file" -ss "$TRIMMED_START_FORMATTED" -to "$TRIMMED_END_FORMATTED" "$trimmed_file"
     else
-        # If there is no silence or silence is within the threshold, set TRIMMED_START to the end of the first detected silence
-        TRIMMED_START=$(echo "$FFMPEG_OUTPUT" | grep 'silence_end' | head -1 | awk -F'silence_end: ' '{print $2}' | awk '{print $1}' | xargs)
+        echo "WAV file for $trs_file not found."
     fi
-
-    # Parse the output to get the first silence_end and the last silence_start
-    ##TRIMMED_START=$(echo "$FFMPEG_OUTPUT" | grep 'silence_end' | head -1 | awk '{print $5}')
-    
-    #TRIMMED_END=$(echo "$FFMPEG_OUTPUT" | grep 'silence_start' | tail -1 | awk '{print $5}')
-    TRIMMED_END=$(echo "$FFMPEG_OUTPUT" | grep 'silence_start' | tail -1 | awk -F'silence_start: ' '{print $2}' | xargs)
-
-    # Check if TRIMMED_START is empty or greater than TRIMMED_END
-	if [ -z "$TRIMMED_START" ] || (( $(echo "$TRIMMED_START > $TRIMMED_END" | bc -l) )); then
-	    TRIMMED_START=0
-	fi
-	
-    # If no silence detected at end, set TRIMMED_END to the end of the file
-    if [ -z "$TRIMMED_END" ]; then
-        TRIMMED_END=$(ffprobe -i "$FILE" -show_entries format=duration -v quiet -of csv="p=0")
-    fi
-
-    # Get the total length of the WAV file
-    FILE_LENGTH=$(ffprobe -i "$FILE" -show_entries format=duration -v quiet -of csv="p=0")
-
-    # Subtract 0.5 seconds from TRIMMED_START if it's greater than 0.5 seconds
-    if (( $(echo "$TRIMMED_START > 0.5" | bc -l) )); then
-        TRIMMED_START=$(echo "$TRIMMED_START - 0.5" | bc -l)
-    fi
-
-    # Add 0.5 seconds to TRIMMED_END if it's less than (FILE_LENGTH - 0.5) seconds
-    if (( $(echo "$TRIMMED_END + 0.5 < $FILE_LENGTH" | bc -l) )); then
-        TRIMMED_END=$(echo "$TRIMMED_END + 0.5" | bc -l)
-    fi
-
-    # Trim the audio file
-    ffmpeg -i "$FILE" -ss "$TRIMMED_START" -to "$TRIMMED_END" "$TRIMMED_FILE"
-
-    # Save the TRIMMED_START value to a text file
-    echo "$TRIMMED_START" > "$TRIMMED_START_FILE"
-
-    echo "Processed $FILE"
-    echo "Start Trim Timestamp: $TRIMMED_START"
-	echo "End Trim Timestamp: $TRIMMED_END"
-    echo "Trimmed file saved as $TRIMMED_FILE"
-    echo "Start Trim Timestamp saved as $TRIMMED_START_FILE"
 done
