@@ -4,7 +4,7 @@ import string
 import xml.etree.ElementTree as ET
 import slovene_phoneme_syllable_splitter as syllable_phoneme_splitter
 from collections import OrderedDict
-from utils import parse_textgrid, write_textgrid
+from textgrid import TextGrid, IntervalTier, Interval
 
 def extract_transcription(file_path):
     try:
@@ -153,31 +153,44 @@ def align_std_transcription_to_words(strd_wrd_sgmnt, transcription):
     return transcription_intervals
 
 def main(input_textgrid, input_trs, output_textgrid):
-    # Parse the TextGrid file to extract phoneme and word intervals
-    parsed_textgrid = parse_textgrid(input_textgrid)
-    phoneme_intervals = parsed_textgrid['phones']
-    word_intervals = parsed_textgrid['words']
+    # Load the TextGrid file
+    tg = TextGrid.fromFile(input_textgrid)
+
+    # Extract phoneme and word intervals directly from the TextGrid object
+    phoneme_intervals = [(interval.minTime, interval.maxTime, interval.mark) for interval in tg.getFirst("phones").intervals]
+    word_intervals = [(interval.minTime, interval.maxTime, interval.mark) for interval in tg.getFirst("words").intervals]
 
     # Split phonemes into syllables and identify their intervals
     syllable_intervals = create_syllable_tier(phoneme_intervals, word_intervals)
-    
+        
     # Concatenate single-letter syllables and their intervals
     concatenated_syllable_intervals = concatenate_single_letter_syllables(syllable_intervals)
-    
+        
     # Load transcription
     std_transcription = extract_transcription(input_trs)
-
+    
     # Align std words to the intervals returned by forced alignment
     aligned_transcription = align_std_transcription_to_words(word_intervals, std_transcription)
 
-    # Write the extended TextGrid file
-    extended_tiers = OrderedDict([
-        ('strd-wrd-sgmnt', aligned_transcription),
-        ('cnvrstl-syllables', concatenated_syllable_intervals),
-        ('phones', phoneme_intervals)
-    ])
-    write_textgrid(output_textgrid, extended_tiers)
+    # Create new IntervalTiers for the extended tiers
+    strd_wrd_sgmnt_tier = IntervalTier(name="strd-wrd-sgmnt", minTime=tg.getFirst('words')[0].minTime, maxTime=tg.getFirst('words')[-1].maxTime)
+    for start, end, label in aligned_transcription:
+        strd_wrd_sgmnt_tier.addInterval(Interval(start, end, label))
+    cnvrstl_syllables_tier = IntervalTier(name="cnvrstl-syllables", minTime=tg.getFirst('words')[0].minTime, maxTime=tg.getFirst('words')[-1].maxTime)
+    for start, end, label in concatenated_syllable_intervals:
+        cnvrstl_syllables_tier.addInterval(Interval(start, end, label))
+    phones_tier = IntervalTier(name="phones", minTime=tg.getFirst('words')[0].minTime, maxTime=tg.getFirst('words')[-1].maxTime)
+    for start, end, label in phoneme_intervals:  # Assuming phoneme_intervals is defined and populated earlier
+        phones_tier.addInterval(Interval(start, end, label))
 
+    # Create a new TextGrid and add the tiers
+    new_tg = TextGrid(minTime=tg.minTime, maxTime=tg.maxTime)
+    new_tg.append(strd_wrd_sgmnt_tier)
+    new_tg.append(cnvrstl_syllables_tier)
+    new_tg.append(phones_tier)
+
+    # Save the new TextGrid
+    new_tg.write(output_textgrid)
 
 if __name__ == "__main__":
     if len(sys.argv) != 4:

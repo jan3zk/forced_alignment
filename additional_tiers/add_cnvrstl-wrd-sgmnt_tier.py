@@ -1,8 +1,7 @@
 import sys
 import re
 import xml.etree.ElementTree as ET
-from utils import parse_textgrid, write_textgrid
-from collections import OrderedDict
+from textgrid import TextGrid, IntervalTier, Interval
 import string
 
 def extract_transcription(file_path):
@@ -21,7 +20,7 @@ def extract_transcription(file_path):
     except Exception as e:
         return f"Error: {e}"
 
-def align_pog_transcription_to_words(tiers, transcription):
+def align_pog_transcription_to_words(strd_wrd_sgmnt, transcription):
     # Treat words inside brackets as single word
     transcription = re.sub(r'\[([^]]+)\]', lambda match: "[" + match.group(1).replace(" ", "_") + "]", transcription) 
     
@@ -35,9 +34,6 @@ def align_pog_transcription_to_words(tiers, transcription):
     words = [s for s in words if s and not all(char in string.punctuation for char in s)]
     # Remove elements containing only specific symbols
     words = [s for s in words if not (s in ['-', '+', '–'])]
-
-    # Assume 'strd-wrd-sgmnt' tier contains word intervals
-    strd_wrd_sgmnt = tiers.get('strd-wrd-sgmnt', [])
 
     # Remove empty or whitespace-only word intervals
     strd_wrd_sgmnt = [interval for interval in strd_wrd_sgmnt if interval[2].strip()]
@@ -68,31 +64,34 @@ def align_pog_transcription_to_words(tiers, transcription):
         raise ValueError("Word count in transcription and TextGrid do not match.")
     
     # Associate pog transcription words with the strd-wrd-sgmnt intervals
-    transcription_intervals = [
+    pog_intervals = [
         (interval[0], interval[1], word) 
         for interval, word in zip(concatenated_intervals, words)
     ]
     
-    return transcription_intervals
+    return pog_intervals
 
 def main(input_trs, input_textgrid, output_textgrid):
     # Load transcription
     transcription = extract_transcription(input_trs)
 
-    # Load and parse the TextGrid file
-    tiers = parse_textgrid(input_textgrid)
+    # Load the input TextGrid
+    tg = TextGrid.fromFile(input_textgrid)
 
-    aligned_transcription = align_pog_transcription_to_words(tiers, transcription)
+    strd_wrd_sgmnt = tg.getFirst("strd-wrd-sgmnt")
+    strd_wrd_sgmnt = [(interval.minTime, interval.maxTime, interval.mark) for interval in strd_wrd_sgmnt]
+    pog_trs = align_pog_transcription_to_words(strd_wrd_sgmnt, transcription)
 
-    # Add the new tier after the 'speaker-ID' tier in the TextGrid
-    extended_tiers = OrderedDict()
-    for tier_name, tier_data in tiers.items():
-        extended_tiers[tier_name] = tier_data
-        if tier_name == 'conversational-trs':
-            extended_tiers['cnvrstl-wrd-sgmnt'] = aligned_transcription
+    # Add new tier
+    new_tier = IntervalTier(name="cnvrstl-wrd-sgmnt", minTime=min(t[0] for t in pog_trs), maxTime=max(t[1] for t in pog_trs))
+    for start, end, label in pog_trs:
+        new_tier.addInterval(Interval(start, end, label))
+
+    index = next((i for i, tier in enumerate(tg.tiers) if tier.name=="conversational-trs"), None)
+    tg.tiers.insert(index + 1, new_tier)
 
     # Save the modified TextGrid
-    write_textgrid(output_textgrid, extended_tiers)
+    tg.write(output_textgrid)
 
 if __name__ == "__main__":
     if len(sys.argv) != 4:

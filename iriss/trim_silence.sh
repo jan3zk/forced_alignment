@@ -1,4 +1,5 @@
 #!/bin/bash
+source ./shared_functions.sh
 
 # Check if two arguments are provided
 if [ "$#" -ne 2 ]; then
@@ -22,9 +23,19 @@ convert_time_format() {
 }
 
 # Function to extract trimmed start time from the TRS file
-extract_trimmed_start() {
-    awk '/<Sync time=/ { sync_time = $0; getline; if ($0 !~ /^</) { match(sync_time, /<Sync time="([0-9.]+)/, arr); print arr[1]; exit; } }' "$1"
-}
+# it searches for the first line that doesn't start with "<", and then
+# extracts the value from the <Sync time= element that precedes that line
+#extract_trimmed_start() {
+#    awk '
+#    /<Sync time=/ { 
+#        match($0, /<Sync time="([0-9.]+)/, arr); 
+#        last_sync_time = arr[1]; 
+#    }
+#    /^[^<]/ { 
+#        print last_sync_time; 
+#        exit; 
+#    }' "$1"
+#}
 
 # Function to extract trimmed end time from the TRS file
 extract_trimmed_end() {
@@ -36,6 +47,10 @@ for trs_file in "$input_dir"/*-std.trs; do
     # Extract the start and end trim times
     TRIMMED_START=$(extract_trimmed_start "$trs_file")
     TRIMMED_END=$(extract_trimmed_end "$trs_file")
+
+    echo $trs_file
+    echo $TRIMMED_START
+    echo $TRIMMED_END
 
     # Convert times to required format
     TRIMMED_START_FORMATTED=$(convert_time_format "$TRIMMED_START")

@@ -1,4 +1,5 @@
 #!/bin/bash
+source ./shared_functions.sh
 
 # Check if two arguments are provided
 if [ "$#" -ne 3 ]; then
@@ -10,11 +11,6 @@ fi
 input_dir="$1"
 trs_dir="$2"
 output_dir="$3"
-
-# Function to extract trimmed start time from the TRS file
-extract_trimmed_start() {
-    awk '/<Sync time=/ { sync_time = $0; getline; if ($0 !~ /^</) { match(sync_time, /<Sync time="([0-9.]+)/, arr); print arr[1]; exit; } }' "$1"
-}
 
 # Iterate over all TRS files in the input directory
 for textgrid_file in "$input_dir"/*.TextGrid; do
@@ -29,5 +25,6 @@ for textgrid_file in "$input_dir"/*.TextGrid; do
     # Output file path
     textgrid_file_out="$output_dir/$(basename "$textgrid_file")"
 
+    # Add trimmed_start to all timing values in the TextGrid
     python ../compensate_trimming.py $textgrid_file $trimmed_start $textgrid_file_out
 done

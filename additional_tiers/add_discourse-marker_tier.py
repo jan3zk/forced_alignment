@@ -1,22 +1,20 @@
 import sys
-from utils import parse_textgrid, write_textgrid
-from collections import OrderedDict
+from textgrid import TextGrid, IntervalTier, Interval
+import string
 
 def load_discourse_markers(file_path):
     with open(file_path, 'r') as file:
         markers = file.read().splitlines()
     
     # Either include or exclude makrers that start with an asterisk
-    #markers = [marker.replace('*', '').strip() for marker in markers] # include
-    markers = [marker.strip() for marker in markers if not marker.startswith('*')] # exclude
+    markers = [marker.replace('*', '').strip() for marker in markers] # include
+    #markers = [marker.strip() for marker in markers if not marker.startswith('*')] # exclude
     
     # Sort markers by length (longest first)
     markers.sort(key=lambda x: len(x), reverse=True)
     return markers
 
-def detect_discourse_markers(tiers, single_markers, multi_markers):
-    word_intervals = tiers.get('strd-wrd-sgmnt', [])
-
+def detect_discourse_markers(word_intervals, single_markers, multi_markers):
     discourse_marker_tier = []
     index = 0
     while index < len(word_intervals):
@@ -65,19 +63,23 @@ def main(input_textgrid, output_textgrid, marker_file):
     multi_markers = {m for m in all_markers if ' ' in m}
 
     # Load and parse the TextGrid file
-    tiers = parse_textgrid(input_textgrid)
+    tg = TextGrid.fromFile(input_textgrid)
 
-    discourse_marker_tier = detect_discourse_markers(tiers, single_markers, multi_markers)
+    strd_wrd_sgmnt = tg.getFirst("strd-wrd-sgmnt")
+    strd_wrd_sgmnt = [(interval.minTime, interval.maxTime, interval.mark) for interval in strd_wrd_sgmnt]
+    # Remove all punctuation
+    strd_wrd_sgmnt = [(t[0], t[1], t[2].translate(str.maketrans('', '', string.punctuation))) for t in strd_wrd_sgmnt]
+    dm_intervals = detect_discourse_markers(strd_wrd_sgmnt, single_markers, multi_markers)
 
-    # Add the new tier after the 'strd-wrd-sgmnt' tier in the TextGrid
-    extended_tiers = OrderedDict()
-    for tier_name, tier_data in tiers.items():
-        extended_tiers[tier_name] = tier_data
-        if tier_name == 'strd-wrd-sgmnt':
-            extended_tiers['discourse-marker'] = discourse_marker_tier
+    # Add new tier
+    new_tier = IntervalTier(name="discourse-marker", minTime=tg.minTime, maxTime=tg.maxTime)
+    for start, end, label in dm_intervals:
+        new_tier.addInterval(Interval(start, end, label))
+    index = next((i for i, tier in enumerate(tg.tiers) if tier.name=="strd-wrd-sgmnt"), None)
+    tg.tiers.insert(index + 1, new_tier)
 
     # Save the modified TextGrid
-    write_textgrid(output_textgrid, extended_tiers)
+    tg.write(output_textgrid)
 
 if __name__ == "__main__":
     if len(sys.argv) != 4:
