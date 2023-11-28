@@ -75,3 +75,7 @@ Similary, other tiers can be added. A list of implemented tiers and their brief 
 * [add_pause_tier.py](add_pause_tier.py): The script identifies and labels pauses in speech by analyzing a TextGrid file, marking intervals as 'POS' for pauses (empty or whitespace-only intervals) in the 'strd-wrd-sgmnt' tier.
 * [add_speaker-change_tier.py](add_speaker-change_tier.py): The script analyzes a TextGrid file to identify and label speaker changes within conversational syllable intervals, marking these changes as 'POS' when a change occurs or 'NEG' otherwise.
 * [add_word-ID_tier.py](add_word-ID_tier.py): The script extracts and synchronizes word identifiers from the input XML, then adds these as a new tier to the output TextGrid file.
+
+## Processing IRISS database
+
+See script [main.sh](iriss/main.sh).
