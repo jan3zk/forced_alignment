@@ -39,16 +39,16 @@ for textgrid_file in "$input_dir"/*.TextGrid; do
     echo ""
 
     # Add new tiers
-    python ../additional_tiers/add_cnvrstl-syllables_tier.py $textgrid_file $std_trs_file $textgrid_file_out
-    python ../additional_tiers/add_speaker-ID_tier.py $textgrid_file_out $xml_file $textgrid_file_out
-    python ../additional_tiers/add_standardized-trs_tier.py $std_trs_file $textgrid_file_out $textgrid_file_out
-    python ../additional_tiers/add_conversational-trs_tier.py $pog_trs_file $textgrid_file_out $textgrid_file_out
-	python ../additional_tiers/add_cnvrstl-wrd-sgmnt_tier.py $pog_trs_file $textgrid_file_out $textgrid_file_out
-	python ../additional_tiers/add_discourse-marker_tier.py $textgrid_file_out $textgrid_file_out ../data/discourse_markers.txt
-	python ../additional_tiers/add_pitch-reset_tier.py $wav_file $textgrid_file_out $textgrid_file_out 40 average-neighboring
-	#python ../additional_tiers/add_intensity-reset_tier.py ./mfa_input/Iriss-J-Gvecg-P500016-avd.wav ./tmp_7.TextGrid ./tmp_8.TextGrid 8 near
-	#python ../additional_tiers/add_speech-rate-reduction_tier.py ./mfa_input/Iriss-J-Gvecg-P500016-avd.wav ./tmp_8.TextGrid ./tmp_9.TextGrid 1.5 near
-	#python ../additional_tiers/add_pause_tier.py ./tmp_9.TextGrid ./tmp_10.TextGrid
-	#python ../additional_tiers/add_speaker-change_tier.py ./tmp_10.TextGrid ./tmp_11.TextGrid
-	#python ../additional_tiers/add_word-ID_tier.py ./tmp_11.TextGrid ../iriss/Iriss-J-Gvecg-P500016.xml ./tmp_12.TextGrid
+    python ../add_cnvrstl-syllables_tier.py $textgrid_file $std_trs_file $textgrid_file_out
+    python ../add_speaker-ID_tier.py $textgrid_file_out $xml_file $textgrid_file_out
+    python ../add_standardized-trs_tier.py $std_trs_file $textgrid_file_out $textgrid_file_out
+    python ../add_conversational-trs_tier.py $pog_trs_file $textgrid_file_out $textgrid_file_out
+    python ../add_cnvrstl-wrd-sgmnt_tier.py $pog_trs_file $textgrid_file_out $textgrid_file_out
+    python ../add_discourse-marker_tier.py $textgrid_file_out $textgrid_file_out ../data/discourse_markers.txt
+    python ../add_pitch-reset_tier.py $wav_file $textgrid_file_out $textgrid_file_out 40 average-neighboring
+    python ../add_intensity-reset_tier.py $wav_file $textgrid_file_out $textgrid_file_out 8 near
+    python ../add_speech-rate-reduction_tier.py $wav_file $textgrid_file_out $textgrid_file_out 1.5 near
+    python ../add_pause_tier.py $textgrid_file_out $textgrid_file_out
+    python ../add_speaker-change_tier.py $textgrid_file_out $textgrid_file_out
+    python ../add_word-ID_tier.py $textgrid_file_out $xml_file $textgrid_file_out
 done

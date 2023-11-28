@@ -1,0 +1,7 @@
+*.bak
+*.txt
+*.rttm
+*.TextGrid
+data/
+additional_tiers/
+misc/

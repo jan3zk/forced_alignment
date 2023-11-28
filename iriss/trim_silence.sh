@@ -1,5 +1,5 @@
 #!/bin/bash
-source ./shared_functions.sh
+source ./utils.sh
 
 # Check if two arguments are provided
 if [ "$#" -ne 2 ]; then
@@ -21,21 +21,6 @@ convert_time_format() {
         printf "%02d:%02d:%06.3f", hours, minutes, seconds
     }'
 }
-
-# Function to extract trimmed start time from the TRS file
-# it searches for the first line that doesn't start with "<", and then
-# extracts the value from the <Sync time= element that precedes that line
-#extract_trimmed_start() {
-#    awk '
-#    /<Sync time=/ { 
-#        match($0, /<Sync time="([0-9.]+)/, arr); 
-#        last_sync_time = arr[1]; 
-#    }
-#    /^[^<]/ { 
-#        print last_sync_time; 
-#        exit; 
-#    }' "$1"
-#}
 
 # Function to extract trimmed end time from the TRS file
 extract_trimmed_end() {

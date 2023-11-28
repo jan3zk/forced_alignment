@@ -7,7 +7,7 @@
 # MFA alignment
 mfa align --clean ~/repos/forced_alignment/data/iriss_processed/mfa_input /storage/janezk/mfa_data/lexicon_all.txt acoustic_model ~/repos/forced_alignment/data/iriss_processed/mfa_output
 
-# If some of the files are not aligned by the above command copy them to tmp dir and perform the alignment again by manual fragmentation of problematic files 
+# If some of the files are not aligned by the above command copy them to tmp dir and perform the alignment again by manual exclusion of problematic parts
 mkdir -p tmp
 for file in $(comm -23 <(ls mfa_input | sed 's/\.[^.]*$//' | sort -u) <(ls mfa_output | sed 's/\.[^.]*$//' | sort -u)); do
     cp "mfa_input/${file}.wav" "tmp/${file}.wav" 2>/dev/null

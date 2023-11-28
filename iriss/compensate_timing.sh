@@ -1,5 +1,5 @@
 #!/bin/bash
-source ./shared_functions.sh
+source ./utils.sh
 
 # Check if two arguments are provided
 if [ "$#" -ne 3 ]; then
