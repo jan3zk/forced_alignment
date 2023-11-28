@@ -13,11 +13,6 @@ def extract_transcription(file_path):
                 if sync.tail:
                     transcription += sync.tail.strip() + ' '
 
-        # Remove all occurrences of "()"
-        transcription = transcription.replace("()", "")
-        # Remove all occurrences of "+"
-        transcription = transcription.replace("+", "")
-
         return transcription.strip()
     except Exception as e:
         return f"Error: {e}"
@@ -30,6 +25,10 @@ def main():
     file_path = sys.argv[1]
     output_path = sys.argv[2]
     transcription = extract_transcription(file_path)
+    # Remove all occurrences of "()"
+    transcription = transcription.replace("()", "")
+    # Remove all occurrences of "+"
+    transcription = transcription.replace("+", "")
 
     try:
         with open(output_path, 'w') as file:
