@@ -1,24 +1,8 @@
 import sys
 import re
-import xml.etree.ElementTree as ET
 from textgrid import TextGrid, IntervalTier, Interval
+from utils import extract_transcription
 import string
-
-def extract_transcription(file_path):
-    try:
-        tree = ET.parse(file_path)
-        root = tree.getroot()
-
-        # Assuming the transcription text is within 'Turn' elements
-        transcription = ''
-        for turn in root.iter('Turn'):
-            for sync in turn:
-                if sync.tail:
-                    transcription += sync.tail.strip() + ' '
-
-        return transcription.strip()
-    except Exception as e:
-        return f"Error: {e}"
 
 def align_pog_transcription_to_words(strd_wrd_sgmnt, transcription):
     # Treat words inside brackets as single word

@@ -1,25 +1,9 @@
 import sys
 import re
 import string
-import xml.etree.ElementTree as ET
 import slovene_phoneme_syllable_splitter as syllable_phoneme_splitter
 from textgrid import TextGrid, IntervalTier, Interval
-
-def extract_transcription(trs_file_path):
-    try:
-        tree = ET.parse(trs_file_path)
-        root = tree.getroot()
-
-        # Assuming the transcription text is within 'Turn' elements
-        transcription = ''
-        for turn in root.iter('Turn'):
-            for sync in turn:
-                if sync.tail:
-                    transcription += sync.tail.strip() + ' '
-
-        return transcription.strip()
-    except Exception as e:
-        return f"Error: {e}"
+from utils import extract_transcription
 
 def concatenate_single_letter_syllables(syllable_intervals):
     """
