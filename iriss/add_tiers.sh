@@ -36,7 +36,6 @@ for textgrid_file in "$input_dir"/*.TextGrid; do
     echo pog_trs_file=\"$pog_trs_file\"
     echo xml_file=\"$xml_file\"
     echo wav_file=\"$wav_file\"
-    echo ""
 
     # Add new tiers
     python ../add_cnvrstl-syllables_tier.py $textgrid_file $std_trs_file $textgrid_file_out
