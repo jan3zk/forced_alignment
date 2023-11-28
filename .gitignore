@@ -5,3 +5,4 @@
 data/
 additional_tiers/
 misc/
+__pycache__/
