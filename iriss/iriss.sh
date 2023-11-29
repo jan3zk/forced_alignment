@@ -11,7 +11,7 @@ cd "$(dirname "$0")"
 # MFA alignment
 mfa align --clean ~/repos/forced_alignment/data/iriss_processed/mfa_input /storage/janezk/mfa_data/lexicon_all.txt acoustic_model ~/repos/forced_alignment/data/iriss_processed/mfa_output
 
-# If some of the files are not aligned by the above command copy them to tmp dir and perform the alignment again by manual exclusion of problematic parts
+# If some of the files are not aligned by the above command (mfa align returns an error), copy them to tmp dir and perform the alignment again by manual exclusion of problematic parts
 cd ../data/iriss_processed
 mkdir -p tmp
 for file in $(comm -23 <(ls mfa_input | sed 's/\.[^.]*$//' | sort -u) <(ls mfa_output | sed 's/\.[^.]*$//' | sort -u)); do

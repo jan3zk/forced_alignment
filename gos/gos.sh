@@ -2,8 +2,23 @@
 
 cd "$(dirname "$0")"
 
+python fragmenize_trs_wav.py /storage/rsdo/korpus/GOS2.0/Artur-TRS/Artur-J-Gvecg-P500001-std.trs /storage/rsdo/korpus/GOS2.0/Artur-WAV/Artur-J-Gvecg-P500001-avd.wav data/gos_processed/Artur-J/tmp/ 60
+./compensate_timing ../data/gos_processed/Artur-J/mfa_output ../data/gos_processed/Artur-J/TextGrid
+python combine_textgrid.py data/gos_processed/Artur-J/mfa_output/ tmp.TextGrid
+
+
+
+
+
+
+
+
+
 # Copy transcriptions from XML(TEI) to TXT for MFA align
 ./parse_tei.sh ../data/Gos.TEI.2.1/Artur-J ../data/gos_processed/Artur-J/mfa_input
+
+
+
 
 # Copy WAVs to mfa_input
 #rsync -avhz --progress --stats --include='Artur-J*.wav' --exclude='*' /storage/rsdo/korpus/GOS2.0/Artur-WAV/ ../data/gos_processed/Artur-J/mfa_input/
