@@ -2,14 +2,18 @@
 
 cd "$(dirname "$0")"
 
-# Trim silence in WAV files for better MFA alignment
-./trim_silence.sh ../data/iriss ../data/iriss_processed/mfa_input
+# Copy transcriptions from XML(TEI) to TXT for MFA align
+./parse_tei.sh ../data/Gos.TEI.2.1/Artur-J ../data/gos_processed/Artur-J/mfa_input
 
-# Copy standard transcriptions from trs to txt for MFA align
-./parse_std_trs.sh ../data/iriss ../data/iriss_processed/mfa_input
+# Copy WAVs to mfa_input
+#rsync -avhz --progress --stats --include='Artur-J*.wav' --exclude='*' /storage/rsdo/korpus/GOS2.0/Artur-WAV/ ../data/gos_processed/Artur-J/mfa_input/
+# Alternatively create only links to source WAV files at the mfa_input
+for file in /storage/rsdo/korpus/GOS2.0/Artur-WAV/Artur-J*.wav; do
+  ln -s "$file" ../data/gos_processed/Artur-J/mfa_input/
+done
 
 # MFA alignment
-mfa align --clean ~/repos/forced_alignment/data/iriss_processed/mfa_input /storage/janezk/mfa_data/lexicon_all.txt acoustic_model ~/repos/forced_alignment/data/iriss_processed/mfa_output
+mfa align --clean ~/repos/forced_alignment/data/gos_processed/Artur-J/mfa_input /storage/janezk/mfa_data/lexicon_all.txt acoustic_model ~/repos/forced_alignment/data/gos_processed/Artur-J/mfa_output
 
 # If some of the files are not aligned by the above command copy them to tmp dir and perform the alignment again by manual exclusion of problematic parts
 cd ../data/iriss_processed

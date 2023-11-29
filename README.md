@@ -60,7 +60,7 @@ For more details and advanced usage, please refer to the official documentation 
 
 The MFA delivers alignments at both the word and phoneme levels. To introduce a syllable level, [add_cnvrstl-syllables_tier.py](add_cnvrstl-syllables_tier.py) function can be utilized as follows:
 ```bash
-python add_cnvrstl-syllables_tier.py /path/to/input.TextGrid /path/to/output.TextGrid
+python add_cnvrstl-syllables_tier.py /path/to/input.TextGrid /path/to/input.trs /path/to/output.TextGrid
 ```
 
 Similary, other tiers can be added. A list of implemented tiers and their brief explanation:
@@ -78,4 +78,8 @@ Similary, other tiers can be added. A list of implemented tiers and their brief 
 
 ## Processing IRISS database
 
-See script [main.sh](iriss/main.sh).
+See script [iriss.sh](iriss/iriss.sh).
+
+## Processing GOS database
+
+See script [gos.sh](gos/gos.sh).
