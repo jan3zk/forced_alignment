@@ -1,48 +1,87 @@
 #!/bin/bash
+set -e
 
-cd "$(dirname "$0")"
+# Assign paths
+gos_dir=/storage/rsdo/korpus/GOS2.0
+folder=Artur-J
+out_dir=../data/gos_processed
+lexicon=/storage/$USER/mfa_data/lexicon_all.txt
+xml_dir=../data/Gos.TEI.2.1/$folder
 
-python fragmenize_trs_wav.py /storage/rsdo/korpus/GOS2.0/Artur-TRS/Artur-J-Gvecg-P500001-std.trs /storage/rsdo/korpus/GOS2.0/Artur-WAV/Artur-J-Gvecg-P500001-avd.wav data/gos_processed/Artur-J/tmp/ 60
-./compensate_timing ../data/gos_processed/Artur-J/mfa_output ../data/gos_processed/Artur-J/TextGrid
-python combine_textgrid.py data/gos_processed/Artur-J/mfa_output/ tmp.TextGrid
+cd $(dirname "$0")
 
+mkdir -p "$out_dir/$folder/mfa_input"
 
+counter=0
+# Iterate over all WAV files in the GOS directory and perform forced alignment
+for wav_file in $gos_dir/Artur-WAV/$folder*.wav; do
+    if [ $counter -ge 49 ]; then
+        # Set file names
+        base_name=$(basename $wav_file)
+        xml_file=$xml_dir/${base_name/-avd.wav/.xml}
+        textgrid_file=$out_dir/$folder/TextGrid/${base_name/.wav/.TextGrid}
+        textgrid_file_out=$out_dir/$folder/TextGrid_final/${base_name/.wav/.TextGrid}
+        echo ""
+        echo wav_file=\"$wav_file\"
+        echo xml_file=\"$xml_file\"
+        echo textgrid_file=\"$textgrid_file\"
+        echo textgrid_file_out=\"$textgrid_file_out\"
 
-
-
-
-
-
-
-# Copy transcriptions from XML(TEI) to TXT for MFA align
-./parse_tei.sh ../data/Gos.TEI.2.1/Artur-J ../data/gos_processed/Artur-J/mfa_input
-
-
-
-
-# Copy WAVs to mfa_input
-#rsync -avhz --progress --stats --include='Artur-J*.wav' --exclude='*' /storage/rsdo/korpus/GOS2.0/Artur-WAV/ ../data/gos_processed/Artur-J/mfa_input/
-# Alternatively create only links to source WAV files at the mfa_input
-for file in /storage/rsdo/korpus/GOS2.0/Artur-WAV/Artur-J*.wav; do
-  ln -s "$file" ../data/gos_processed/Artur-J/mfa_input/
+        # Perform alignmet by breaking WAVs into smaller chunks
+        rm -f $out_dir/$folder/mfa_input/*.txt
+        rm -f $out_dir/$folder/mfa_input/*.wav
+        python ../fragmentize_trs_wav.py $xml_file $wav_file $out_dir/$folder/mfa_input 60
+        rm -f $out_dir/$folder/mfa_output/*.TextGrid
+        mfa align --clean $out_dir/$folder/mfa_input $lexicon acoustic_model $out_dir/$folder/mfa_output --beam 300 --retry_beam 400
+        
+        # Combine into a single TextGrid
+        ./compensate_timing.sh $out_dir/$folder/mfa_output $out_dir/$folder/mfa_output
+        python ../combine_textgrid.py $out_dir/$folder/mfa_output $textgrid_file
+        
+        # Add new tiers
+        python ../add_cnvrstl-syllables_tier.py $textgrid_file $xml_file $textgrid_file_out
+        python ../add_speaker-ID_tier.py $textgrid_file_out $xml_file $textgrid_file_out
+        python ../add_standardized-trs_tier.py $xml_file $textgrid_file_out $textgrid_file_out
+        python ../add_conversational-trs_tier.py $xml_file $textgrid_file_out $textgrid_file_out
+        python ../add_cnvrstl-wrd-sgmnt_tier.py $xml_file $textgrid_file_out $textgrid_file_out
+        python ../add_discourse-marker_tier.py $textgrid_file_out $textgrid_file_out ../data/discourse_markers.txt
+        python ../add_pitch-reset_tier.py $wav_file $textgrid_file_out $textgrid_file_out 40 average-neighboring    
+        python ../add_intensity-reset_tier.py $wav_file $textgrid_file_out $textgrid_file_out 8 near
+        python ../add_speech-rate-reduction_tier.py $wav_file $textgrid_file_out $textgrid_file_out 1.5 near
+        python ../add_pause_tier.py $textgrid_file_out $textgrid_file_out
+        python ../add_speaker-change_tier.py $textgrid_file_out $textgrid_file_out
+        python ../add_word-ID_tier.py $textgrid_file_out $xml_file $textgrid_file_out
+        #break
+    fi
+    counter=$((counter + 1))  # Increment the counter by 1
 done
 
-# MFA alignment
-mfa align --clean ~/repos/forced_alignment/data/gos_processed/Artur-J/mfa_input /storage/janezk/mfa_data/lexicon_all.txt acoustic_model ~/repos/forced_alignment/data/gos_processed/Artur-J/mfa_output
-
-# If some of the files are not aligned by the above command copy them to tmp dir and perform the alignment again by manual exclusion of problematic parts
-cd ../data/iriss_processed
-mkdir -p tmp
-for file in $(comm -23 <(ls mfa_input | sed 's/\.[^.]*$//' | sort -u) <(ls mfa_output | sed 's/\.[^.]*$//' | sort -u)); do
-    cp "mfa_input/${file}.wav" "tmp/${file}.wav" 2>/dev/null
-    cp "mfa_input/${file}.txt" "tmp/${file}.txt" 2>/dev/null
-done
-cd "$(dirname "$0")"
-# Retry alignments with a higher beam size
-mfa align --clean ~/repos/forced_alignment/data/iriss_processed/tmp /storage/janezk/mfa_data/lexicon_all.txt acoustic_model ~/repos/forced_alignment/data/iriss_processed/mfa_output --beam 300 --retry_beam 400
-
-# Compensate trimming in the output TextGrid
-./compensate_timing.sh ../data/iriss_processed/mfa_output ../data/iriss ../data/iriss_processed/TextGrid
-
-# Add tiers to TextGrid file
-./add_tiers.sh ../data/iriss_processed/TextGrid ../data/iriss ../data/iriss_processed/TextGrid_final
+# Add tiers
+#for wav_file in $gos_dir/Artur-WAV/$folder*.wav; do
+#    wav_file=$gos_dir/Artur-WAV/Artur-J-Gvecg-P500014-avd.wav
+#    base_name=$(basename "$wav_file")
+#    xml_file=../data/Gos.TEI.2.1/Artur-J/${base_name/-avd.wav/.xml}
+#    textgrid_file=$out_dir/$folder/TextGrid/${base_name/.wav/.TextGrid}
+#    textgrid_file_out=$out_dir/$folder/TextGrid_final/${base_name/.wav/.TextGrid}
+#    
+#    echo ""
+#    echo wav_file=\"$wav_file\"
+#    echo xml_file=\"$xml_file\"
+#    echo textgrid_file=\"$textgrid_file\"
+#    echo textgrid_file_out=\"$textgrid_file_out\"
+#    
+#    # Add new tiers
+#    python ../add_cnvrstl-syllables_tier.py $textgrid_file $xml_file $textgrid_file_out
+#    python ../add_speaker-ID_tier.py $textgrid_file_out $xml_file $textgrid_file_out
+#    python ../add_standardized-trs_tier.py $xml_file $textgrid_file_out $textgrid_file_out
+#    python ../add_conversational-trs_tier.py $xml_file $textgrid_file_out $textgrid_file_out
+#    python ../add_cnvrstl-wrd-sgmnt_tier.py $xml_file $textgrid_file_out $textgrid_file_out
+#    python ../add_discourse-marker_tier.py $textgrid_file_out $textgrid_file_out ../data/discourse_markers.txt
+#    python ../add_pitch-reset_tier.py $wav_file $textgrid_file_out $textgrid_file_out 40 average-neighboring    
+#    python ../add_intensity-reset_tier.py $wav_file $textgrid_file_out $textgrid_file_out 8 near
+#    python ../add_speech-rate-reduction_tier.py $wav_file $textgrid_file_out $textgrid_file_out 1.5 near
+#    python ../add_pause_tier.py $textgrid_file_out $textgrid_file_out
+#    python ../add_speaker-change_tier.py $textgrid_file_out $textgrid_file_out
+#    python ../add_word-ID_tier.py $textgrid_file_out $xml_file $textgrid_file_out
+#    break
+#done

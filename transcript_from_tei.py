@@ -1,7 +1,7 @@
 import xml.etree.ElementTree as ET
 import sys
 
-def extract_text_with_id(xml_file_path):
+def text_from_tei(xml_file_path, use_norm):
     # Parse the XML file
     tree = ET.parse(xml_file_path)
     root = tree.getroot()
@@ -49,7 +49,7 @@ def concatenate_words(words):
 
 def main(xml_file_path, txt_file_path, use_norm):
     # Extract data
-    texts = extract_text_with_id(xml_file_path)
+    texts = text_from_tei(xml_file_path, use_norm)
     text = concatenate_words(texts)
     
     try:

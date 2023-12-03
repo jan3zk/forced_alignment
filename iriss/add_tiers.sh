@@ -2,13 +2,13 @@
 
 # Check if two arguments are provided
 if [ "$#" -ne 3 ]; then
-    echo "Usage: $0 input_textgrid_dir transcription_dir output_textgrid_dir"
+    echo "Usage: $0 input_textgrid_dir data_dir output_textgrid_dir"
     exit 1
 fi
 
 # Assign input and output directories from script arguments
 input_dir="$1"
-iriss_dir="$2"
+data_dir="$2"
 output_dir="$3"
 
 for textgrid_file in "$input_dir"/*.TextGrid; do
@@ -18,7 +18,7 @@ for textgrid_file in "$input_dir"/*.TextGrid; do
     # Standard transcription
     std_trs_file_name=$(basename "$textgrid_file")
     std_trs_file_name="${std_trs_file_name/-avd.TextGrid/-std.trs}"
-    std_trs_file="$iriss_dir/$std_trs_file_name"
+    std_trs_file="$data_dir/$std_trs_file_name"
 
     # WAV file
     wav_file="${std_trs_file/-std.trs/-avd.wav}"

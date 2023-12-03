@@ -1,9 +1,10 @@
 import sys
-import re
-import string
+import os
 import slovene_phoneme_syllable_splitter as syllable_phoneme_splitter
 from textgrid import TextGrid, IntervalTier, Interval
-from utils import extract_transcription
+from utils_trs import text_from_trs
+from utils_tei import text_from_tei
+from utils import align_transcription_to_words
 
 def concatenate_single_letter_syllables(syllable_intervals):
     """
@@ -83,58 +84,6 @@ def create_syllable_tier(phoneme_intervals, word_intervals):
 
     return syllable_intervals
 
-def align_std_transcription_to_words(strd_wrd_sgmnt, transcription):
-    # Treat words inside brackets as single word
-    transcription = re.sub(r'\[([^]]+)\]', lambda match: "[" + match.group(1).replace(" ", "_") + "]", transcription) 
-    # Remove ellipsis
-    transcription = transcription.replace('...', '')
-    # Take care of quotes
-    transcription = transcription.replace('"', '""')
-
-    # Tokenize the transcription into words
-    words = transcription.split()
-    
-    # Remove empty elements and elements containing only punctuation
-    words = [s for s in words if s and not all(char in string.punctuation for char in s)]
-    # Remove elements containing only '–', '+', '-'
-    words = [s for s in words if not (s in ['-', '+', '–'])]
-
-    # Remove empty or whitespace-only word intervals
-    strd_wrd_sgmnt = [interval for interval in strd_wrd_sgmnt if interval[2].strip()]
-
-    if len(words) == len(strd_wrd_sgmnt):
-        concatenated_intervals = strd_wrd_sgmnt
-    else:
-        # Concatenate the tuples from strd_wrd_sgmnt when they are part of the same word in words
-        concatenated_intervals = []
-        interval_index = 0
-        for word in words:
-            dash_count = sum(1 for i in range(len(word) - 1) if word[i] == '-' and not word[i + 1] in '.,;:!?') + (word[-1] == '-')
-            intervals_to_concatenate = 1 + dash_count
-            # Start with the initial interval
-            start_time, end_time, combined_word = strd_wrd_sgmnt[interval_index]
-            interval_index += 1
-            # Concatenate additional intervals
-            for _ in range(dash_count):
-                end_time = strd_wrd_sgmnt[interval_index][1]
-                combined_word += strd_wrd_sgmnt[interval_index][2]
-                interval_index += 1
-            concatenated_intervals.append((start_time, end_time, combined_word))
-
-    # Ensure word count matches
-    if len(words) != len(concatenated_intervals):
-        words_fa = [t[-1] for t in concatenated_intervals]
-        print("\n".join(f"{a} {b}" for a, b in zip(words, words_fa)))
-        raise ValueError("Word count in transcription and TextGrid do not match.")
-    
-    # Associate pog transcription words with the strd-wrd-sgmnt intervals
-    transcription_intervals = [
-        (interval[0], interval[1], word) 
-        for interval, word in zip(concatenated_intervals, words)
-    ]
-    
-    return transcription_intervals
-
 def main(input_textgrid, input_trs, output_textgrid):
     # Load the TextGrid file
     tg = TextGrid.fromFile(input_textgrid)
@@ -150,10 +99,17 @@ def main(input_textgrid, input_trs, output_textgrid):
     concatenated_syllable_intervals = concatenate_single_letter_syllables(syllable_intervals)
         
     # Load transcription
-    std_transcription = extract_transcription(input_trs)
-    
+    if os.path.splitext(input_trs)[-1] == ".trs":
+        std_transcription = text_from_trs(input_trs)
+    else: #tei
+        std_transcription = text_from_tei(input_trs, True)
+        # Remove ellipsis and '-'
+        std_transcription = std_transcription.replace('...', '')
+        std_transcription = std_transcription.replace('…', '')
+        #std_transcription = std_transcription.replace('-', ' ')
+
     # Align std words to the intervals returned by forced alignment
-    aligned_transcription = align_std_transcription_to_words(word_intervals, std_transcription)
+    aligned_transcription = align_transcription_to_words(word_intervals, std_transcription)
 
     # Create new IntervalTiers for the extended tiers
     strd_wrd_sgmnt_tier = IntervalTier(name="strd-wrd-sgmnt", minTime=tg.getFirst('words')[0].minTime, maxTime=tg.getFirst('words')[-1].maxTime)

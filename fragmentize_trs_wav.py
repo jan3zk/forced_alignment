@@ -1,7 +1,7 @@
 import os
 import sys
 import subprocess
-from utils import intervals_from_trs
+from utils_tei import intervals_from_tei
 
 def combine_intervals(intervals, duration):
     """
@@ -36,12 +36,12 @@ def combine_intervals(intervals, duration):
 
     return merged_intervals
 
-def fragmentize_trs_wav(trs_path, wav_path, out_dir, duration):
-    trs_intervals = intervals_from_trs(trs_path)
+def fragmentize_trs_wav(xml_path, wav_path, out_dir, duration):
+    trs_intervals = intervals_from_tei(xml_path, True)
     trs_combined = combine_intervals(trs_intervals, duration)
 
     # Extract the base name of the trs file without extension
-    base_name = os.path.splitext(os.path.basename(trs_path))[0]
+    base_name = os.path.splitext(os.path.basename(xml_path))[0]
 
     # Ensure output directory exists
     if not os.path.exists(out_dir):
@@ -58,6 +58,13 @@ def fragmentize_trs_wav(trs_path, wav_path, out_dir, duration):
         txt_file_path = os.path.join(out_dir, txt_file_name)
         wav_file_path = os.path.join(out_dir, wav_file_name)
         
+        # Replace '-' for mfa to treat words connected by '-' as separate words
+        #text = text.replace('-', ' ')
+        # Remove all occurrences of "()"
+        text = text.replace("()", "")
+        # Remove all occurrences of "+"
+        text = text.replace("+", "")
+
         # Write text file
         with open(txt_file_path, 'w') as file:
             file.write(text)
@@ -69,12 +76,12 @@ def fragmentize_trs_wav(trs_path, wav_path, out_dir, duration):
 if __name__ == '__main__':
     # Set up argument parsing
     if len(sys.argv) < 5:
-        print("Usage: python fragmentize_trs.py [trs_path] [wav_path] [out_dir] [duration]")
+        print("Usage: python fragmentize_trs.py [xml_path] [wav_path] [out_dir] [duration]")
         sys.exit(1)
 
-    trs_path = sys.argv[1]
+    xml_path = sys.argv[1]
     wav_path = sys.argv[2]
     out_dir = sys.argv[3]
     duration = float(sys.argv[4])  # Convert duration to float
 
-    fragmentize_trs_wav(trs_path, wav_path, out_dir, duration)
+    fragmentize_trs_wav(xml_path, wav_path, out_dir, duration)

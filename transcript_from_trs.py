@@ -1,5 +1,5 @@
 import sys
-from utils import extract_transcription
+from utils_trs import text_from_trs
 
 if __name__ == "__main__":
     if len(sys.argv) != 3:
@@ -9,7 +9,7 @@ if __name__ == "__main__":
     trs_path = sys.argv[1]
     txt_path = sys.argv[2]
 
-    transcription = extract_transcription(trs_path)
+    transcription = text_from_trs(trs_path)
 
     # Remove all occurrences of "()"
     transcription = transcription.replace("()", "")

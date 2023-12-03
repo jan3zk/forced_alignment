@@ -18,7 +18,7 @@ def parse_xml(xml_file_path):
     # Iterate through all elements in the XML file
     for elem in root.iter():
         # Check if the element is <w> or <pc>
-        if elem.tag in ['{http://www.tei-c.org/ns/1.0}w', '{http://www.tei-c.org/ns/1.0}pc']:
+        if elem.tag in [f'{{{namespaces["ns"]}}}w', f'{{{namespaces["ns"]}}}pc']:
             word_id = elem.get(f'{{{xml_ns}}}id', 'NoID')
             if elem.text:
                 extracted_data.append((word_id, elem.text))
@@ -42,7 +42,7 @@ def word_id_intervals(strd_wrd_sgmnt, word_ids):
         concatenated_intervals = []
         interval_index = 0
         for word in words:
-            dash_count = word.count('-') # Count dashes
+            dash_count = sum(1 for i in range(len(word) - 1) if word[i] == '-' and not word[i + 1] in '.,;:!?')
             intervals_to_concatenate = 1 + dash_count
             # Start with the initial interval
             start_time, end_time, combined_word = strd_wrd_sgmnt[interval_index]
@@ -72,12 +72,9 @@ def main(input_textgrid, input_xml, output_textgrid):
     # Parse XML to get speaker intervals
     word_ids = parse_xml(input_xml)
     # Remove intervals containing only punctuation
-    word_ids = [t for t in word_ids if t[1][-1] not in string.punctuation]
+    word_ids = [t for t in word_ids if t[1] not in string.punctuation]
     # Remove intervals containing only ellipsis
     word_ids = [t for t in word_ids if t[-1] != '…']
-
-    # Load and parse the TextGrid file
-    #tiers = parse_textgrid(input_textgrid)
 
     # Load the input TextGrid
     tg = TextGrid.fromFile(input_textgrid)

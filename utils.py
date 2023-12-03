@@ -1,42 +1,52 @@
 import re
-import xml.etree.ElementTree as ET
+import string
 
-def extract_transcription(trs_file_path):
-    try:
-        tree = ET.parse(trs_file_path)
-        root = tree.getroot()
+def align_transcription_to_words(strd_wrd_sgmnt, transcription):
+    # Treat words inside the brackets as single word
+    transcription = re.sub(r'\[([^]]+)\]', lambda match: "[" + match.group(1).replace(" ", "_") + "]", transcription) 
 
-        # Assuming the transcription text is within 'Turn' elements
-        transcription = ''
-        for turn in root.iter('Turn'):
-            for sync in turn:
-                if sync.tail:
-                    transcription += sync.tail.strip() + ' '
+    # Tokenize the transcription into words
+    words = transcription.split()
+    # Remove empty elements and elements containing only punctuation
+    words = [s for s in words if s and not all(char in string.punctuation for char in s)]
+    # Remove elements containing only '–', '+', '-'
+    words = [s for s in words if not (s in ['-', '+', '–'])]
+    # Remove empty or whitespace-only word intervals
+    strd_wrd_sgmnt = [interval for interval in strd_wrd_sgmnt if interval[2].strip()]
 
-        return transcription.strip()
-    except Exception as e:
-        return f"Error: {e}"
+    if len(words) == len(strd_wrd_sgmnt):
+        concatenated_intervals = strd_wrd_sgmnt
+    else:
+        # Concatenate the tuples from strd_wrd_sgmnt when they are part of the same word in words
+        concatenated_intervals = []
+        interval_index = 0
+        for i, word in enumerate(words):
+            # Start with the initial interval
+            if interval_index >= len(strd_wrd_sgmnt):
+                break
+            start_time, end_time, combined_word = strd_wrd_sgmnt[interval_index]
+            interval_index += 1
+            dash_count_word = sum(1 for i in range(1,len(word) - 1) if word[i] in ['-','&'] and not word[i + 1] in '.,;:!?')
+            dash_count_sgmnt = sum(1 for i in range(1,len(combined_word) - 1) if combined_word[i] in ['-','&'] and not combined_word[i + 1] in '.,;:!?')
+            dash_count = dash_count_word - dash_count_sgmnt
+            # Concatenate additional intervals
+            for _ in range(dash_count):
+                end_time = strd_wrd_sgmnt[interval_index][1]
+                combined_word += strd_wrd_sgmnt[interval_index][2]
+                interval_index += 1
+            concatenated_intervals.append((start_time, end_time, combined_word))
 
-def intervals_from_trs(trs_file_path):
-    with open(trs_file_path, 'r', encoding='utf-8') as file:
-        lines = file.readlines()
-    intervals = []
-    prev_tmin = None  # Initialize prev_tmin to None
-    for idx, line in enumerate(lines):
-        if not line.startswith('<') and not line.startswith('\n'):
-            tmin_match = re.search(r'time="([\d.]+)"', lines[idx - 1], re.IGNORECASE)
-            if tmin_match:
-                tmin = float(tmin_match.group(1))
-                text = line.strip()
-                next_idx = idx + 1
-                while next_idx < len(lines):
-                    next_line = lines[next_idx]
-                    if re.search(r'time="([\d.]+)"', next_line, re.IGNORECASE):
-                        tmax = float(re.search(r'time="([\d.]+)"', next_line, re.IGNORECASE).group(1))
-                        break
-                    next_idx += 1
-                else:
-                    tmax = tmin  # If no next line with "time=" is found, use tmin
-                intervals.append((tmin, tmax, text))
-                prev_tmin = tmin  # Update prev_tmin only when tmin is successfully parsed
-    return intervals
+    # Ensure word count matches
+    if len(words) != len(concatenated_intervals):
+        import ipdb; ipdb.set_trace()
+        words_fa = [t[-1] for t in concatenated_intervals]
+        print("\n".join(f"{a} {b}" for a, b in zip(words, words_fa)))
+        raise ValueError("Word count in transcription and TextGrid do not match.")
+    
+    # Associate pog transcription words with the strd-wrd-sgmnt intervals
+    transcription_intervals = [
+        (interval[0], interval[1], word) 
+        for interval, word in zip(concatenated_intervals, words)
+    ]
+    
+    return transcription_intervals

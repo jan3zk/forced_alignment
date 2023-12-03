@@ -1,9 +1,14 @@
 import sys
+import os
 from textgrid import TextGrid, IntervalTier, Interval
-from utils import intervals_from_trs
+from utils_trs import intervals_from_trs
+from utils_tei import intervals_from_tei
 
 def main(input_trs, input_textgrid, output_textgrid):
-    transcription_intervals = intervals_from_trs(input_trs)
+    if os.path.splitext(input_trs)[-1] == ".trs":
+        transcription_intervals = intervals_from_trs(input_trs)
+    else:
+        transcription_intervals = intervals_from_tei(input_trs, True)
     # Remove empty intervals
     transcription_intervals = [t for t in transcription_intervals if t[-1] != '']
 
