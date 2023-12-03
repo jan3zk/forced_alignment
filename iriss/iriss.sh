@@ -9,7 +9,7 @@ cd "$(dirname "$0")"
 ./parse_std_trs.sh ../data/iriss ../data/iriss_processed/mfa_input
 
 # MFA alignment
-mfa align --clean ~/repos/forced_alignment/data/iriss_processed/mfa_input /storage/janezk/mfa_data/lexicon_all.txt acoustic_model ~/repos/forced_alignment/data/iriss_processed/mfa_output
+mfa align --clean ~/repos/forced_alignment/data/iriss_processed/mfa_input /storage/$USER/mfa_data/lexicon_all.txt acoustic_model ~/repos/forced_alignment/data/iriss_processed/mfa_output
 
 # If some of the files are not aligned by the above command (mfa align returns an error), copy them to tmp dir and perform the alignment again by manual exclusion of problematic parts
 cd ../data/iriss_processed
@@ -20,7 +20,7 @@ for file in $(comm -23 <(ls mfa_input | sed 's/\.[^.]*$//' | sort -u) <(ls mfa_o
 done
 cd "$(dirname "$0")"
 # Retry alignments using higher beam sizes
-mfa align --clean ~/repos/forced_alignment/data/iriss_processed/tmp /storage/janezk/mfa_data/lexicon_all.txt acoustic_model ~/repos/forced_alignment/data/iriss_processed/mfa_output --beam 300 --retry_beam 400
+mfa align --clean ~/repos/forced_alignment/data/iriss_processed/tmp /storage/$USER/mfa_data/lexicon_all.txt acoustic_model ~/repos/forced_alignment/data/iriss_processed/mfa_output --beam 300 --retry_beam 400
 
 # Compensate trimming in the output TextGrid
 ./compensate_timing.sh ../data/iriss_processed/mfa_output ../data/iriss ../data/iriss_processed/TextGrid
