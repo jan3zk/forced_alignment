@@ -17,29 +17,29 @@ counter=0
 for wav_file in $gos_dir/Artur-WAV/$folder*.wav; do
     if [ $counter -ge 2 ]; then
         # Set file names
+        echo -e "\nFile paths:"
         base_name=$(basename $wav_file)
         xml_file=$xml_dir/${base_name/-avd.wav/.xml}
         textgrid_file=$out_dir/$folder/TextGrid/${base_name/.wav/.TextGrid}
         textgrid_file_out=$out_dir/$folder/TextGrid_final/${base_name/.wav/.TextGrid}
-        echo ""
         echo wav_file=\"$wav_file\"
         echo xml_file=\"$xml_file\"
         echo textgrid_file=\"$textgrid_file\"
         echo textgrid_file_out=\"$textgrid_file_out\"
         
-        # Perform alignmet by breaking WAVs into smaller chunks
+        echo -e "\nPerform MFA forced alignmet:"
         rm -f $out_dir/$folder/mfa_input/*.txt
         rm -f $out_dir/$folder/mfa_input/*.wav
         python ../fragmentize_trs_wav.py $xml_file $wav_file $out_dir/$folder/mfa_input 60
         rm -f $out_dir/$folder/mfa_output/*.TextGrid
         mfa align --clean $out_dir/$folder/mfa_input $lexicon acoustic_model $out_dir/$folder/mfa_output --beam 300 --retry_beam 400
         
-        # Combine into a single TextGrid
+        echo -e "\nCombine partial TextGrids"
         ./compensate_timing.sh $out_dir/$folder/mfa_output $out_dir/$folder/mfa_output
         mkdir -p $out_dir/$folder/TextGrid
         python ../combine_textgrid.py $out_dir/$folder/mfa_output $textgrid_file
         
-        # Add new tiers
+        echo -e "\nAdd new tiers"
         mkdir -p $out_dir/$folder/TextGrid_final
         python ../add_cnvrstl-syllables_tier.py $textgrid_file $xml_file $textgrid_file_out
         python ../add_speaker-ID_tier.py $textgrid_file_out $xml_file $textgrid_file_out
