@@ -24,8 +24,6 @@ def intervals_from_trs(trs_file_path):
     prev_tmin = None  # Initialize prev_tmin to None
     for idx, line in enumerate(lines):
         if not line.startswith('<') and not line.startswith('\n'):
-            if 'metafora' in line:
-                import ipdb; ipdb.set_trace()
             tmin_match = re.search(r'time="([\d.]+)"', lines[idx - 1], re.IGNORECASE)
             if tmin_match:
                 tmin = float(tmin_match.group(1))

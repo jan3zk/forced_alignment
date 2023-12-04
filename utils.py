@@ -38,7 +38,6 @@ def align_transcription_to_words(strd_wrd_sgmnt, transcription):
 
     # Ensure word count matches
     if len(words) != len(concatenated_intervals):
-        import ipdb; ipdb.set_trace()
         words_fa = [t[-1] for t in concatenated_intervals]
         print("\n".join(f"{a} {b}" for a, b in zip(words, words_fa)))
         raise ValueError("Word count in transcription and TextGrid do not match.")
