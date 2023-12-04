@@ -2,7 +2,7 @@ import sys
 import xml.etree.ElementTree as ET
 from textgrid import TextGrid, IntervalTier, Interval
 
-def parse_xml(xml_file_path):
+def parse_speaker_id(xml_file_path):
     # Parse the XML file
     tree = ET.parse(xml_file_path)
     root = tree.getroot()
@@ -62,22 +62,25 @@ def merge_overlapping_intervals(intervals):
 
 def main(input_textgrid, input_xml, output_textgrid):
     # Parse XML to get speaker intervals
-    xml_speaker_intervals = parse_xml(input_xml)
+    speaker_intervals = parse_speaker_id(input_xml)
 
     # Load and parse the TextGrid file
     tg = TextGrid.fromFile(input_textgrid)
 
-    # Adjust times to not exceed established limits
-    xml_speaker_intervals = [(max(tg.minTime, t[0]), min(tg.maxTime, t[1]), t[2]) for t in xml_speaker_intervals]
+    # Discard intervals that fall outside established time limits
+    speaker_intervals = [
+        item for item in speaker_intervals 
+        if item[0] >= tg.minTime and item[1] <= tg.maxTime
+    ]
 
     # Merge overlapping intervals
-    xml_speaker_intervals = merge_overlapping_intervals(xml_speaker_intervals)
+    speaker_intervals = merge_overlapping_intervals(speaker_intervals)
 
     # Create a new interval tier
     new_tier_name = "speaker-ID"
 
-    new_tier = IntervalTier(name=new_tier_name, minTime=min(t[0] for t in xml_speaker_intervals), maxTime=max(t[1] for t in xml_speaker_intervals))
-    for start_time, end_time, label in xml_speaker_intervals:
+    new_tier = IntervalTier(name=new_tier_name, minTime=min(t[0] for t in speaker_intervals), maxTime=max(t[1] for t in speaker_intervals))
+    for start_time, end_time, label in speaker_intervals:
         interval = Interval(minTime=start_time, maxTime=end_time, mark=label)
         new_tier.addInterval(interval)
     tg.tiers.insert(0, new_tier)

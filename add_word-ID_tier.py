@@ -3,7 +3,7 @@ import xml.etree.ElementTree as ET
 from textgrid import TextGrid, IntervalTier, Interval
 import string
 
-def parse_xml(xml_file_path):
+def parse_word_id(xml_file_path):
     # Parse the XML file
     tree = ET.parse(xml_file_path)
     root = tree.getroot()
@@ -70,7 +70,7 @@ def word_id_intervals(strd_wrd_sgmnt, word_ids):
 
 def main(input_textgrid, input_xml, output_textgrid):
     # Parse XML to get speaker intervals
-    word_ids = parse_xml(input_xml)
+    word_ids = parse_word_id(input_xml)
     # Remove intervals containing only punctuation
     word_ids = [t for t in word_ids if t[1] not in string.punctuation]
     # Remove intervals containing only ellipsis
