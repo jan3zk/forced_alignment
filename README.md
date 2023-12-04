@@ -83,3 +83,7 @@ See script [iriss.sh](iriss/iriss.sh).
 ## Processing GOS database
 
 See script [gos.sh](gos/gos.sh).
+
+## Acoustic measurements
+
+See script [acoustic_measurements.py](measurements/acoustic_measurements.py).
