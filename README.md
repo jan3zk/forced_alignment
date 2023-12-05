@@ -86,4 +86,19 @@ See script [gos.sh](gos/gos.sh).
 
 ## Acoustic measurements
 
-See script [acoustic_measurements.py](measurements/acoustic_measurements.py).
+The script [acoustic_measurements.py](acoustic_measurements.py) computes various acoustic measurements from a given TextGrid file and WAV audio file, extracting phoneme durations, pitch-related features, formants, intensity, VOT (Voice Onset Time), COG (Center of Gravity), and related annotations. The computed values are then stored in a CSV file for analysis and further processing.
+
+### Usage
+
+```bash
+python acoustic_measurements.py [input.TextGrid] [input.wav] [output.csv]
+```
+#### Features
+
+* Phone Durations: Computes the duration of each phoneme interval.
+* Pitch Analysis: Calculates average pitch, pitch trend within each phoneme interval.
+* Formants: Determines the F1 formant for each phoneme interval.
+* Intensity: Computes intensity values for each phoneme.
+* VOT (Voice Onset Time): Estimates the onset of voicing for each phoneme.
+* COG (Center of Gravity): Computes the weighted average frequency for each phoneme.
+* Additional Annotations: Includes previous phoneme, associated word, sentence, audio ID, and speaker ID for each phoneme.

@@ -3,7 +3,7 @@ import parselmouth
 import numpy as np
 from textgrid import TextGrid, IntervalTier, Interval
 
-def detect_intensity_resets(audio_path, input_textgrid, output_textgrid, intensity_reset_threshold=7, method="near"):
+def detect_intensity_resets(audio_path, input_textgrid, output_textgrid, intensity_reset_threshold=7, method="near", silence_threshold=50):
     # Load the audio and the TextGrid
     sound = parselmouth.Sound(audio_path)
     tg = TextGrid.fromFile(input_textgrid)
@@ -30,7 +30,7 @@ def detect_intensity_resets(audio_path, input_textgrid, output_textgrid, intensi
         start_index = int(start_time // intensity.time_step)
         end_index = int(end_time // intensity.time_step)
         syllable_intensity_values = intensity_values[start_index:end_index]
-        syllable_intensity_values = syllable_intensity_values[syllable_intensity_values > 50]  # Include only valus greater than 50 dB
+        syllable_intensity_values = syllable_intensity_values[syllable_intensity_values > silence_threshold]  # Include only values greater than silence_threshold, i.e. exclude non-speach parts
         syllable_mean_intensity = syllable_intensity_values.mean() if len(syllable_intensity_values) > 0 else 0
 
         if method == "near":
@@ -40,7 +40,7 @@ def detect_intensity_resets(audio_path, input_textgrid, output_textgrid, intensi
                 if j != i:
                     neighbor_start_time, neighbor_end_time, _ = syllable_intervals[j]
                     neighbor_intensity_values = intensity_values[int(neighbor_start_time // intensity.time_step):int(neighbor_end_time // intensity.time_step)]
-                    neighbor_intensity_values = neighbor_intensity_values[neighbor_intensity_values > 50]  # Include only valus greater than 50 dB
+                    neighbor_intensity_values = neighbor_intensity_values[neighbor_intensity_values > silence_threshold]  # Include only valus greater than silence_threshold dB
                     neighbors_mean_intensity.append(neighbor_intensity_values.mean() if len(neighbor_intensity_values) > 0 else 0)
 
             reference_mean_intensity = np.mean(neighbors_mean_intensity) if neighbors_mean_intensity else syllable_mean_intensity
@@ -52,7 +52,7 @@ def detect_intensity_resets(audio_path, input_textgrid, output_textgrid, intensi
                 if j != i:
                     neighbor_start_time, neighbor_end_time, _ = syllable_intervals[j]
                     neighbor_intensity_values = intensity_values[int(neighbor_start_time // intensity.time_step):int(neighbor_end_time // intensity.time_step)]
-                    neighbor_intensity_values = neighbor_intensity_values[neighbor_intensity_values > 50]  # Include only valus greater than 50 dB
+                    neighbor_intensity_values = neighbor_intensity_values[neighbor_intensity_values > silence_threshold]  # Include only valus greater than silence_threshold dB
                     neighbors_mean_intensity.append(neighbor_intensity_values.mean() if len(neighbor_intensity_values) > 0 else 0)
 
             reference_mean_intensity = np.mean(neighbors_mean_intensity) if neighbors_mean_intensity else syllable_mean_intensity

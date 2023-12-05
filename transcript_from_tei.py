@@ -61,7 +61,7 @@ def main(xml_file_path, txt_file_path, use_norm):
 if __name__ == '__main__':
     # Set up argument parsing
     if len(sys.argv) < 3:
-        print("Usage: python transcript_from_tei.py [xml_file_path] [txt_file_path] [--use-norm]")
+        print("Usage: python transcript_from_tei.py [input_xml_file_path] [output_txt_file_path] [--use-norm]")
         sys.exit(1)
 
     xml_file_path = sys.argv[1]

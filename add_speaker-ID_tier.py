@@ -74,11 +74,11 @@ def main(input_textgrid, input_xml, output_textgrid):
     ]
 
     # Merge overlapping intervals
-    speaker_intervals = merge_overlapping_intervals(speaker_intervals)
+    if len(speaker_intervals) > 1:
+        speaker_intervals = merge_overlapping_intervals(speaker_intervals)
 
     # Create a new interval tier
     new_tier_name = "speaker-ID"
-
     new_tier = IntervalTier(name=new_tier_name, minTime=min(t[0] for t in speaker_intervals), maxTime=max(t[1] for t in speaker_intervals))
     for start_time, end_time, label in speaker_intervals:
         interval = Interval(minTime=start_time, maxTime=end_time, mark=label)

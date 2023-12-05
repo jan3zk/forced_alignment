@@ -15,9 +15,9 @@ mkdir -p $out_dir/$folder/mfa_input
 counter=0
 # Iterate over all WAV files in the GOS directory and perform forced alignment
 for wav_file in $gos_dir/Artur-WAV/$folder*.wav; do
-    if [ $counter -ge 2 ]; then
+    if [ $counter -ge 108 ]; then
         # Set file names
-        echo -e "\nFile paths:"
+        echo -e "\nFile paths ($counter):"
         base_name=$(basename $wav_file)
         xml_file=$xml_dir/${base_name/-avd.wav/.xml}
         textgrid_file=$out_dir/$folder/TextGrid/${base_name/.wav/.TextGrid}
@@ -33,7 +33,7 @@ for wav_file in $gos_dir/Artur-WAV/$folder*.wav; do
         python ../fragmentize_trs_wav.py $xml_file $wav_file $out_dir/$folder/mfa_input 60
         rm -f $out_dir/$folder/mfa_output/*.TextGrid
         mfa align --clean $out_dir/$folder/mfa_input $lexicon acoustic_model $out_dir/$folder/mfa_output --beam 300 --retry_beam 400
-        
+            
         echo -e "\nCombine partial TextGrids"
         ./compensate_timing.sh $out_dir/$folder/mfa_output $out_dir/$folder/mfa_output
         mkdir -p $out_dir/$folder/TextGrid
