@@ -55,5 +55,5 @@ for wav_file in $gos_dir/Artur-WAV/$folder*.wav; do
         python ../add_word-ID_tier.py $textgrid_file_out $xml_file $textgrid_file_out
         #break
     fi
-    counter=$((counter + 1))  # Increment the counter by 1
+    counter=$((counter + 1))
 done

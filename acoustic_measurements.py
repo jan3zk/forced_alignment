@@ -182,7 +182,10 @@ def compute_cog(input_wav, phone_tier):
         phone_pitch_values = pitch_values[start_index_pitch:end_index_pitch]
 
         # Computing COG as a weighted average of pitch values weighted by intensity
-        cog = sum(intensity * pitch for intensity, pitch in zip(phone_intensity_values, phone_pitch_values)) / sum(phone_intensity_values)
+        if sum(phone_intensity_values) != 0:  # Check for zero intensity sum
+            cog = sum(intensity * pitch for intensity, pitch in zip(phone_intensity_values, phone_pitch_values)) / sum(phone_intensity_values)
+        else:
+            cog = 0.0  # Assigning COG as 0.0 if intensity sum is zero
         cog_values.append(round(cog, 2))
 
     return cog_values
@@ -199,28 +202,8 @@ def get_item(phone_tier, item_tier):
 
     return item_list
 
-#def save_to_csv(phone_durations, phone_pitches, phone_pitch_trends, f1_formants, intensity_values, vot_values, cog_values, previous_phoneme, word_list, sentence_list, speakerID_list, audioID_list, output_csv):
-#    with open(output_csv, mode='w', newline='') as file:
-#        writer = csv.writer(file)
-#        writer.writerow(['Phone', 'Duration', 'AvgPitch', 'PitchTrend', 'F1Formant', 'Intensity', 'VOT', 'COG', 'PreviousPhoneme', 'Word', 'Sentence', 'audioID', 'SpeakerID'])  # Update header
-#        for i in range(len(phone_durations)):
-#            writer.writerow([
-#                phone_durations[i][0],
-#                phone_durations[i][1],
-#                phone_pitches[i],
-#                phone_pitch_trends[i],
-#                f1_formants[i],
-#                intensity_values[i],
-#                vot_values[i],
-#                cog_values[i],
-#                previous_phoneme[i],
-#                word_list[i],
-#                sentence_list[i],
-#                speakerID_list[i],
-#                audioID_list[i]
-#            ])
 def save_to_csv(header_strings, data_lists, output_csv):
-    with open(output_csv, mode='w', newline='') as file:
+    with open(output_csv, mode='w', newline='', encoding="utf-8-sig") as file:
         writer = csv.writer(file)
         writer.writerow(header_strings)
         for row in zip(*data_lists):
@@ -243,9 +226,20 @@ def main(input_textgrid, input_wav, output_csv):
     speakerID_list = get_item(phone_tier, tg.getFirst("speaker-ID"))
     audioID_list = [os.path.splitext(os.path.basename(input_textgrid))[0].replace("-avd",'')] * len(phone_durations)
 
-    headers = ['Phone', 'Duration', 'AvgPitch', 'PitchTrend', 'F1Formant', 'Intensity', 'VOT', 'COG', 'PreviousPhoneme', 'Word', 'Sentence', 'audioID', 'SpeakerID']
-    data = [phone_durations, phone_pitches, phone_pitch_trends, f1_formants, intensity_values, vot_values, cog_values, previous_phoneme, word_list, sentence_list, audioID_list, speakerID_list]
-    save_to_csv(headers, data, output_csv)
+    csv_data = [('Phone', [t[0] for t in phone_durations]),
+        ('Duration', [t[1] for t in phone_durations]),
+        ('AvgPitch', phone_pitches),
+        ('PitchTrend', phone_pitch_trends),
+        ('F1Formant', f1_formants),
+        ('Intensity', intensity_values),
+        ('VOT', vot_values),
+        ('COG', cog_values),
+        ('PreviousPhone', previous_phoneme),
+        ('Word', word_list),
+        ('Sentence', sentence_list),
+        ('AudioID', audioID_list),
+        ('SpeakerID', speakerID_list)]
+    save_to_csv( [t[0] for t in csv_data],  [t[1] for t in csv_data], output_csv)
     print(f"Acoustic measurements saved to {output_csv}")
 
 if __name__ == "__main__":
