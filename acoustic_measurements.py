@@ -72,23 +72,45 @@ def compute_phone_pitch_trend(input_wav, phone_tier):
 
     return phone_pitch_trends
 
-def compute_f1_formant(input_wav, phone_tier):
+def compute_formants(input_wav, phone_tier):
     sound = parselmouth.Sound(input_wav)
     formant = sound.to_formant_burg()
     
-    formant_values = []
+    formant_values = {'F1': [], 'F2': [], 'F3': [], 'F4': []}
     
     for interval in phone_tier:
         start_time = interval.minTime
         end_time = interval.maxTime
 
-        formant_value = formant.get_value_at_time(1, (start_time + end_time) / 2)  # Get F1 at midpoint
-        if formant_value is not None:
-            formant_values.append(round(formant_value, 2))
-        else:
-            formant_values.append(0.0)  # If F1 value is not available, mark it as 0.0
+        f1_value = formant.get_value_at_time(1, (start_time + end_time) / 2)  # Get F1 at midpoint
+        f2_value = formant.get_value_at_time(2, (start_time + end_time) / 2)  # Get F2 at midpoint
+        f3_value = formant.get_value_at_time(3, (start_time + end_time) / 2)  # Get F3 at midpoint
+        f4_value = formant.get_value_at_time(4, (start_time + end_time) / 2)  # Get F4 at midpoint
+        
+        # Append formant values to respective lists in the dictionary
+        formant_values['F1'].append(round(f1_value, 2) if f1_value is not None else 0.0)
+        formant_values['F2'].append(round(f2_value, 2) if f2_value is not None else 0.0)
+        formant_values['F3'].append(round(f3_value, 2) if f3_value is not None else 0.0)
+        formant_values['F4'].append(round(f4_value, 2) if f4_value is not None else 0.0)
     
     return formant_values
+#def compute_f1_formant(input_wav, phone_tier):
+#    sound = parselmouth.Sound(input_wav)
+#    formant = sound.to_formant_burg()
+#    
+#    formant_values = []
+#    
+#    for interval in phone_tier:
+#        start_time = interval.minTime
+#        end_time = interval.maxTime
+#
+#        formant_value = formant.get_value_at_time(1, (start_time + end_time) / 2)  # Get F1 at midpoint
+#        if formant_value is not None:
+#            formant_values.append(round(formant_value, 2))
+#        else:
+#            formant_values.append(0.0)  # If F1 value is not available, mark it as 0.0
+#    
+#    return formant_values
 
 def compute_phone_intensity(input_wav, phone_tier):
     sound = parselmouth.Sound(input_wav)
@@ -154,40 +176,16 @@ def compute_vot(input_wav, phone_tier):
 
     return vot_values
 
-def compute_cog(input_wav, phone_tier):
-    """
-    Calculating the Center of Gravity (COG) for each phoneme interval involves determining
-    the average frequency weighted by intensity within the specified interval.
-    """
-    sound = parselmouth.Sound(input_wav)
-    
-    intensity = sound.to_intensity()
-    intensity_values = intensity.values[0]  # Assuming one channel
-
-    pitch = sound.to_pitch()
-    pitch_values = pitch.selected_array['frequency']
-
+def compute_cog(input_wav, phone_tier, power=1):
+    snd = parselmouth.Sound(input_wav)
     cog_values = []
-    
     for interval in phone_tier:
-        start_time = interval.minTime
-        end_time = interval.maxTime
-
-        start_index = int(start_time // intensity.time_step)
-        end_index = int(end_time // intensity.time_step)
-        phone_intensity_values = intensity_values[start_index:end_index]
-
-        start_index_pitch = int(start_time // pitch.time_step)
-        end_index_pitch = int(end_time // pitch.time_step)
-        phone_pitch_values = pitch_values[start_index_pitch:end_index_pitch]
-
-        # Computing COG as a weighted average of pitch values weighted by intensity
-        if sum(phone_intensity_values) != 0:  # Check for zero intensity sum
-            cog = sum(intensity * pitch for intensity, pitch in zip(phone_intensity_values, phone_pitch_values)) / sum(phone_intensity_values)
-        else:
-            cog = 0.0  # Assigning COG as 0.0 if intensity sum is zero
+        # Extract the audio within the given time interval
+        audio_interval = snd.extract_part(from_time=interval.minTime, to_time=interval.maxTime)
+        # Calculate the spectral centroid for the audio interval
+        spectrum = audio_interval.to_spectrum()
+        cog = spectrum.get_center_of_gravity(power)
         cog_values.append(round(cog, 2))
-
     return cog_values
 
 def get_item(phone_tier, item_tier):
@@ -213,24 +211,79 @@ def main(input_textgrid, input_wav, output_csv):
     tg = TextGrid.fromFile(input_textgrid)
     phone_tier = tg.getFirst("phones")
 
+    import time
+    start_time = time.time()
     phone_durations = compute_phone_durations(phone_tier)
+    end_time = time.time()
+    print(f"compute_phone_durations time: {end_time - start_time} seconds")
+    
+    start_time = time.time()
     phone_pitches = compute_phone_pitch(input_wav, phone_tier)
+    end_time = time.time()
+    print(f"compute_phone_pitch time: {end_time - start_time} seconds")
+    
+    start_time = time.time()
     phone_pitch_trends = compute_phone_pitch_trend(input_wav, phone_tier)
-    f1_formants = compute_f1_formant(input_wav, phone_tier)
+    end_time = time.time()
+    print(f"compute_phone_pitch_trend time: {end_time - start_time} seconds")
+    
+    start_time = time.time()
+    formants = compute_formants(input_wav, phone_tier)
+    end_time = time.time()
+    print(f"compute_formants time: {end_time - start_time} seconds")
+    #start_time = time.time()
+    #f1_formants = compute_f1_formant(input_wav, phone_tier)
+    #end_time = time.time()
+    #print(f"compute_f1_formant time: {end_time - start_time} seconds")
+
+    start_time = time.time()
     intensity_values = compute_phone_intensity(input_wav, phone_tier)
+    end_time = time.time()
+    print(f"compute_phone_intensity time: {end_time - start_time} seconds")
+
+    start_time = time.time()
     vot_values = compute_vot(input_wav, phone_tier)
+    end_time = time.time()
+    print(f"compute_vot time: {end_time - start_time} seconds")
+
+    start_time = time.time()
     cog_values = compute_cog(input_wav, phone_tier)  # Compute COG
+    end_time = time.time()
+    print(f"compute_cog time: {end_time - start_time} seconds")
+
+    start_time = time.time()
     previous_phoneme = [''] + [interval.mark for interval in phone_tier[:-1]]
+    end_time = time.time()
+    print(f"previous_phoneme time: {end_time - start_time} seconds")
+
+    start_time = time.time()
     word_list = get_item(phone_tier, tg.getFirst("strd-wrd-sgmnt"))
+    end_time = time.time()
+    print(f"word_list time: {end_time - start_time} seconds")
+
+    start_time = time.time()
     sentence_list = get_item(phone_tier, tg.getFirst("standardized-trs"))
+    end_time = time.time()
+    print(f"sentence_list time: {end_time - start_time} seconds")
+
+    start_time = time.time()
     speakerID_list = get_item(phone_tier, tg.getFirst("speaker-ID"))
+    end_time = time.time()
+    print(f"speakerID_list time: {end_time - start_time} seconds")
+
+    start_time = time.time()
     audioID_list = [os.path.splitext(os.path.basename(input_textgrid))[0].replace("-avd",'')] * len(phone_durations)
+    end_time = time.time()
+    print(f"audioID_list time: {end_time - start_time} seconds")
 
     csv_data = [('Phone', [t[0] for t in phone_durations]),
         ('Duration', [t[1] for t in phone_durations]),
         ('AvgPitch', phone_pitches),
         ('PitchTrend', phone_pitch_trends),
-        ('F1Formant', f1_formants),
+        ('F1Formant', formants['F1']),
+        ('F2Formant', formants['F2']),
+        ('F3Formant', formants['F3']),
+        ('F4Formant', formants['F4']),
         ('Intensity', intensity_values),
         ('VOT', vot_values),
         ('COG', cog_values),
