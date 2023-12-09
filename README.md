@@ -95,7 +95,7 @@ python acoustic_measurements.py [input.TextGrid] [input.wav] [output.csv]
 Features:
 * Phone Durations: Computes the duration of each phoneme interval.
 * Pitch Analysis: Calculates average pitch, pitch trend within each phoneme interval.
-* Formants: Determines the F1 formant for each phoneme interval.
+* Formants: Determines the F1~F4 formants for each phoneme interval.
 * Intensity: Computes intensity values for each phoneme.
 * VOT (Voice Onset Time): Estimates the onset of voicing for each phoneme.
 * COG (Center of Gravity): Computes the weighted average frequency for each phoneme.
