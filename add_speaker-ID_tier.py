@@ -68,10 +68,13 @@ def main(input_textgrid, input_xml, output_textgrid):
     tg = TextGrid.fromFile(input_textgrid)
 
     # Discard intervals that fall outside established time limits
-    speaker_intervals = [
-        item for item in speaker_intervals 
-        if item[0] >= tg.minTime and item[1] <= tg.maxTime
-    ]
+#    speaker_intervals = [
+#        item for item in speaker_intervals 
+#        if item[0] >= tg.minTime and item[1] <= tg.maxTime
+#    ]
+    speaker_intervals = [(max(tg.minTime, t[0]), min(tg.maxTime, t[1]), t[2]) for t in speaker_intervals]
+    # Remove intervals, where tmin is equal or greater than tmax
+    speaker_intervals = [t for t in speaker_intervals if t[0] < t[1]]
 
     # Merge overlapping intervals
     if len(speaker_intervals) > 1:

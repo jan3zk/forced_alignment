@@ -16,9 +16,9 @@ def main(input_trs, input_textgrid, output_textgrid):
     tg = TextGrid.fromFile(input_textgrid)
 
     # Adjust times to not exceed established limits
-    #transcription_intervals = [(max(tg.minTime, t[0]), min(tg.maxTime, t[1]), t[2]) for t in transcription_intervals]
-    # Remove intervals, where both tmin and tmax are equal
-    transcription_intervals = [t for t in transcription_intervals if t[0] != t[1]]
+    transcription_intervals = [(max(tg.minTime, t[0]), min(tg.maxTime, t[1]), t[2]) for t in transcription_intervals]
+    # Remove intervals, where tmin is equal or greater than tmax
+    transcription_intervals = [t for t in transcription_intervals if t[0] < t[1]]
 
     # Add new tier
     new_tier = IntervalTier(name="standardized-trs", minTime=min(t[0] for t in transcription_intervals), maxTime=max(t[1] for t in transcription_intervals))

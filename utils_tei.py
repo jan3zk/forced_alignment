@@ -102,7 +102,10 @@ def intervals_from_tei(xml_file_path, use_norm=False):
 
         if first_word_passed and elem.get('synch') and elem.get('synch')[-2:] == "w0":
             sentence = concatenate_words([w[1] for w in word_intrvl[:-1]])
-            tmin = time_dict.get(".".join(word_intrvl[0][0].split(".")[:2])[1:])
+            if word_intrvl[0][0] == None:
+                tmin = 0.0
+            else:
+                tmin = time_dict.get(".".join(word_intrvl[0][0].split(".")[:2])[1:])
             tmax = time_dict.get(".".join(word_intrvl[-1][0].split(".")[:2])[1:])
             sentence_intrvl.append((tmin, tmax, sentence))
             word_intrvl = [word_intrvl[-1]]
