@@ -8,8 +8,8 @@ def compute_phone_durations(phone_tier):
     phone_durations = []
     for interval in phone_tier:
         phone = interval.mark
-        duration = round(interval.maxTime - interval.minTime, 2)
-        phone_durations.append((phone, duration))
+        duration = interval.maxTime - interval.minTime
+        phone_durations.append((phone, "{:.2f}".format(duration)))
 
     return phone_durations
 
@@ -88,10 +88,10 @@ def compute_formants(input_wav, phone_tier):
         f4_value = formant.get_value_at_time(4, (start_time + end_time) / 2)  # Get F4 at midpoint
         
         # Append formant values to respective lists in the dictionary
-        formant_values['F1'].append(round(f1_value, 2) if f1_value is not None else 0.0)
-        formant_values['F2'].append(round(f2_value, 2) if f2_value is not None else 0.0)
-        formant_values['F3'].append(round(f3_value, 2) if f3_value is not None else 0.0)
-        formant_values['F4'].append(round(f4_value, 2) if f4_value is not None else 0.0)
+        formant_values['F1'].append(round(f1_value, 1) if f1_value is not None else 0.0)
+        formant_values['F2'].append(round(f2_value, 1) if f2_value is not None else 0.0)
+        formant_values['F3'].append(round(f3_value, 1) if f3_value is not None else 0.0)
+        formant_values['F4'].append(round(f4_value, 1) if f4_value is not None else 0.0)
     
     return formant_values
 
@@ -168,7 +168,7 @@ def compute_cog(input_wav, phone_tier, power=1):
         # Calculate the spectral centroid for the audio interval
         spectrum = audio_interval.to_spectrum()
         cog = spectrum.get_center_of_gravity(power)
-        cog_values.append(round(cog, 2))
+        cog_values.append(round(cog, 1))
     return cog_values
 
 def get_item(phone_tier, item_tier):
