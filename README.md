@@ -100,3 +100,43 @@ Features:
 * VOT (Voice Onset Time): Estimates the onset of voicing for each phoneme.
 * COG (Center of Gravity): Computes the weighted average frequency for each phoneme.
 * Additional Annotations: Includes previous phoneme, associated word, sentence, audio ID, and speaker ID for each phoneme.
+
+## Acoustic Measurements Script
+
+The script [acoustic_measurements.py](acoustic_measurements.py) computes various acoustic measurements from a given TextGrid file and WAV audio file, extracting phoneme durations, pitch-related features, formants, intensity, VOT (Voice Onset Time), COG (Center of Gravity), and related annotations. The computed values are then stored in a CSV file for analysis and further processing.
+
+Usage:
+```bash
+python acoustic_measurements.py [input.TextGrid] [input.wav] [output.csv]
+```
+
+Inputs:
+* `input.TextGrid`: A TextGrid file containing phoneme boundaries and other annotations
+* `input.wav`: The corresponding audio file
+* `output.csv`: The output CSV file to save the acoustic measurements
+
+Output:
+The output CSV file contains the following columns for each phoneme:
+* `Phone`: The phoneme label
+* `Duration`: The duration of the phoneme (seconds)
+* `AvgPitch`: The average pitch of the phoneme (Hz)
+* `PitchTrend`: The pitch trend of the phoneme (rising, falling, or mixed)
+* `F1Formant`: The F1 formant frequency (Hz)
+* `F2Formant`: The F2 formant frequency (Hz)
+* `F3Formant`: The F3 formant frequency (Hz)
+* `F4Formant`: The F4 formant frequency (Hz)
+* `Intensity`: The average intensity of the phoneme (dB)
+* `VOT`: The voice onset time (seconds)
+* `COG`: The centroid of gravity of the phoneme (Hz)
+* `PreviousPhone`: The phoneme preceding the current phoneme
+* `NextPhone`: The phoneme following the current phoneme
+* `Word`: The word containing the current phoneme
+* `Sentence`: The sentence containing the current phoneme
+* `AudioID`: The ID of the audio file
+* `SpeakerID`: The ID of the speaker
+
+Example:
+The following command will calculate acoustic measurements for the phonemes in `input.TextGrid` and save the results to `output.csv`:
+```bash
+python acoustic_measurements.py input.TextGrid input.wav output.csv
+```
