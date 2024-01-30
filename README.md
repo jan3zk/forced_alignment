@@ -84,7 +84,7 @@ See script [iriss.sh](iriss/iriss.sh).
 
 See script [gos.sh](gos/gos.sh).
 
-## Acoustic Measurements Script
+## Acoustic Measurements
 
 The script [acoustic_measurements.py](acoustic_measurements.py) computes various acoustic measurements from a given TextGrid file and WAV audio file, extracting phoneme durations, pitch-related features, formants, intensity, VOT (Voice Onset Time), COG (Center of Gravity), and related annotations. The computed values are then stored in a CSV file for analysis and further processing.
 
