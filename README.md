@@ -84,39 +84,25 @@ See script [iriss.sh](iriss/iriss.sh).
 
 See script [gos.sh](gos/gos.sh).
 
-## Acoustic measurements
-
-The script [acoustic_measurements.py](acoustic_measurements.py) computes various acoustic measurements from a given TextGrid file and WAV audio file, extracting phoneme durations, pitch-related features, formants, intensity, VOT (Voice Onset Time), COG (Center of Gravity), and related annotations. The computed values are then stored in a CSV file for analysis and further processing.
-
-Usage:
-```bash
-python acoustic_measurements.py [input.TextGrid] [input.wav] [output.csv]
-```
-Features:
-* Phone Durations: Computes the duration of each phoneme interval.
-* Pitch Analysis: Calculates average pitch, pitch trend within each phoneme interval.
-* Formants: Determines the F1~F4 formants for each phoneme interval.
-* Intensity: Computes intensity values for each phoneme.
-* VOT (Voice Onset Time): Estimates the onset of voicing for each phoneme.
-* COG (Center of Gravity): Computes the weighted average frequency for each phoneme.
-* Additional Annotations: Includes previous phoneme, associated word, sentence, audio ID, and speaker ID for each phoneme.
-
 ## Acoustic Measurements Script
 
 The script [acoustic_measurements.py](acoustic_measurements.py) computes various acoustic measurements from a given TextGrid file and WAV audio file, extracting phoneme durations, pitch-related features, formants, intensity, VOT (Voice Onset Time), COG (Center of Gravity), and related annotations. The computed values are then stored in a CSV file for analysis and further processing.
 
-Usage:
-```bash
+**Usage:**
+```
 python acoustic_measurements.py [input.TextGrid] [input.wav] [output.csv]
 ```
 
-Inputs:
+**Input:**
+
 * `input.TextGrid`: A TextGrid file containing phoneme boundaries and other annotations
 * `input.wav`: The corresponding audio file
 * `output.csv`: The output CSV file to save the acoustic measurements
 
-Output:
-The output CSV file contains the following columns for each phoneme:
+**Output:**
+
+The output CSV file will contain the following columns for each phoneme:
+
 * `Phone`: The phoneme label
 * `Duration`: The duration of the phoneme (seconds)
 * `AvgPitch`: The average pitch of the phoneme (Hz)
@@ -135,8 +121,9 @@ The output CSV file contains the following columns for each phoneme:
 * `AudioID`: The ID of the audio file
 * `SpeakerID`: The ID of the speaker
 
-Example:
+**Example:**
+
 The following command will calculate acoustic measurements for the phonemes in `input.TextGrid` and save the results to `output.csv`:
-```bash
+```
 python acoustic_measurements.py input.TextGrid input.wav output.csv
 ```
