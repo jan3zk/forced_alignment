@@ -1,6 +1,7 @@
 *.txt
 *.rttm
 *.TextGrid
+*.csv
 data/
 additional_tiers/
 .misc/
