@@ -127,11 +127,19 @@ The script [acoustics.sh](acoustics.sh) is designed to facilitate the processing
 ./acoustics.sh [textgrid_dir] [wav_dir] [csv_dir]
 ```
 
-### Processing IRISS database
+### Processing IRISS database (učnI govoRnI korpuS Slovenskega jezika)
+
+Audio and transcriptions available at <https://nl.ijs.si/nikola/mezzanine/>.
 
 See script [iriss.sh](iriss/iriss.sh).
 
-### Processing GOS database
+### Processing GOS database ([korpus GOvorjene Slovenščine](https://viri.cjvt.si/gos/System/About))
 
-See script [gos.sh](gos/gos.sh).
+Transcriptions available at <https://www.clarin.si/repository/xmlui/handle/11356/1863>.
+Partial audio data available at <https://www.clarin.si/repository/xmlui/handle/11356/1222>.
+
+This Bash script [gos.sh](gos/gos.sh) is designed to automate the process of performing forced alignment and adding multiple tiers to TextGrid files using a set of Python scripts. The script iterates through WAV files in a specified directory, performs multiple operations including forced alignment over short time intervals of input audio/trainscription pairs, and adding various tiers to the TextGrid files for detailed analysis. The script can be called as follows:
+```bash
+./gos.sh [wav_dir] [out_dir] [lexicon] [xml_dir]
+```
 
