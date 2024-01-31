@@ -135,11 +135,17 @@ See script [iriss.sh](iriss/iriss.sh).
 
 ### Processing GOS database ([korpus GOvorjene Slovenščine](https://viri.cjvt.si/gos/System/About))
 
-Transcriptions available at <https://www.clarin.si/repository/xmlui/handle/11356/1863>.
-Partial audio data available at <https://www.clarin.si/repository/xmlui/handle/11356/1222>.
+Data Availability:
+* `Transcriptions`: Available at <https://www.clarin.si/repository/xmlui/handle/11356/1863> in TEI format.
+* `Partial audio`: Available at <https://www.clarin.si/repository/xmlui/handle/11356/1222> in WAV format.
 
-This Bash script [gos.sh](gos/gos.sh) is designed to automate the process of performing forced alignment and adding multiple tiers to TextGrid files using a set of Python scripts. The script iterates through WAV files in a specified directory, performs multiple operations including forced alignment over short time intervals of input audio/trainscription pairs, and adding various tiers to the TextGrid files for detailed analysis. The script can be called as follows:
+This Bash script [gos.sh](gos/gos.sh) is designed to automate the process of performing forced alignment and adding multiple tiers to TextGrid files using a set of Python scripts. The script iterates through WAV files in a specified directory, performs multiple operations including forced alignment over short time intervals of input audio/trainscription pairs, and adding various tiers to the TextGrid files for detailed analysis. Execute the script using the following command:
 ```bash
 ./gos.sh [wav_dir] [out_dir] [lexicon] [xml_dir]
 ```
 
+The script accepts these input arguments:
+* `[wav_dir]`: Path to the directory containing WAV files.
+* `[out_dir]`: Path to the directory where output files and intermediate files will be stored.
+* `[lexicon]`: Path to the lexicon file used for MFA forced alignment.
+* `[xml_dir]`: Path to the directory containing XML files, i.e. transcriptions in TEI format.
