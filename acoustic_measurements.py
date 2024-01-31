@@ -202,6 +202,7 @@ def main(input_textgrid, input_wav, output_csv):
     vot_values = compute_vot(input_wav, phone_tier)
     cog_values = compute_cog(input_wav, phone_tier)
     previous_phoneme = [''] + [interval.mark for interval in phone_tier[:-1]]
+    next_phoneme = [interval.mark for interval in phone_tier[1:]] + ['']
     word_list = get_item(phone_tier, tg.getFirst("strd-wrd-sgmnt"))
     sentence_list = get_item(phone_tier, tg.getFirst("standardized-trs"))
     speakerID_list = get_item(phone_tier, tg.getFirst("speaker-ID"))
@@ -219,10 +220,12 @@ def main(input_textgrid, input_wav, output_csv):
         ('VOT', vot_values),
         ('COG', cog_values),
         ('PreviousPhone', previous_phoneme),
+        ('NextPhone', next_phoneme),
         ('Word', word_list),
         ('Sentence', sentence_list),
         ('AudioID', audioID_list),
-        ('SpeakerID', speakerID_list)]
+        ('SpeakerID', speakerID_list),
+    ]
     save_to_csv( [t[0] for t in csv_data],  [t[1] for t in csv_data], output_csv)
     print(f"Acoustic measurements saved to {output_csv}")
 
