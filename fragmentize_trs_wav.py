@@ -74,7 +74,12 @@ def fragmentize_trs_wav(xml_path, wav_path, out_dir, duration):
         subprocess.call(['ffmpeg', '-i', wav_path, '-ss', str(tmin), '-t', str(duration), wav_file_path])
 
 if __name__ == '__main__':
-    # Set up argument parsing
+    # This script fragments a TEI-formatted transcription (.trs) file along with its corresponding audio file (.wav) into smaller segments.
+    # It takes four arguments:
+    #   xml_path: The path to the TEI-formatted transcription file.
+    #   wav_path: The path to the audio file associated with the transcription.
+    #   out_dir: The path to the output directory where the fragmented transcriptions and audio files will be saved.
+    #   duration: The desired duration for each fragment in seconds.
     if len(sys.argv) < 5:
         print("Usage: python fragmentize_trs.py [xml_path] [wav_path] [out_dir] [duration]")
         sys.exit(1)
