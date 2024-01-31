@@ -76,20 +76,12 @@ Similary, other tiers can be added. A list of implemented tiers and their brief 
 * [add_speaker-change_tier.py](add_speaker-change_tier.py): The script analyzes a TextGrid file to identify and label speaker changes within conversational syllable intervals, marking these changes as 'POS' when a change occurs or 'NEG' otherwise.
 * [add_word-ID_tier.py](add_word-ID_tier.py): The script extracts and synchronizes word identifiers from the input XML, then adds these as a new tier to the output TextGrid file.
 
-## Processing IRISS database
-
-See script [iriss.sh](iriss/iriss.sh).
-
-## Processing GOS database
-
-See script [gos.sh](gos/gos.sh).
-
 ## Acoustic Measurements
 
 The script [acoustic_measurements.py](acoustic_measurements.py) computes various acoustic measurements from a given TextGrid file and WAV audio file, extracting phoneme durations, pitch-related features, formants, intensity, VOT (Voice Onset Time), COG (Center of Gravity), and related annotations. The computed values are then stored in a CSV file for analysis and further processing.
 
 **Usage:**
-```
+```bash
 python acoustic_measurements.py [input.TextGrid] [input.wav] [output.csv]
 ```
 
@@ -124,6 +116,22 @@ The output CSV file will contain the following columns for each phoneme:
 **Example:**
 
 The following command will calculate acoustic measurements for the phonemes in `input.TextGrid` and save the results to `output.csv`:
-```
+```bash
 python acoustic_measurements.py input.TextGrid input.wav output.csv
 ```
+
+## Batch processing
+
+The script [acoustics.sh](acoustics.sh) is designed to facilitate the processing of audio files for acoustic measurements. It takes three directory paths as input arguments: one for TextGrid files, one for WAV files, and one for output CSV files. The script iterates over each TextGrid file in the specified directory, locates its corresponding WAV file, performs acoustic measurements, and outputs the results in CSV format. It can be called as follows:
+```bash
+./[script_name].sh [textgrid_dir] [wav_dir] [csv_dir]
+```
+
+### Processing IRISS database
+
+See script [iriss.sh](iriss/iriss.sh).
+
+### Processing GOS database
+
+See script [gos.sh](gos/gos.sh).
+
