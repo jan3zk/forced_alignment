@@ -122,7 +122,7 @@ python acoustic_measurements.py input.TextGrid input.wav output.csv
 
 ## Batch processing
 
-The script [acoustics.sh](acoustics.sh) is designed to facilitate the processing of audio files for acoustic measurements. It takes three directory paths as input arguments: one for TextGrid files, one for WAV files, and one for output CSV files. The script iterates over each TextGrid file in the specified directory, locates its corresponding WAV file, performs acoustic measurements, and outputs the results in CSV format. It can be called as follows:
+The script [acoustics.sh](acoustics.sh) is designed to facilitate the processing of audio files for acoustic measurements. It takes three directory paths as input arguments: one for TextGrid files, one for WAV files, and one for output CSV files. The script iterates over each TextGrid file in the specified directory, locates its corresponding WAV file, performs acoustic measurements using a Python script [acoustic_measurements.py](acoustic_measurements.py), and outputs the results in CSV format. It can be called as follows:
 ```bash
 ./acoustics.sh [textgrid_dir] [wav_dir] [csv_dir]
 ```
