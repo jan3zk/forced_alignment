@@ -122,18 +122,13 @@ python acoustic_measurements.py input.TextGrid input.wav output.csv
 
 ## Batch processing
 
-The script [acoustics.sh](acoustics.sh) is designed to facilitate the processing of audio files for acoustic measurements. It takes three directory paths as input arguments: one for TextGrid files, one for WAV files, and one for output CSV files. The script iterates over each TextGrid file in the specified directory, locates its corresponding WAV file, performs acoustic measurements using a Python script [acoustic_measurements.py](acoustic_measurements.py), and outputs the results in CSV format. It can be called as follows:
-```bash
-./acoustics.sh [textgrid_dir] [wav_dir] [csv_dir]
-```
-
-### Processing IRISS database (učnI govoRnI korpuS Slovenskega jezika)
+### Forced alignment of IRISS database (učnI govoRnI korpuS Slovenskega jezika)
 
 Audio and transcriptions available at <https://nl.ijs.si/nikola/mezzanine/>.
 
 See script [iriss.sh](iriss/iriss.sh).
 
-### Processing GOS database ([korpus GOvorjene Slovenščine](https://viri.cjvt.si/gos/System/About))
+### Forced alignment of GOS database ([korpus GOvorjene Slovenščine](https://viri.cjvt.si/gos/System/About))
 
 Data Availability:
 * Transcriptions in TEI format at <https://www.clarin.si/repository/xmlui/handle/11356/1863>.
@@ -149,3 +144,10 @@ The script accepts these input arguments:
 * `[out_dir]`: Path to the directory where output files and intermediate files will be stored.
 * `[lexicon]`: Path to the lexicon file used for MFA forced alignment.
 * `[xml_dir]`: Path to the directory containing XML files, i.e. transcriptions in TEI format.
+
+### Acoustic measurements
+
+The script [acoustics.sh](acoustics.sh) is designed to facilitate the processing of audio files for acoustic measurements. It takes three directory paths as input arguments: one for TextGrid files, one for WAV files, and one for output CSV files. The script iterates over each TextGrid file in the specified directory, locates its corresponding WAV file, performs acoustic measurements using a Python script [acoustic_measurements.py](acoustic_measurements.py), and outputs the results in CSV format. It can be called as follows:
+```bash
+./acoustics.sh [textgrid_dir] [wav_dir] [csv_dir]
+```
