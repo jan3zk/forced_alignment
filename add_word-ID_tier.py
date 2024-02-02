@@ -2,6 +2,7 @@ import sys
 import xml.etree.ElementTree as ET
 from textgrid import TextGrid, IntervalTier, Interval
 import string
+import re
 
 def parse_word_id(xml_file_path):
     # Parse the XML file
@@ -55,7 +56,7 @@ def word_id_intervals(strd_wrd_sgmnt, word_ids):
             concatenated_intervals.append((start_time, end_time, combined_word))
 
     # Ensure word count matches
-    if len(ids) != len(concatenated_intervals):
+    if len(words) != len(concatenated_intervals):
         words_fa = [t[-1] for t in concatenated_intervals]
         print("\n".join(f"{a} {b}" for a, b in zip(words, words_fa)))
         raise ValueError("Word count in transcription and TextGrid do not match.")
@@ -75,7 +76,9 @@ def main(input_textgrid, input_xml, output_textgrid):
     word_ids = [t for t in word_ids if t[1] not in string.punctuation]
     # Remove intervals containing only ellipsis
     word_ids = [t for t in word_ids if t[-1] != '…']
-
+    #Remove words containing only escape sequences
+    word_ids = [t for t in word_ids if not re.match(r'^[\s\r\n\t]*$', t[1])]
+    
     # Load the input TextGrid
     tg = TextGrid.fromFile(input_textgrid)
 
