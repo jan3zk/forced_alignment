@@ -122,21 +122,11 @@ python acoustic_measurements.py input.TextGrid input.wav output.csv
 
 ## Batch processing
 
-### Forced alignment of IRISS database (učnI govoRnI korpuS Slovenskega jezika)
+**Processing forced alignments**
 
-Audio and transcriptions available at <https://nl.ijs.si/nikola/mezzanine/>.
-
-See script [iriss.sh](iriss/iriss.sh).
-
-### Forced alignment of GOS database ([korpus GOvorjene Slovenščine](https://viri.cjvt.si/gos/System/About))
-
-Data Availability:
-* Transcriptions in TEI format at <https://www.clarin.si/repository/xmlui/handle/11356/1863>.
-* Partial audio in WAV format at <https://www.clarin.si/repository/xmlui/handle/11356/1222>.
-
-This Bash script [gos.sh](gos/gos.sh) is designed to automate the process of performing forced alignment and adding multiple tiers to TextGrid files using a set of Python scripts. The script iterates through WAV files in a specified directory, performs multiple operations including forced alignment over short time intervals of input audio/trainscription pairs, and adding various tiers to the TextGrid files for detailed analysis. Execute the script using the following command:
+This Bash script [align.sh](align.sh) is designed to automate the process of performing forced alignment and adding multiple tiers to TextGrid files using a set of Python scripts. The script iterates through WAV files in a specified directory, performs multiple operations including forced alignment over short time intervals of input audio/trainscription pairs, and adding various tiers to the TextGrid files for detailed analysis. Execute the script using the following command:
 ```bash
-./gos.sh [wav_dir] [out_dir] [lexicon] [xml_dir]
+./align.sh [wav_dir] [out_dir] [lexicon] [xml_dir] [duration]
 ```
 
 The script accepts these input arguments:
@@ -144,10 +134,23 @@ The script accepts these input arguments:
 * `[out_dir]`: Path to the directory where output files and intermediate files will be stored.
 * `[lexicon]`: Path to the lexicon file used for MFA forced alignment.
 * `[xml_dir]`: Path to the directory containing XML files, i.e. transcriptions in TEI format.
+* `[duration]`: fragmentize the input audio and transcription files to chunks of length specified by this parameter before the forced alignment. If 'Inf' no fragmentation is performed.
 
-### Acoustic measurements
+**Processing acoustic measurements**
 
 The script [acoustics.sh](acoustics.sh) is designed to facilitate the processing of audio files for acoustic measurements. It takes three directory paths as input arguments: one for TextGrid files, one for WAV files, and one for output CSV files. The script iterates over each TextGrid file in the specified directory, locates its corresponding WAV file, performs acoustic measurements using a Python script [acoustic_measurements.py](acoustic_measurements.py), and outputs the results in CSV format. It can be called as follows:
 ```bash
 ./acoustics.sh [textgrid_dir] [wav_dir] [csv_dir]
 ```
+
+## Databases
+
+**IRISS database (učnI govoRnI korpuS Slovenskega jezika)**
+
+Audio and transcriptions available at <https://nl.ijs.si/nikola/mezzanine/>.
+
+**GOS database ([korpus GOvorjene Slovenščine](https://viri.cjvt.si/gos/System/About))**
+
+Data Availability:
+* Transcriptions in TEI format at <https://www.clarin.si/repository/xmlui/handle/11356/1863>.
+* Partial audio in WAV format at <https://www.clarin.si/repository/xmlui/handle/11356/1222>.
