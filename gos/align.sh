@@ -6,9 +6,9 @@ set -e
 # ./gos.sh /storage/rsdo/korpus/GosVL/wav/ ../data/gos_processed/GosVL /storage/janezk/mfa_data/lexicon_all.txt ../data/Gos.TEI.2.1/GosVL
 
 # Assign paths
-wav_dir=$1 
-out_dir=$2 
-lexicon=$3 
+wav_dir=$1
+out_dir=$2
+lexicon=$3
 xml_dir=$4
 duration=$5
 
@@ -20,7 +20,7 @@ counter=0
 # Iterate over all WAV files in the GOS directory and perform forced alignment
 for wav_file in ${wav_dir}*.wav; do
     counter=$((counter + 1))
-    if [ $counter -ge 4 ]; then
+    if [ $counter -ge 8 ]; then
         # Set file names
         echo -e "\nFiles ($counter):"
         base_name=$(basename $wav_file)
