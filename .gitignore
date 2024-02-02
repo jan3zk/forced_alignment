@@ -2,6 +2,7 @@
 *.rttm
 *.TextGrid
 *.csv
+*.bak*
 data/
 additional_tiers/
 .misc/
