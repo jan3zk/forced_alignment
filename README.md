@@ -134,7 +134,7 @@ The script accepts these input arguments:
 * `[out_dir]`: Path to the directory where output files and intermediate files will be stored.
 * `[lexicon]`: Path to the lexicon file used for MFA forced alignment.
 * `[xml_dir]`: Path to the directory containing XML files, i.e. transcriptions in TEI format.
-* `[duration]`: fragmentize the input audio and transcription files to chunks of length specified by this parameter before the forced alignment. If 'Inf' no fragmentation is performed.
+* `[duration]`: A floating-point number that defines the length of the audio segments in seconds. These segments are created from the input audio and transcriptions prior to MFA forced alignment. The value 'Inf' implies no segmentation will be performed.
 
 **Processing acoustic measurements**
 
@@ -151,6 +151,5 @@ Audio and transcriptions available at <https://nl.ijs.si/nikola/mezzanine/>.
 
 **GOS database ([korpus GOvorjene Slovenščine](https://viri.cjvt.si/gos/System/About))**
 
-Data Availability:
-* Transcriptions in TEI format at <https://www.clarin.si/repository/xmlui/handle/11356/1863>.
-* Partial audio in WAV format at <https://www.clarin.si/repository/xmlui/handle/11356/1222>.
+Transcriptions in TEI format at <https://www.clarin.si/repository/xmlui/handle/11356/1863>.
+Partial audio in WAV format at <https://www.clarin.si/repository/xmlui/handle/11356/1222>.
