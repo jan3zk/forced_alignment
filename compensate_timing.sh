@@ -26,5 +26,5 @@ for textgrid_file in "$input_dir"/*.TextGrid; do
     textgrid_file_out="$output_dir/$base_name"
 
     # Add trimmed_start to all timing values in the TextGrid
-    python ../compensate_trimming.py "$textgrid_file" "$trimmed_start" "$textgrid_file_out"
+    python compensate_trimming.py "$textgrid_file" "$trimmed_start" "$textgrid_file_out"
 done
