@@ -5,5 +5,7 @@
 *.bak*
 data/
 additional_tiers/
-.misc/
+/**/.*  # ignore all dotted files
+/**/.*/ # ignore all dotted folders
+!/.gitignore  # except `gitignore`
 __pycache__/

@@ -4,6 +4,7 @@ set -e
 # Call examples:
 # ./align.sh /storage/rsdo/korpus/GOS2.0/Artur-WAV/Artur-N ./data/gos_processed/Artur-N /storage/janezk/mfa_data/lexicon_all.txt ./data/Gos.TEI.2.1/Artur-N 30
 # ./align.sh /storage/rsdo/korpus/GosVL/wav/ ./data/gos_processed/GosVL /storage/janezk/mfa_data/lexicon_all.txt ./data/Gos.TEI.2.1/GosVL 30
+# ./align.sh ./data/iriss/ ./data/iriss_processed /storage/janezk/mfa_data/lexicon_all.txt ./data/iriss 30
 
 # Assign paths
 wav_dir=$1
