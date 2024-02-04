@@ -1,5 +1,6 @@
 import xml.etree.ElementTree as ET
 import sys
+import re
 
 def text_from_tei(xml_file_path, use_norm):
     # Parse the XML file
@@ -72,18 +73,27 @@ def intervals_from_tei(xml_file_path, use_norm=False):
     # Initialize an empty list to store the extracted data
     word_intrvl = []
     sentence_intrvl = []
-    first_word_passed = False
+    current_sentence_id = None
+    previous_sentence_id = None
+
     # Iterate through all elements in the XML file
     for elem in root.iter():
-        if elem.get('synch'):
-            wname = elem.get('synch')
-        else:
-            wname = None
+        if elem.tag == f'{{{namespaces["ns"]}}}seg':
+            previous_sentence_id = current_sentence_id
+            current_sentence_id = elem.get('synch')[1:] #elem.get(f'{{{xml_ns}}}id').rsplit('.', 1)[-1]
+
+        #if elem.get('synch'):
+        #    wname = elem.get('synch')
+        #if elem.get(f'{{{xml_ns}}}id'):
+        #    wname = elem.get(f'{{{xml_ns}}}id')
+        #else:
+        #    wname = None
+
         # Check for the 'gap' element in anonymized words
         if elem.tag == f'{{{namespaces["ns"]}}}gap':
             desc_elem = elem.find('ns:desc', namespaces)
             if desc_elem is not None and desc_elem.text:
-                word_intrvl.append((wname, desc_elem.text))
+                word_intrvl.append((current_sentence_id, desc_elem.text))
             continue
 
         # Check if the element is <w> or <pc>
@@ -98,25 +108,22 @@ def intervals_from_tei(xml_file_path, use_norm=False):
                         text = elem.text
                 else:
                     text = elem.text
-                word_intrvl.append((wname, text))
+                word_intrvl.append((current_sentence_id, text))
 
-        if first_word_passed and elem.get('synch') and elem.get('synch')[-2:] == "w0":
-            sentence = concatenate_words([w[1] for w in word_intrvl[:-1]])
-            if word_intrvl[0][0] == None:
-                tmin = 0.0
-            else:
-                tmin = time_dict.get(".".join(word_intrvl[0][0].split(".")[:2])[1:])
-            tmax = time_dict.get(".".join(word_intrvl[-1][0].split(".")[:2])[1:])
-            sentence_intrvl.append((tmin, tmax, sentence))
-            word_intrvl = [word_intrvl[-1]]
-        if elem.get('synch') and elem.get('synch')[-2:] == "w0":
-            first_word_passed = True
-    
-    # Add last sentence
-    sentence = concatenate_words([w[1] for w in word_intrvl])
-    tmin = time_dict.get(".".join(word_intrvl[0][0].split(".")[:2])[1:])
-    tmax = time_dict.get(".".join(increment_last_element_number(word_intrvl[0][0].split(".")[:2]))[1:])
-    sentence_intrvl.append((tmin, tmax, sentence))
+    # Using a dictionary to group and concatenate words inside sentences
+    grouped = {}
+    for key, value in word_intrvl:
+        if key in grouped:
+            grouped[key] += " " + value
+        else:
+            grouped[key] = value
+
+    # Converting the dictionary back into a list of tuples
+    sentences = list(grouped.items())
+    for sentence in sentences:
+        tmin = time_dict.get(sentence[0])
+        tmax = time_dict.get(re.sub(r'(\d+)(?!.*\d)', lambda x: str(int(x.group()) + 1), sentence[0]))
+        sentence_intrvl.append((tmin, tmax, sentence[1]))
 
     return sentence_intrvl
 
