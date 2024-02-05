@@ -66,6 +66,6 @@ for wav_file in ${wav_dir}*.wav; do
         python add_pause_tier.py $textgrid_file_out $textgrid_file_out #|| continue
         python add_speaker-change_tier.py $textgrid_file_out $textgrid_file_out #|| continue
         python add_word-ID_tier.py $textgrid_file_out $xml_file $textgrid_file_out #|| continue
-        break
+        #break
     fi
 done
