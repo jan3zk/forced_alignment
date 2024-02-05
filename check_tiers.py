@@ -45,6 +45,11 @@ def process_directory(directory, tiers_to_check):
     return all_tiers_present
 
 def main():
+    # The script is designed to check for the presence of specified tiers in TextGrid files.
+
+    # Call example:
+    # python check_tiers.py data/iriss_processed/TextGrid_final/ speaker-ID standardized-trs strd-wrd-sgmnt discourse-marker conversational-trs word-ID cnvrstl-wrd-sgmnt cnvrstl-syllables phones pitch-reset intensity-reset speech-rate-reduction pause speaker-change
+
     # Set up argument parsing
     parser = argparse.ArgumentParser(description='Check for specified tiers in a TextGrid file or all TextGrid files in a directory.')
     parser.add_argument('path', type=str, help='Path to the TextGrid file or directory.')
