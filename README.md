@@ -1,4 +1,4 @@
-# Slovene Speech Alignment with Montreal Forced Aligner
+# Slovene Audio and Transcription Alignment using Montreal Forced Aligner
 
 This repository provides instructions for aligning transcriptions with corresponding audio files containing Slovene speech using the Montreal Forced Aligner (MFA). Follow the steps below to set up the environment and align your speech corpus.
 
