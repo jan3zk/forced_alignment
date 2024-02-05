@@ -30,7 +30,7 @@ To train the acoustic model and export it to a zip file, use the following comma
 mfa train ~/mfa_data/corpus ~/mfa_data/dictionary.txt ~/mfa_data/acoustic_model.zip
 ```
 
-Alternatively, a pretrained model and the pronunciation dictionary can be downloaded from [here](https://unilj-my.sharepoint.com/:f:/g/personal/janezkrfe_fe1_uni-lj_si/EpYgD7Y3PrlFgtIwSH7nkJoByWgpE2beKOpoP4R_NnkobQ?e=JcTKVM). If using the pretrained model, skip the training step.
+Alternatively, one can download a [pretrained model](https://unilj-my.sharepoint.com/:u:/g/personal/janezkrfe_fe1_uni-lj_si/EYhQtHlcbplGl66DnktMTRYB_1zU_nYqbjNIUVNk3F_quw) and the [pronunciation dictionary](https://unilj-my.sharepoint.com/:t:/g/personal/janezkrfe_fe1_uni-lj_si/EWsrSJEG8fxIkmPL5w6G2KMB-dVH4RodUxD3V4Rzy4GLOQ). If using the pretrained model, skip the training step.
 
 You can save the acoustic model stored in zip file for later convenience by running:
 
