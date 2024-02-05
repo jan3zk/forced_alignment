@@ -1,6 +1,9 @@
 #!/bin/bash
 set -e
 
+# Call example:
+# ./acoustics.sh data/iriss_processed/TextGrid_final/ data/iriss/ data/iriss_processed/csv
+
 # Assign paths
 textgrid_dir=$1 #./data/gos_processed/Artur-J/TextGrid_final
 wav_dir=$2      #/storage/rsdo/korpus/GOS2.0/Artur-WAV
