@@ -113,13 +113,6 @@ The output CSV file will contain the following columns for each phoneme:
 * `AudioID`: The ID of the audio file
 * `SpeakerID`: The ID of the speaker
 
-**Example:**
-
-The following command will calculate acoustic measurements for the phonemes in `input.TextGrid` and save the results to `output.csv`:
-```bash
-python acoustic_measurements.py input.TextGrid input.wav output.csv
-```
-
 ## Batch processing
 
 **Processing forced alignments**
