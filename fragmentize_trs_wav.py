@@ -41,7 +41,8 @@ def combine_intervals(intervals, duration):
 def fragmentize_trs_wav(xml_path, wav_path, out_dir, duration):
 
     # Extract the base name of the trs file without extension
-    base_name = os.path.splitext(os.path.basename(xml_path))[0]
+    #base_name = os.path.splitext(os.path.basename(xml_path))[0]
+    base_name = os.path.splitext(os.path.basename(wav_path))[0]
 
     if duration != float('inf'):
         trs_intervals = intervals_from_tei(xml_path, True)
