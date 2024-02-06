@@ -3,8 +3,9 @@ set -e
 
 # Call examples:
 # ./align.sh /storage/rsdo/korpus/GOS2.0/Artur-WAV/Artur-N ./data/gos_processed/Artur-N /storage/janezk/mfa_data/lexicon_all.txt ./data/Gos.TEI.2.1/Artur-N 30
-# ./align.sh /storage/rsdo/korpus/GosVL/wav/ ./data/gos_processed/GosVL /storage/janezk/mfa_data/lexicon_all.txt ./data/Gos.TEI.2.1/GosVL 30
+# ./align.sh /storage/rsdo/korpus/MEZZANINE/GosVL/wav/ ./data/gos_processed/GosVL /storage/janezk/mfa_data/lexicon_all.txt ./data/Gos.TEI.2.1/GosVL 30
 # ./align.sh ./data/iriss/ ./data/iriss_processed /storage/janezk/mfa_data/lexicon_all.txt ./data/iriss 30
+# ./align.sh /storage/rsdo/korpus/MEZZANINE/SST/ ./data/SST_processed /storage/janezk/mfa_data/lexicon_all.txt /storage/rsdo/korpus/MEZZANINE/SST 30
 
 # Assign paths
 wav_dir=$1
@@ -34,10 +35,12 @@ for wav_file in ${wav_dir}*.wav; do
         echo textgrid_file=\"$textgrid_file\"
         echo textgrid_file_out=\"$textgrid_file_out\"
 
-        echo -e "\nPerforming MFA forced alignmet ..."
+        echo -e "\nPerforming temporal fragmentation ..."
         rm -f $out_dir/mfa_input/*.txt
         rm -f $out_dir/mfa_input/*.wav
         python fragmentize_trs_wav.py $xml_file $wav_file $out_dir/mfa_input $duration #|| continue
+
+        echo -e "\nPerforming MFA forced alignmet ..."
         rm -f $out_dir/mfa_output/*.TextGrid
         mfa align --clean $out_dir/mfa_input $lexicon acoustic_model $out_dir/mfa_output --beam 300 --retry_beam 3000
 
