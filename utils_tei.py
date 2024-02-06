@@ -41,22 +41,14 @@ def text_from_tei(xml_file_path, use_norm):
 
     return extracted_data
 
-def time_lookup_dict(xml_root):
-    """
-    Creates a dictionary that maps xml:id to interval time for fast lookup.
-    Args:
-    xml_root (ET.Element): Root element of the parsed XML document.
-
-    Returns:
-    dict: A dictionary mapping xml:id to interval time.
-    """
-    time_dict = {}
+def timings(xml_root):
+    time_list = []
     for when_element in xml_root.iterfind('.//{http://www.tei-c.org/ns/1.0}when'):
         xml_id = when_element.attrib.get('{http://www.w3.org/XML/1998/namespace}id')
         interval = float(when_element.attrib.get('interval', 0))
-        time_dict[xml_id] = interval
+        time_list.append((xml_id, interval))
 
-    return time_dict
+    return time_list
 
 def intervals_from_tei(xml_file_path, use_norm=False):
     # Parse the XML file
@@ -68,7 +60,7 @@ def intervals_from_tei(xml_file_path, use_norm=False):
     xml_ns = 'http://www.w3.org/XML/1998/namespace'
 
     # Create the time lookup dictionary
-    time_dict = time_lookup_dict(root)
+    time_list = timings(root)
 
     # Initialize an empty list to store the extracted data
     word_intrvl = []
@@ -80,14 +72,7 @@ def intervals_from_tei(xml_file_path, use_norm=False):
     for elem in root.iter():
         if elem.tag == f'{{{namespaces["ns"]}}}seg':
             previous_sentence_id = current_sentence_id
-            current_sentence_id = elem.get('synch')[1:] #elem.get(f'{{{xml_ns}}}id').rsplit('.', 1)[-1]
-
-        #if elem.get('synch'):
-        #    wname = elem.get('synch')
-        #if elem.get(f'{{{xml_ns}}}id'):
-        #    wname = elem.get(f'{{{xml_ns}}}id')
-        #else:
-        #    wname = None
+            current_sentence_id = elem.get('synch')[1:]
 
         # Check for the 'gap' element in anonymized words
         if elem.tag == f'{{{namespaces["ns"]}}}gap':
@@ -121,8 +106,8 @@ def intervals_from_tei(xml_file_path, use_norm=False):
     # Converting the dictionary back into a list of tuples
     sentences = list(grouped.items())
     for sentence in sentences:
-        tmin = time_dict.get(sentence[0])
-        tmax = time_dict.get(re.sub(r'(\d+)(?!.*\d)', lambda x: str(int(x.group()) + 1), sentence[0]))
+        tmin = next((item[1] for item in time_list if item[0] == sentence[0]), None)
+        tmax = next((time_list[i+1][1] for i in range(len(time_list)-1) if time_list[i][0] == sentence[0]), None)
         sentence_intrvl.append((tmin, tmax, sentence[1]))
 
     return sentence_intrvl
