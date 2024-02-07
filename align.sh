@@ -38,17 +38,17 @@ for wav_file in ${wav_dir}*.wav; do
         echo -e "\nPerforming temporal fragmentation ..."
         rm -f $out_dir/mfa_input/*.txt
         rm -f $out_dir/mfa_input/*.wav
-        python fragmentize_trs_wav.py $xml_file $wav_file $out_dir/mfa_input $duration #|| continue
+        python fragmentize_trs_wav.py $xml_file $wav_file $out_dir/mfa_input $duration
 
         echo -e "\nPerforming MFA forced alignmet ..."
         rm -f $out_dir/mfa_output/*.TextGrid
-        mfa align --clean $out_dir/mfa_input $lexicon acoustic_model $out_dir/mfa_output --beam 300 --retry_beam 3000
+        mfa align --clean --single_speaker $out_dir/mfa_input $lexicon acoustic_model $out_dir/mfa_output --beam 300 --retry_beam 3000
 
         if [ "$duration" != "Inf" ]; then
             echo -e "\nCombining partial TextGrids ..."
             ./compensate_timing.sh $out_dir/mfa_output $out_dir/mfa_output
             mkdir -p $out_dir/TextGrid
-            python combine_textgrid.py $out_dir/mfa_output $textgrid_file #|| continue
+            python combine_textgrid.py $out_dir/mfa_output $textgrid_file
         else
             echo -e "\nCopying TextGrid file for Inf duration ..."
             mkdir -p $(dirname "$textgrid_file_out")
@@ -57,18 +57,18 @@ for wav_file in ${wav_dir}*.wav; do
 
         echo -e "\nAdding new tiers ..."
         mkdir -p $out_dir/TextGrid_final
-        python add_cnvrstl-syllables_tier.py $textgrid_file $xml_file $textgrid_file_out #|| continue
-        python add_speaker-ID_tier.py $textgrid_file_out $xml_file $textgrid_file_out #|| continue
-        python add_standardized-trs_tier.py $xml_file $textgrid_file_out $textgrid_file_out #|| continue
-        python add_conversational-trs_tier.py $xml_file $textgrid_file_out $textgrid_file_out #|| continue
-        python add_cnvrstl-wrd-sgmnt_tier.py $xml_file $textgrid_file_out $textgrid_file_out #|| continue
-        python add_discourse-marker_tier.py $textgrid_file_out $textgrid_file_out ./data/discourse_markers.txt #|| continue
-        python add_pitch-reset_tier.py $wav_file $textgrid_file_out $textgrid_file_out 40 average-neighboring     #|| continue
-        python add_intensity-reset_tier.py $wav_file $textgrid_file_out $textgrid_file_out 8 near #|| continue
-        python add_speech-rate-reduction_tier.py $wav_file $textgrid_file_out $textgrid_file_out 1.5 near #|| continue
-        python add_pause_tier.py $textgrid_file_out $textgrid_file_out #|| continue
-        python add_speaker-change_tier.py $textgrid_file_out $textgrid_file_out #|| continue
-        python add_word-ID_tier.py $textgrid_file_out $xml_file $textgrid_file_out #|| continue
+        python add_cnvrstl-syllables_tier.py $textgrid_file $xml_file $textgrid_file_out
+        python add_speaker-ID_tier.py $textgrid_file_out $xml_file $textgrid_file_out
+        python add_standardized-trs_tier.py $xml_file $textgrid_file_out $textgrid_file_out
+        python add_conversational-trs_tier.py $xml_file $textgrid_file_out $textgrid_file_out
+        python add_cnvrstl-wrd-sgmnt_tier.py $xml_file $textgrid_file_out $textgrid_file_out
+        python add_discourse-marker_tier.py $textgrid_file_out $textgrid_file_out ./data/discourse_markers.txt
+        python add_pitch-reset_tier.py $wav_file $textgrid_file_out $textgrid_file_out 40 average-neighboring
+        python add_intensity-reset_tier.py $wav_file $textgrid_file_out $textgrid_file_out 8 near
+        python add_speech-rate-reduction_tier.py $wav_file $textgrid_file_out $textgrid_file_out 1.5 near
+        python add_pause_tier.py $textgrid_file_out $textgrid_file_out
+        python add_speaker-change_tier.py $textgrid_file_out $textgrid_file_out
+        python add_word-ID_tier.py $textgrid_file_out $xml_file $textgrid_file_out
         #break
     fi
 done
