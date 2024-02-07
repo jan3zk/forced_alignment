@@ -90,12 +90,29 @@ def fragmentize_trs_wav(xml_path, wav_path, out_dir, duration):
         shutil.copy(wav_path, os.path.join(out_dir, base_name+'.wav'))
 
 if __name__ == '__main__':
-    # This script fragments a TEI-formatted transcription (.xml) file along with its corresponding audio file (.wav) into smaller segments.
-    # It takes four arguments:
-    #   xml_path: The path to the TEI-formatted transcription file.
-    #   wav_path: The path to the audio file associated with the transcription.
-    #   out_dir: The path to the output directory where the fragmented transcriptions and audio files will be saved.
-    #   duration: The desired duration for each fragment in seconds.
+    """
+    This script is designed to process TEI-formatted transcription files (.xml) and corresponding audio files (.wav). 
+    It segments both the transcription and audio into smaller, manageable fragments. The segmentation respects sentence 
+    boundaries, ensuring that sentences are not split mid-way. Each fragment's duration is guided by the user-specified duration,
+    but the script will not break a sentence to adhere to this limit; it may produce segments longer than the desired duration 
+    if a sentence exceeds this length.
+
+    The script is intended to be run from the command line and requires four arguments:
+        - xml_path: Path to the TEI-formatted transcription file.
+        - wav_path: Path to the corresponding audio file.
+        - out_dir: Path to the directory where the fragmented transcriptions and audio files will be saved.
+        - duration: Target duration for each audio fragment, in seconds. 
+
+    Usage:
+        To use the script, execute it with the required parameters. For example:
+        python fragmentize_trs.py [path/to/transcription.xml] [path/to/audio.wav] [path/to/output/directory] [duration_in_seconds]
+
+    Note:
+        - The script ensures that the output directory exists before saving files.
+        - It processes the transcription and audio synchronously, ensuring that each text fragment corresponds to its audio segment.
+        - If the duration is set to 'inf' (infinity), the script will process the entire transcription and audio file as a single segment.
+    """
+
     if len(sys.argv) < 5:
         print("Usage: python fragmentize_trs.py [xml_path] [wav_path] [out_dir] [duration]")
         sys.exit(1)
