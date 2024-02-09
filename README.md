@@ -138,10 +138,6 @@ The script [acoustics.sh](acoustics.sh) is designed to facilitate the processing
 
 ## Databases
 
-**IRISS database (učnI govoRnI korpuS Slovenskega jezika)**
-
-Audio and transcriptions available at <https://nl.ijs.si/nikola/mezzanine/>.
-
 **GOS database ([korpus GOvorjene Slovenščine](https://viri.cjvt.si/gos/System/About))**
 
 Transcriptions in TEI format at <https://www.clarin.si/repository/xmlui/handle/11356/1863>.
