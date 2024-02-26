@@ -2,7 +2,7 @@
 set -e
 
 # Call example:
-# ./acoustics.sh data/iriss_processed/TextGrid_final/ data/iriss/ data/iriss_processed/csv
+# ./acoustics.sh data/iriss_processed/TextGrid_final/ /storage/rsdo/korpus/MEZZANINE/iriss/ data/iriss_processed/csv
 
 # Assign paths
 textgrid_dir=$1 #./data/gos_processed/Artur-J/TextGrid_final
