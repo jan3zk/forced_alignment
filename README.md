@@ -140,5 +140,6 @@ The script [acoustics.sh](acoustics.sh) is designed to facilitate the processing
 
 **GOS database ([korpus GOvorjene Slovenščine](https://viri.cjvt.si/gos/System/About))**
 
-Transcriptions in TEI format at <https://www.clarin.si/repository/xmlui/handle/11356/1863>.
-Partial audio in WAV format at <https://www.clarin.si/repository/xmlui/handle/11356/1222>.
+Spoken corpus Gos 2.1 (transcriptions): <https://www.clarin.si/repository/xmlui/handle/11356/1863>
+Spoken corpus Gos VideoLectures 4.0 (audio): <https://www.clarin.si/repository/xmlui/handle/11356/1222>
+ASR database ARTUR 1.0 (audio): <https://www.clarin.si/repository/xmlui/handle/11356/1776>
