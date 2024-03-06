@@ -139,7 +139,9 @@ The script [acoustics.sh](acoustics.sh) is designed to facilitate the processing
 ## Databases
 
 **GOS database ([korpus GOvorjene Slovenščine](https://viri.cjvt.si/gos/System/About))**
-
 * Spoken corpus Gos 2.1 (transcriptions): <https://www.clarin.si/repository/xmlui/handle/11356/1863>
 * Spoken corpus Gos VideoLectures 4.0 (audio): <https://www.clarin.si/repository/xmlui/handle/11356/1222>
 * ASR database ARTUR 1.0 (audio): <https://www.clarin.si/repository/xmlui/handle/11356/1776>
+
+**IRISS, SST and SPOG databases**
+* Transcriptions and audio: <https://nl.ijs.si/nikola/mezzanine/>
