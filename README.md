@@ -151,7 +151,7 @@ The accuracy of forced alignment can be assessed using the script below. This sc
 python aligner_eval.py <xml_dir> <textgrid_or_ctm_dir>
 ```
 
-## Alternative to MFA: NeMo Forced Aligner
+### Alternative to MFA for performance comparison: NeMo Forced Aligner
 
 To install NeMo, follow the [instructions](https://docs.nvidia.com/deeplearning/nemo/user-guide/docs/en/main/tools/nemo_forced_aligner.html).
 
