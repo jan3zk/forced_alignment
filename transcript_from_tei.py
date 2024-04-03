@@ -47,17 +47,13 @@ def concatenate_words(words):
         sentence += word
     return sentence
 
-def main(xml_file_path, txt_file_path, use_norm):
+def transcript_from_tei(xml_file_path, use_norm):
     # Extract data
     texts = text_from_tei(xml_file_path, use_norm)
     text = concatenate_words(texts)
     
-    try:
-        with open(txt_file_path, 'w') as file:
-            file.write(text)
-    except Exception as e:
-        print(f"Error: {e}")
-
+    return text
+    
 if __name__ == '__main__':
     # Set up argument parsing
     if len(sys.argv) < 3:
@@ -68,4 +64,10 @@ if __name__ == '__main__':
     txt_file_path = sys.argv[2]
     use_norm = '--use-norm' in sys.argv  # Check if --use-norm flag is present
 
-    main(xml_file_path, txt_file_path, use_norm)
+    text = transcript_from_tei(xml_file_path, use_norm)
+
+    try:
+        with open(txt_file_path, 'w') as file:
+            file.write(text)
+    except Exception as e:
+        print(f"Error: {e}")

@@ -37,3 +37,4 @@ if __name__ == "__main__":
     keywords = sys.argv[4:]
 
     anonymize_audio(input_wav, input_textgrid, output_wav, keywords)
+    

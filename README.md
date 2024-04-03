@@ -56,7 +56,7 @@ Make sure to replace `/path/to/input/wavs/and/txt/` with the actual path to your
 
 For more details and advanced usage, please refer to the official documentation of Montreal Forced Aligner.
 
-## Enhancing TextGrid files with additional tiers
+## Enhancing TextGrid Files with Additional Tiers
 
 The MFA delivers alignments at both the word and phoneme levels. To introduce a syllable level, [add_cnvrstl-syllables_tier.py](add_cnvrstl-syllables_tier.py) function can be utilized as follows:
 ```bash
@@ -113,7 +113,7 @@ The output CSV file will contain the following columns for each phoneme:
 * `AudioID`: The ID of the audio file
 * `SpeakerID`: The ID of the speaker
 
-## Batch processing
+## Batch Processing
 
 **Processing forced alignments**
 
@@ -142,6 +142,23 @@ The script [acoustics.sh](acoustics.sh) is designed to facilitate the processing
 * Spoken corpus Gos 2.1 (transcriptions): <https://www.clarin.si/repository/xmlui/handle/11356/1863>
 * Spoken corpus Gos VideoLectures 4.0 (audio): <https://www.clarin.si/repository/xmlui/handle/11356/1222>
 * ASR database ARTUR 1.0 (audio): <https://www.clarin.si/repository/xmlui/handle/11356/1776>
+* IRISS, SST and SPOG subsets: <https://nl.ijs.si/nikola/mezzanine/>
 
-**IRISS, SST and SPOG databases**
-* Transcriptions and audio: <https://nl.ijs.si/nikola/mezzanine/>
+## Performance Evaluation
+
+The accuracy of forced alignment can be assessed using the script below. This script compares time intervals calculated by the alignment process against hand-annotated intervals found in XML(TEI) files at the word level:
+```bash
+python aligner_eval.py <xml_dir> <textgrid_or_ctm_dir>
+```
+
+## Alternative to MFA: NeMo Forced Aligner
+
+To install NeMo, follow the [instructions](https://docs.nvidia.com/deeplearning/nemo/user-guide/docs/en/main/tools/nemo_forced_aligner.html).
+
+Pretrained model available at: <https://www.clarin.si/repository/xmlui/handle/11356/1737>.
+
+Forced alignment using NeMo can be performed by the following commands:
+```bash
+python nemo_manifest.py <wav_dir> <xml_dir> <manifest_dir>
+python nemo_align.py <nemo_dir> <model_path> <manifest_dir> <output_dir>
+```
