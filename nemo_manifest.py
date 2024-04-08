@@ -24,7 +24,8 @@ if __name__ == "__main__":
 
     # Create manifest for each WAV file in the directory
     for wav_file in glob.glob(wav_directory):
-        base_name = os.path.basename(wav_file).replace(".wav", "")[:-4]
+        #base_name = os.path.basename(wav_file).replace(".wav", "")[:-4] #additional "-avd" in name
+        base_name = os.path.basename(wav_file).replace(".wav", "") #without additional "-avd" in name
         xml_file = os.path.join(xml_directory, base_name + ".xml")
         manifest_file = os.path.join(manifest_directory, base_name + ".json")
 

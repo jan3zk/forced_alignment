@@ -6,7 +6,7 @@ def run_alignment(nemo_dir, model_path, manifest_file, output_dir):
     try:
         subprocess.run(["python", f"{nemo_dir}/tools/nemo_forced_aligner/align.py", 
                         f"model_path={model_path}", f"manifest_filepath={manifest_file}", 
-                        f"output_dir={output_dir}"], check=True)
+                        f"output_dir={output_dir}", "save_output_file_formats=['ctm']"], check=True)
     except subprocess.CalledProcessError as e:
         print(f"Error occurred: {e}")
 
