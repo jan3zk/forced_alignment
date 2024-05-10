@@ -3,38 +3,54 @@ def is_vowel(list_of_phonemes_in_word, position, vowels):
     return list_of_phonemes_in_word[position] in vowels
 
 
-def get_vowel_phonemes():
+def get_vowel_phonemes(pdict):
     """Returns a list of vowel phonemes."""
-    return ["@", "a", "e", "E", "i", "o", "O", "u"]
+    if pdict.lower() == 'gos':
+        return ["@", "a", "e", "E", "i", "o", "O", "u"] #Gos
+    else:
+        return ["a", "\"a", "\"a:", "e", "\"e:", "E", "\"E", "\"E:", "@", "\"@", "i", "\"i", "\"i:", "I", "o", "\"o:", "O", "\"O", "\"O:", "u", "\"u", "\"u:"] #Optilex
 
 
-def get_sonorant_phonemes():
+def get_sonorant_phonemes(pdict):
     """Returns a list of sonorant phonemes. """
-    return ["m", "n", "n'", "N", "v", "w", "W", "l", "l'", "r", "j"]
+    if pdict.lower() == 'gos':
+        return ["m", "n", "n'", "N", "v", "w", "W", "l", "l'", "r", "j"] #Gos
+    else:
+        return ["m", "n", "n'", "N", "v", "w", "W", "U", "l", "l'", "r", "j"] #Optilex
 
 
-def get_voiced_obstruent_phonemes():
+def get_voiced_obstruent_phonemes(pdict):
     """Returns a list of voiced obstruent phonemes."""
-    return ["b", "d", "z", "Z", "g"]
+    if pdict.lower() == 'gos':
+        return ["b", "d", "z", "Z", "g"] #Gos
+    else:
+        return ["b", "b_n", "b_f", "d", "d_l", "d_n", "z", "Z", "g"] #Optilex
 
 
-def get_voiceless_obstruent_phonemes():
+def get_voiceless_obstruent_phonemes(pdict):
     """Returns a list of voiceless obstruent phonemes."""
-    return ["F", "p", "t", "s", "S", "tS", "k", "f", "h", "x", "ts"]
+    if pdict.lower() == 'gos':
+        return ["F", "p", "t", "s", "S", "tS", "k", "f", "h", "x", "ts"] #Gos
+    else:
+        return ["F", "p", "p_n", "p_f", "t", "t_l", "t_n", "s", "S", "tS", "k", "f", "G", "x", "ts"] #Optilex
 
 
-def get_consonant_phonemes():
+def get_consonant_phonemes(pdict):
     """Returns a list of all consonant phonemes."""
-    return ["m", "n", "n'", "N", "v", "w", "W", "l", "l'", "r", "j", "b", "d",
-            "z", "Z", "g", "p", "t", "s", "S", "tS", "k", "f", "F", "h", "x", "ts"]
+    if pdict.lower() == 'gos':
+        return ["m", "n", "n'", "N", "v", "w", "W", "l", "l'", "r", "j", "b", "d",
+                "z", "Z", "g", "p", "t", "s", "S", "tS", "k", "f", "F", "h", "x", "ts"] #Gos
+    else:
+        return ["m", "n", "n'", "N", "v", "w", "W", "U", "l", "l'", "r", "j", "b", "b_n", "b_f", "d", "d_l", "d_n",
+                "z", "Z", "g", "p", "p_n", "p_f", "t", "t_l", "t_n", "s", "S", "tS", "k", "f", "F", "G", "x", "ts"] #Optilex
 
 
-def split_consonant_phonemes_between_syllables(consonants):
+def split_consonant_phonemes_between_syllables(consonants, pdict):
     """A function that splits consonants between syllable 1 and syllable 2."""
     # GET LISTS OF PHONEMES BY CATEGORY
-    sonorant_phonemes = get_sonorant_phonemes()
-    voiced_obstruent_phonemes = get_voiced_obstruent_phonemes()
-    voiceless_obstruent_phonemes = get_voiceless_obstruent_phonemes()
+    sonorant_phonemes = get_sonorant_phonemes(pdict)
+    voiced_obstruent_phonemes = get_voiced_obstruent_phonemes(pdict)
+    voiceless_obstruent_phonemes = get_voiceless_obstruent_phonemes(pdict)
 
     # If there are no consonant phonemes, return empty lists for syllable 1 and syllable 2
     if len(consonants) == 0:
@@ -94,15 +110,17 @@ def syllabize_phonemes(word: str) -> list[str]:
     """A function that splits a word into syllables."""
     consonants = []
     syllables = []
+    pdict = 'optilex'
     phonemes_in_word = word.split()
-    vowels = get_vowel_phonemes()
+    vowels = get_vowel_phonemes(pdict)
+    import ipdb; ipdb.set_trace()
     for i in range(len(phonemes_in_word)):
         if is_vowel(phonemes_in_word, i, vowels):
             if syllables == []:
                 consonants.append(phonemes_in_word[i])
                 syllables.append(" ".join(consonants))
             else:
-                left_consonants, right_consonants = split_consonant_phonemes_between_syllables(consonants)
+                left_consonants, right_consonants = split_consonant_phonemes_between_syllables(consonants, pdict)
                 if left_consonants:
                     syllables[-1] += " " + " ".join(left_consonants)
                 right_consonants.append(phonemes_in_word[i])

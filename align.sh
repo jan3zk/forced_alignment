@@ -42,7 +42,8 @@ for wav_file in ${wav_dir}*.wav; do
 
         echo -e "\nPerforming MFA forced alignmet ..."
         rm -f $out_dir/mfa_output/*.TextGrid
-        mfa align --clean --single_speaker $out_dir/mfa_input $lexicon acoustic_model $out_dir/mfa_output --beam 300 --retry_beam 3000
+        #mfa align --clean --single_speaker $out_dir/mfa_input $lexicon acoustic_model $out_dir/mfa_output --beam 300 --retry_beam 3000
+        mfa align --clean --single_speaker $out_dir/mfa_input $lexicon ./data/acoustic_model_optilex.zip $out_dir/mfa_output --beam 300 --retry_beam 3000 --g2p_model_path ./data/OPTILEX_v3_g2p.zip
 
         if [ "$duration" != "Inf" ]; then
             echo -e "\nCombining partial TextGrids ..."
@@ -69,6 +70,6 @@ for wav_file in ${wav_dir}*.wav; do
         python add_pause_tier.py $textgrid_file_out $textgrid_file_out
         python add_speaker-change_tier.py $textgrid_file_out $textgrid_file_out
         python add_word-ID_tier.py $textgrid_file_out $xml_file $textgrid_file_out
-        #break
+        break
     fi
 done
