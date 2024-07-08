@@ -22,6 +22,16 @@ def identify_names(text):
     names = [ent.text for ent in doc.ents if ent.label_ == "PER"]
     return names
 
+def flexible_compare(input_string, pattern):
+    #import ipdb; ipdb.set_trace()
+    if pattern.endswith('*'):
+        # Perform startswith comparison if pattern ends with '*'
+        prefix = pattern[:-1]
+        return input_string.startswith(prefix)
+    else:
+        # Perform strict comparison
+        return input_string == pattern
+
 def anonymize_audio(input_wav, input_textgrid, output_wav, keywords=[]):
     intervals = get_intervals(input_textgrid)
     # If no keywords are provided, use spaCy to identify personal names
@@ -38,7 +48,7 @@ def anonymize_audio(input_wav, input_textgrid, output_wav, keywords=[]):
     # Anonymize intervals
     for xmin, xmax, text in intervals:
         for keyword in keywords:
-            if keyword.lower() == text.lower():
+            if flexible_compare(text.lower(), keyword.lower()):
                 print(f"Anonymizing part from {xmin}s to {xmax}s: {text}")
                 beep = Sine(1000).to_audio_segment(duration=int((xmax - xmin) * 1000), volume=audio.dBFS)
                 audio = audio.overlay(beep, position=int(xmin * 1000), gain_during_overlay=-inf)

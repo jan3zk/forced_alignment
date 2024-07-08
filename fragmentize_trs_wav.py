@@ -76,7 +76,7 @@ def fragmentize_trs_wav(xml_path, wav_path, out_dir, duration):
 
             # Trim the wav file using ffmpeg
             duration = tmax - tmin
-            subprocess.call(['ffmpeg', '-i', wav_path, '-ss', str(tmin), '-t', str(duration), wav_file_path])
+            subprocess.call(['ffmpeg', '-i', wav_path, '-ss', str(tmin), '-t', str(duration), wav_file_path], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     else:
         # Read entire text regardelss of time intervals
         text = text_from_tei(xml_path, True)
