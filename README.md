@@ -162,3 +162,7 @@ Forced alignment using NeMo can be performed by the following commands:
 python nemo_manifest.py <wav_dir> <xml_dir> <manifest_dir>
 python nemo_align.py <nemo_dir> <model_path> <manifest_dir> <output_dir>
 ```
+
+## Use Case Examples
+
+A practical example of using forced alignment for audio anonymization can be found at [anonymization_example.ipynb](anonymization_example.ipynb). This Jupyter notebook provides a detailed walkthrough of how to use the script [anonymize_audio.py](anonymize_audio.py) for the task of audio anonymization.
