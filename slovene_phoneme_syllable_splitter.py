@@ -113,7 +113,6 @@ def syllabize_phonemes(word: str) -> list[str]:
     pdict = 'optilex'
     phonemes_in_word = word.split()
     vowels = get_vowel_phonemes(pdict)
-    import ipdb; ipdb.set_trace()
     for i in range(len(phonemes_in_word)):
         if is_vowel(phonemes_in_word, i, vowels):
             if syllables == []:

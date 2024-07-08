@@ -6,4 +6,5 @@
 data/
 additional_tiers/
 .*/
+.*
 __pycache__/
