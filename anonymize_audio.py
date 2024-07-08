@@ -60,7 +60,7 @@ def anonymize_audio(input_wav, input_textgrid, output_wav, keywords=[]):
 
 if __name__ == "__main__":
     # Call example:
-    # python anonymize_audio.py GosVL55_vrabe.wav GosVL55_vrabe.TextGrid GosVL55_vrabe-anonymized.wav [
+    # python anonymize_audio.py GosVL55_vrabe.wav GosVL55_vrabe.TextGrid GosVL55_vrabe-anonymized.wav [*
     # python anonymize_audio.py GosVL55_vrabe.wav GosVL55_vrabe.TextGrid GosVL55_vrabe-anonymized.wav
     if len(sys.argv) < 4:
         print("Usage: python anonymize_audio.py input.wav input.TextGrid output.wav keyword1 keyword2 ...")
