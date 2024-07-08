@@ -165,4 +165,6 @@ python nemo_align.py <nemo_dir> <model_path> <manifest_dir> <output_dir>
 
 ## Use Case Examples
 
+### Audio anonymization
+
 A practical example of using forced alignment for audio anonymization is available in [anonymization_example.ipynb](anonymization_example.ipynb). This notebook provides a detailed walkthrough on how to use forced alignment to compute the time intervals of each word in a transcription. It then demonstrates how to anonymize the corresponding audio by replacing the utterances of words containing personal information with a beep sound, using the script [anonymize_audio.py](anonymize_audio.py). The script can accept a list of words that need to be anonymized. Alternatively, if no words are provided, the script uses the [spaCy library](https://spacy.io/) to search for and identify words representing personal names.
