@@ -51,6 +51,8 @@ def timings(xml_root):
     return time_list
 
 def intervals_from_tei(xml_file_path, use_norm=False):
+    # This function parses intervals at the sentence level
+
     # Parse the XML file
     tree = ET.parse(xml_file_path)
     root = tree.getroot()
