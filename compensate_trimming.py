@@ -26,7 +26,7 @@ def adjust_intervals(textgrid_file, initial_trim_time, output_file):
 
 if __name__ == "__main__":
     if len(sys.argv) != 4:
-        print("Usage: python script.py <textgrid_file> <initial_trim_time> <output_file>")
+        print("Usage: python compensate_trimming.py <textgrid_file> <initial_trim_time> <output_file>")
         sys.exit(1)
 
     textgrid_file = sys.argv[1]
