@@ -13,7 +13,7 @@ wav_dir=$1 #directory or wav filepath
 out_dir=$2 #output directory
 lexicon=$3 #path to dictionalry
 xml_dir=$4 #directory or xml filepath
-duration=$5 #duration of fragments that are passed to forced alignment process
+duration=$5 #duration of fragments that are passed to forced alignment process or Inf for whole audio
 
 cd $(dirname "$0")
 
@@ -84,6 +84,6 @@ for wav_file in "${wav_files[@]}"; do
         python add_pause_tier.py "$textgrid_file_out" "$textgrid_file_out"
         python add_speaker-change_tier.py "$textgrid_file_out" "$textgrid_file_out"
         python add_word-ID_tier.py "$textgrid_file_out" "$xml_file" "$textgrid_file_out"
-        break
+        #break
     fi
 done
