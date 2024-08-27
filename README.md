@@ -183,3 +183,14 @@ python ctm2textgrid.py <input.ctm> <output.TextGrid>
 ### Audio anonymization
 
 A practical example of using forced alignment for audio anonymization is available in [anonymization_example.ipynb](anonymization_example.ipynb). This notebook provides a detailed walkthrough on how to use forced alignment to compute the time intervals of each word in a transcription. It then demonstrates how to anonymize the corresponding audio by replacing the utterances of words containing personal information with a beep sound, using the script [anonymize_audio.py](anonymize_audio.py). The script can accept a list of words that need to be anonymized. Alternatively, if no words are provided, the script uses the [spaCy library](https://spacy.io/) to search for and identify words representing personal names.
+
+### Overlap analysis with manually anotated prosodic units
+
+The script [prosodic_unit_overlap.py](prosodic_unit_overlap.py) computes overlap ratios between the "PU" tier, which contains manually annotated prosodic units, and automatically computed tiers such as "pitch-reset", "intensity-reset", "speech-rate-reduction", "pause", and "speaker-change". To analyze a single file and display results in the console:
+```bash
+python prosodic_unit_overlap.py <path/to/file.TextGrid>
+```
+To process all .TextGrid files in a directory and save the results to a CSV file:
+```bash
+python prosodic_unit_overlap.py <path/to/*.TextGrid> [results.csv]
+```
