@@ -1,6 +1,6 @@
 # Poravnava posnetkov slovenskega govora in transkripcij z uporabo knjižnice Montreal Forced Aligner
 
-[![en](https://img.shields.io/badge/lang-en-red.svg)](README.md)
+[![en](https://img.shields.io/badge/lang-en-blue.svg)](README.md)
 
 Ta repozitorij vsebuje navodila za poravnavo zvočnimih datotek in njihovih transkripcij pri čemer se zanašamo na uporabo knjižnice Montreal Forced Aligner (MFA). Spodaj opisani koraki omogočajo poravnavo govornega korpusa.
 
