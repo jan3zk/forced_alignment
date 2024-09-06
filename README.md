@@ -21,7 +21,7 @@ mfa -help
 Before aligning the data, you can validate whether your dataset is in the proper format for MFA. Run the following command:
 
 ```bash
-mfa validate ~/mfa_data/corpus ~/mfa_data/dictionary.txt --clean
+mfa validate <~/mfa_data/corpus> <~/mfa_data/dictionary.txt> --clean
 ```
 
 ## Acoustic Model Training
@@ -29,7 +29,7 @@ mfa validate ~/mfa_data/corpus ~/mfa_data/dictionary.txt --clean
 To train the acoustic model and export it to a zip file, use the following command:
 
 ```bash
-mfa train ~/mfa_data/corpus ~/mfa_data/dictionary.txt ~/mfa_data/acoustic_model.zip
+mfa train <~/mfa_data/corpus> <~/mfa_data/dictionary.txt> <~/mfa_data/acoustic_model.zip>
 ```
 
 Alternatively, one can download a [pretrained model](https://unilj-my.sharepoint.com/:u:/g/personal/janezkrfe_fe1_uni-lj_si/EYhQtHlcbplGl66DnktMTRYB_1zU_nYqbjNIUVNk3F_quw) and the [pronunciation dictionary](https://unilj-my.sharepoint.com/:t:/g/personal/janezkrfe_fe1_uni-lj_si/EWsrSJEG8fxIkmPL5w6G2KMB-dVH4RodUxD3V4Rzy4GLOQ). If using the pretrained model, skip the training step.
@@ -37,7 +37,7 @@ Alternatively, one can download a [pretrained model](https://unilj-my.sharepoint
 You can save the acoustic model stored in zip file for later convenience by running:
 
 ```bash
-mfa model save acoustic ~/mfa_data/acoustic_model.zip
+mfa model save acoustic <~/mfa_data/acoustic_model.zip>
 ```
 
 To inspect the acoustic model, run the following command:
@@ -51,7 +51,7 @@ mfa model inspect acoustic acoustic_model
 Finally, you can align your input data using a pronunciation dictionary and the trained acoustic model by running:
 
 ```bash
-mfa align /path/to/input/wavs/and/txt/ ~/mfa_data/dictionary.txt acoustic_model /path/to/aligned/outputs/
+mfa align </path/to/input/wavs/and/txt/> <~/mfa_data/dictionary.txt> <acoustic_model> </path/to/aligned/outputs/>
 ```
 
 Make sure to replace `/path/to/input/wavs/and/txt/` with the actual path to your input data, and `/path/to/aligned/outputs/` with the desired location for the aligned output files. The above command will output the TextGrid file with word and phoneme level alignments for each wav/txt input pair.
@@ -63,7 +63,7 @@ For more details and advanced usage, please refer to the official documentation 
 The MFA delivers alignments at both the word and phoneme levels. To introduce a syllable level, [add_cnvrstl-syllables_tier.py](add_cnvrstl-syllables_tier.py) function can be utilized as follows:
 
 ```bash
-python add_cnvrstl-syllables_tier.py /path/to/input.TextGrid /path/to/input.trs /path/to/output.TextGrid
+python add_cnvrstl-syllables_tier.py </path/to/input.TextGrid> </path/to/input.trs> </path/to/output.TextGrid>
 ```
 
 Similary, other tiers can be added. A list of implemented tiers and their brief explanation:
@@ -87,7 +87,7 @@ The script [acoustic_measurements.py](acoustic_measurements.py) computes various
 **Usage:**
 
 ```bash
-python acoustic_measurements.py [input.TextGrid] [input.wav] [output.csv]
+python acoustic_measurements.py <input.TextGrid> <input.wav> <output.csv>
 ```
 
 **Input:**
@@ -125,23 +125,23 @@ The output CSV file will contain the following columns for each phoneme:
 This Bash script [align.sh](align.sh) is designed to automate the process of performing forced alignment and adding multiple tiers to TextGrid files using a set of Python scripts. The script iterates through WAV files in a specified directory, performs multiple operations including forced alignment over short time intervals of input audio/trainscription pairs, and adding various tiers to the TextGrid files for detailed analysis. Execute the script using the following command:
 
 ```bash
-./align.sh [wav_dir] [out_dir] [lexicon] [xml_dir] [duration]
+./align.sh <wav_dir> <out_dir> <lexicon> <xml_dir> <duration>
 ```
 
 The script accepts these input arguments:
 
-* `[wav_dir]`: Path to the directory containing WAV files.
-* `[out_dir]`: Path to the directory where output files and intermediate files will be stored.
-* `[lexicon]`: Path to the lexicon file used for MFA forced alignment.
-* `[xml_dir]`: Path to the directory containing XML files, i.e. transcriptions in TEI format.
-* `[duration]`: A floating-point number that defines the length of the audio segments in seconds. These segments are created from the input audio and transcriptions prior to MFA forced alignment. The value 'Inf' implies no segmentation will be performed.
+* `wav_dir`: Path to the directory containing WAV files.
+* `out_dir`: Path to the directory where output files and intermediate files will be stored.
+* `lexicon`: Path to the lexicon file used for MFA forced alignment.
+* `xml_dir`: Path to the directory containing XML files, i.e. transcriptions in TEI format.
+* `duration`: A floating-point number that defines the length of the audio segments in seconds. These segments are created from the input audio and transcriptions prior to MFA forced alignment. The value 'Inf' implies no segmentation will be performed.
 
 **Processing acoustic measurements**
 
 The script [acoustics.sh](acoustics.sh) is designed to facilitate the processing of audio files for acoustic measurements. It takes three directory paths as input arguments: one for TextGrid files, one for WAV files, and one for output CSV files. The script iterates over each TextGrid file in the specified directory, locates its corresponding WAV file, performs acoustic measurements using a Python script [acoustic_measurements.py](acoustic_measurements.py), and outputs the results in CSV format. It can be called as follows:
 
 ```bash
-./acoustics.sh [textgrid_dir] [wav_dir] [csv_dir]
+./acoustics.sh <textgrid_dir> <wav_dir> <csv_dir>
 ```
 
 ## Databases
@@ -182,36 +182,36 @@ python ctm2textgrid.py <input.ctm> <output.TextGrid>
 
 ## Use Case Examples
 
-### Audio anonymization
+### Audio Anonymization
 
 This section provides a practical example of how to anonymize audio recordings using forced alignment. The technique involves substituting utterances of words that contain personal information with a beep sound to enhance privacy.
 
 To begin the anonymization process, ensure you have your audio file in WAV format and the corresponding transcription in a TXT file. You can perform forced alignment by executing the following command, which generates a TextGrid file containing the temporal intervals of words within the transcription:
 
 ```bash
-mfa align /directory/containing/input/wavs/and/txt/ ~/mfa_data/dictionary.txt path/to/acoustic_model.zip /path/to/output/dir/
+mfa align </directory/containing/input/wavs/and/txt/> <~/mfa_data/dictionary.txt> <path/to/acoustic_model.zip> </path/to/output/dir/>
 ```
 
 Using the TextGrid file give by forced alignment of input audio and transcript files, the audio can be anonymized by running the following command:
 
 ```bash
-python anonymize_audio.py input.wav input.TextGrid output.wav
+python anonymize_audio.py <input.wav> <input.TextGrid> <output.wav>
 ```
 
 that replaces the specified words with a beep sound in the output WAV file. The script [anonymize_audio.py](anonymize_audio.py) allows for a customizable list of words to be anonymized. If no specific words are provided, it defaults to using the [spaCy library](https://spacy.io/) to automatically detect and replace personal names in the audio.
 
 Additionally, the provided Jupyter Notebook [anonymization_example.ipynb](anonymization_example.ipynb) analyzes the influence of pre-anonymized transcriptions on the forced alignment process and offers a deeper exploration of the anonymization techniques used.
 
-### Overlap analysis with manually anotated prosodic units
+### Overlap Analysis with Manually Annotated Prosodic Units
 
-The script [prosodic_unit_overlap.py](prosodic_unit_overlap.py) computes overlap ratios between the "PU" tier, which contains manually annotated prosodic units, and automatically computed tiers such as "pitch-reset", "intensity-reset", "speech-rate-reduction", "pause", and "speaker-change". To analyze a single file and display results in the console:
+The script [prosodic_unit_overlap.py](prosodic_unit_overlap.py) computes overlap ratios between the "PU" tier, which contains manually annotated prosodic units, and automatically computed tiers such as "pitch-reset", "intensity-reset", "speech-rate-reduction", "pause", and "speaker-change". To analyze the input TextGrid files, use the following command:
 
 ```bash
-python prosodic_unit_overlap.py <path/to/file.TextGrid>
+python prosodic_param_overlap.py </path/to/*.TextGrid> [results.csv]
 ```
 
-To process all .TextGrid files in a directory and save the results to a CSV file:
+The script [discourse_marker_overlap.py](discourse_marker_overlap.py) performs overlap analysis between discourse markers and manual annotations in "PU" tier:
 
 ```bash
-python prosodic_unit_overlap.py <path/to/*.TextGrid> [results.csv]
+python discourse_marker_overlap.py </path/to/*.TextGrid>
 ```

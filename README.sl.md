@@ -21,7 +21,7 @@ mfa -help
 Pred poravnavo lahko preverite, ali je korpus v ustrezni obliki za MFA, kar storite z naslednjim ukazom:
 
 ```bash
-mfa validate ~/mfa_data/corpus ~/mfa_data/dictionary.txt --clean
+mfa validate <~/mfa_data/corpus> <~/mfa_data/dictionary.txt> --clean
 ```
 
 ## Učenje akustičnega modela
@@ -29,7 +29,7 @@ mfa validate ~/mfa_data/corpus ~/mfa_data/dictionary.txt --clean
 Učenje akustičnega modela se lahko izvede z ukazom
 
 ```bash
-mfa train ~/mfa_data/corpus ~/mfa_data/dictionary.txt ~/mfa_data/acoustic_model.zip
+mfa train <~/mfa_data/corpus> <~/mfa_data/dictionary.txt> <~/mfa_data/acoustic_model.zip>
 ```
 
 Druga možnost je prenos [predhodno naučenega modela](https://unilj-my.sharepoint.com/:u:/g/personal/janezkrfe_fe1_uni-lj_si/EYhQtHlcbplGl66DnktMTRYB_1zU_nYqbjNIUVNk3F_quw). V tem primeru zgornji uzaz za učenje modela ni potreben.
@@ -39,7 +39,7 @@ Druga možnost je prenos [predhodno naučenega modela](https://unilj-my.sharepoi
 Poravnava vhodnih datotek se vrši s pomočjo naučenega akustičnega modela in slovarja izgovarjav z ukazom
 
 ```bash
-mfa align /path/to/input/wavs/and/txt/ ~/mfa_data/dictionary.txt acoustic_model /path/to/aligned/outputs/
+mfa align </path/to/input/wavs/and/txt/> <~/mfa_data/dictionary.txt> </path/to/acoustic_model.zip> </path/to/aligned/outputs/>
 ```
 
 pri čemer slovar izgovorja lahko prenesete [tukaj](https://unilj-my.sharepoint.com/:t:/g/personal/janezkrfe_fe1_uni-lj_si/EWsrSJEG8fxIkmPL5w6G2KMB-dVH4RodUxD3V4Rzy4GLOQ). Poskrbite, da boste `/path/to/input/wavs/and/txt/` nadomestili z dejansko potjo do vhodnih podatkov, `/path/to/aligned/outputs/` pa z želeno lokacijo za poravnane izhodne datoteke. Zgornji ukaz bo izpisal datoteko TextGrid s poravnavo na ravni besed in fonemov za vsak vhodni par datotek WAV/TXT.
@@ -49,7 +49,7 @@ pri čemer slovar izgovorja lahko prenesete [tukaj](https://unilj-my.sharepoint.
 Knjižnica MFA zagotavlja poravnavo na ravni besed in fonemov. Poravnava na ravni zlogov se lahko izvrši z uporabo funkcije [add_cnvrstl-syllables_tier.py](add_cnvrstl-syllables_tier.py) preko ukaza:
 
 ```bash
-python add_cnvrstl-syllables_tier.py /path/to/input.TextGrid /path/to/input.trs /path/to/output.TextGrid
+python add_cnvrstl-syllables_tier.py </path/to/input.TextGrid> </path/to/input.trs> </path/to/output.TextGrid>
 ```
 ki doda novo vrstco s časovnimi intervali na nivoju zlogov v izhodno datoteko TextGrid. Na podoben način je mogoče dodati tudi naslednje vrstice:
 
@@ -74,7 +74,7 @@ Skripta [acoustic_measurements.py](acoustic_measurements.py) izračuna različne
 **Uporaba:**
 
 ```bash
-python acoustic_measurements.py [input.TextGrid] [input.wav] [output.csv]
+python acoustic_measurements.py <input.TextGrid> <input.wav> <output.csv>
 ```
 
 **Vhod:**
@@ -128,7 +128,7 @@ Skripta sprejme naslednje vhodne argumente:
 Skripta [acoustics.sh](acoustics.sh) je zasnovana za izračun akustičnih meritev na večjem številu zvočnih datotek. Kot vhodne argumente sprejme tri direktorije: prvi vsebuje datoteke TextGrid, drugi datoteke WAV in tretji izhodne datoteke CSV. Skripta iterira preko vsake TextGrid datoteke v dani mapi, poišče pripadajočo datoteko WAV, izvede akustične meritve z uporabo skripte [acoustic_measurements.py](acoustic_measurements.py) in izpiše rezultate v formatu CSV. Zažene se jo z ukazom
 
 ```bash
-./acoustics.sh [textgrid_dir] [wav_dir] [csv_dir]
+./acoustics.sh <textgrid_dir> <wav_dir> <csv_dir>
 ```
 
 Tukaj je prevod v slovenščino:
@@ -173,8 +173,6 @@ Ali pa uporabite skripto [nemo_align.sh](nemo_align.sh) za izvedbo poravnave na 
 python ctm2textgrid.py <input.ctm> <output.TextGrid>
 ```
 
-Tukaj je prevod v slovenščino:
-
 ## Primeri uporabe
 
 ### Anonimizacija zvočnih posnetkov
@@ -184,13 +182,13 @@ Ta razdelek ponuja praktičen primer, kako anonimizirati zvočne posnetke z upor
 Za začetek postopka anonimizacije poskrbite, da imate zvočno datoteko v formatu WAV in ustrezno transkripcijo v datoteki TXT. Prisilno poravnavo lahko izvedete z naslednjim ukazom, ki ustvari datoteko TextGrid, ki vsebuje časovne intervale besed v transkripciji:
 
 ```bash
-mfa align /directory/containing/input/wavs/and/txt/ ~/mfa_data/dictionary.txt path/to/acoustic_model.zip /path/to/output/dir/
+mfa align </directory/containing/input/wavs/and/txt/> <~/mfa_data/dictionary.txt> <path/to/acoustic_model.zip> </path/to/output/dir/>
 ```
 
 Z uporabo datoteke TextGrid, pridobljene z zgornjim ukazom, je mogoče anonimizirati zvok z
 
 ```bash
-python anonymize_audio.py input.wav input.TextGrid output.wav
+python anonymize_audio.py <input.wav> <input.TextGrid> <output.wav>
 ```
 
 Ta ukaz zamenja določene besede z zvokom piskanja v izhodni WAV datoteki. Skripta [anonymize_audio.py](anonymize_audio.py) lahko prejme seznam besed za anonimizacijo kot vhodni argument. Če tega seznama ne podamo, privzeto uporabi [spaCy knjižnico](https://spacy.io/) za samodejno zaznavanje besed z osebnimi podatki.
@@ -199,14 +197,14 @@ Zvezek [anonymization_example.ipynb](anonymization_example.ipynb) analizira vpli
 
 ### Analiza prekrivanja z ročno označenimi prozodičnimi enotami
 
-Skripta [prosodic_unit_overlap.py](prosodic_unit_overlap.py) izračuna razmerje prekrivanja intervalov med vrstico "PU", ki vsebuje ročno označene prozodične enote, in samodejno izračunanimi intervali v vrsticah "pitch-reset", "intensity-reset", "speech-rate-reduction", "pause" in "speaker-change". Za analizo posamezne datoteke in prikaz rezultatov v konzoli uporabite:
+Skripta [prosodic_param_overlap.py](prosodic_param_overlap.py) izračuna razmerje prekrivanja intervalov med vrstico "PU", ki vsebuje ročno označene prozodične enote, in samodejno izračunanimi intervali v vrsticah "pitch-reset", "intensity-reset", "speech-rate-reduction", "pause" in "speaker-change". Za analizo vhodnih datotek TextGrid uporabite ukaz:
 
 ```bash
-python prosodic_unit_overlap.py <path/to/file.TextGrid>
+python prosodic_param_overlap.py </path/to/*.TextGrid> [results.csv]
 ```
 
-Za obdelavo vseh datotek TextGrid v direktoriju in shranjevanje rezultatov v CSV datoteko:
+Skripta [discourse_marker_overlap.py](discourse_marker_overlap.py) izvede analizo ujemanj diskurznih označevalcev z ročno določenimi časovnimi mejami v vrstici "PU":
 
 ```bash
-python prosodic_unit_overlap.py <path/to/*.TextGrid> [results.csv]
+python discourse_marker_overlap.py </path/to/*.TextGrid>
 ```
