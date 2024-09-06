@@ -65,8 +65,6 @@ ki doda novo vrstco s časovnimi intervali na nivoju zlogov v izhodno datoteko T
 * [add_speaker-change_tier.py](add_speaker-change_tier.py): Skripta doda vrstico z označenimi spremembami govorcev na nivoju zlogovnih intervalov, pri čemer te spremembe označi s "POS", kadar se sprememba pojav oziroma "NEG" v nasprotnem primeru.
 * [add_word-ID_tier.py](add_word-ID_tier.py): Skripta izlušči identifikatorje besed iz vhodnega XML in jih shrani v novo vrstico v izhodni datoteki TextGrid.
 
-Tukaj je prevod v slovenščino:
-
 ## Akustične Meritve
 
 Skripta [acoustic_measurements.py](acoustic_measurements.py) izračuna različne akustične meritve iz danih datotek TextGrid in WAV, kot so trajanje fonemov, akustične lastnosti povezane z višino tona, formante, glasnost, VOT (čas do začetka zvenečnosti), COG (težišče) in sorodne oznake. Izračunane vrednosti se nato shranijo v datoteko CSV za nadaljnjo analizo in obdelavo.
@@ -131,8 +129,6 @@ Skripta [acoustics.sh](acoustics.sh) je zasnovana za izračun akustičnih merite
 ./acoustics.sh <textgrid_dir> <wav_dir> <csv_dir>
 ```
 
-Tukaj je prevod v slovenščino:
-
 ## Podatkovni korpusi
 
 **GOS baza podatkov ([korpus GOvorjene Slovenščine](https://viri.cjvt.si/gos/System/About))**
@@ -142,8 +138,6 @@ Tukaj je prevod v slovenščino:
 * Baza podatkov za ASR ARTUR 1.0 (avdio): [https://www.clarin.si/repository/xmlui/handle/11356/1776](https://www.clarin.si/repository/xmlui/handle/11356/1776)
 * Podkorpusi IRISS, SST in SPOG: [https://nl.ijs.si/nikola/mezzanine/](https://nl.ijs.si/nikola/mezzanine/)
 
-Tukaj je prevod v slovenščino:
-
 ## Ovrednotenje natančnosti vsiljene poravnave
 
 Natančnost vsiljene poravnave je mogoče oceniti z uporabo skripte [aligner_eval.py](aligner_eval.py), ki medsebojno primerja besedne intervale ujemajočih datotek iz dveh vhodnih direktorijev in poda kazalce ujemanja kot so povprečna razlika in delež mej znotraj treh tolerančnih območij (10ms, 50ms in 100ms):
@@ -151,8 +145,6 @@ Natančnost vsiljene poravnave je mogoče oceniti z uporabo skripte [aligner_eva
 ```bash
 python aligner_eval.py <textgrid_or_xml_dir> <textgrid_or_ctm_dir>
 ```
-
-Tukaj je prevod v slovenščino:
 
 ### Alternativna metoda za primerjavo natančnosti poravnave z MFA: NeMo Forced Aligner
 
