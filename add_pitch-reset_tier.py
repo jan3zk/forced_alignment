@@ -66,11 +66,25 @@ def detect_pitch_resets(audio_path, input_textgrid, output_textgrid, pitch_reset
         label = "POS" if pitch_reset_occurs else "NEG"
         pitch_reset_intervals.append((start_time, end_time, label))
     
-    # Add the new tier to the TextGrid
-    new_tier = IntervalTier(name="pitch-reset", minTime=min(t[0] for t in pitch_reset_intervals), maxTime=max(t[1] for t in pitch_reset_intervals))
-    for start, end, label in pitch_reset_intervals:
-        new_tier.addInterval(Interval(start, end, label))
-    tg.append(new_tier)
+    # Check if the "pitch-reset" tier exists
+    existing_tier = None
+    for tier in tg.tiers:
+        if tier.name == "pitch-reset":
+            existing_tier = tier
+            break
+    
+    # If the tier exists, overwrite it, otherwise create a new one
+    if existing_tier:
+        # Clear all intervals from the existing tier
+        existing_tier.intervals = []
+        for start, end, label in pitch_reset_intervals:
+            existing_tier.addInterval(Interval(start, end, label))
+    else:
+        # Create a new tier for pitch resets
+        new_tier = IntervalTier(name="pitch-reset", minTime=min(t[0] for t in pitch_reset_intervals), maxTime=max(t[1] for t in pitch_reset_intervals))
+        for start, end, label in pitch_reset_intervals:
+            new_tier.addInterval(Interval(start, end, label))
+        tg.append(new_tier)
 
     # Save the modified TextGrid
     tg.write(output_textgrid)
