@@ -16,7 +16,7 @@ Preden začnemo z anonimizacijo, moramo zvočne datoteke poravnati z njihovimi t
 mfa align </pot/do/mape/z/datotekami/wav/in/txt/> </pot/do/slovarja_izgovorjav.txt> </pot/do/akustičnega_modela.zip> </pot/do/poravnanih_izhodnih_datotek/>
 ```
 
-Ta ukaz ustvari datoteke TextGrid, ki vsebujejo časovne oznake besed, kar omogoča natančno anonimizacijo določenih besed. Podrobnejša navodila za poravnavo najdete v poglavju [Poravnava](README.md#Poravnava)
+Ta ukaz ustvari datoteke TextGrid, ki vsebujejo časovne oznake besed, kar omogoča natančno anonimizacijo določenih besed. Podrobnejša navodila za poravnavo najdete v poglavju [Poravnava](../README.md#Poravnava)
 
 
 **Anonimizacija zvočne datoteke**
