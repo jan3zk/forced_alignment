@@ -167,36 +167,5 @@ python ctm2textgrid.py <input.ctm> <output.TextGrid>
 
 ## Primeri uporabe
 
-### Anonimizacija zvočnih posnetkov
-
-Ta razdelek ponuja praktičen primer, kako anonimizirati zvočne posnetke z uporabo prisilne poravnave. Tehnika vključuje nadomestitev izgovorjenih besed z osebnimi podatki s piskajočim zvokom.
-
-Za začetek postopka anonimizacije poskrbite, da imate zvočno datoteko v formatu WAV in ustrezno transkripcijo v datoteki TXT. Prisilno poravnavo lahko izvedete z naslednjim ukazom, ki ustvari datoteko TextGrid, ki vsebuje časovne intervale besed v transkripciji:
-
-```bash
-mfa align </directory/containing/input/wavs/and/txt/> <~/mfa_data/dictionary.txt> <path/to/acoustic_model.zip> </path/to/output/dir/>
-```
-
-Z uporabo datoteke TextGrid, pridobljene z zgornjim ukazom, je mogoče anonimizirati zvok z
-
-```bash
-python anonymize_audio.py <input.wav> <input.TextGrid> <output.wav>
-```
-
-Ta ukaz zamenja določene besede z zvokom piskanja v izhodni WAV datoteki. Skripta [anonymize_audio.py](anonymize_audio.py) lahko prejme seznam besed za anonimizacijo kot vhodni argument. Če tega seznama ne podamo, privzeto uporabi [spaCy knjižnico](https://spacy.io/) za samodejno zaznavanje besed z osebnimi podatki.
-
-Zvezek [anonymization_example.ipynb](anonymization_example.ipynb) analizira vpliv predhodno anonimiziranih transkripcij na natančnost procesa vsiljene poravnave.
-
-### Analiza prekrivanja z ročno označenimi prozodičnimi enotami
-
-Skripta [prosodic_param_overlap.py](prosodic_param_overlap.py) izračuna razmerje prekrivanja intervalov med vrstico "PU", ki vsebuje ročno označene prozodične enote, in samodejno izračunanimi intervali v vrsticah "pitch-reset", "intensity-reset", "speech-rate-reduction", "pause" in "speaker-change". Za analizo vhodnih datotek TextGrid uporabite ukaz:
-
-```bash
-python prosodic_param_overlap.py </path/to/*.TextGrid> [results.csv]
-```
-
-Skripta [discourse_marker_overlap.py](discourse_marker_overlap.py) izvede analizo ujemanj diskurznih označevalcev z ročno določenimi časovnimi mejami v vrstici "PU":
-
-```bash
-python discourse_marker_overlap.py </path/to/*.TextGrid>
-```
+* [Anonimizacija zvočnih posnetkov](docs/anonymization.sl.md)
+* [Analiza prekrivanja z ročno označenimi prozodičnimi enotami](docs/overlap_analysis.sl.md)

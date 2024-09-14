@@ -182,5 +182,5 @@ python ctm2textgrid.py <input.ctm> <output.TextGrid>
 
 ## Use Case Examples
 
-[Audio Anonymization](docs/anonymization.md)
-[Overlap Analysis](docs/overlap_analysis.md)
+* [Audio Anonymization](docs/anonymization.md)
+* [Overlap Analysis](docs/overlap_analysis.md)
