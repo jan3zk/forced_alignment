@@ -31,7 +31,7 @@ Skripta prejme naslednje vhodne parametre:
 - **`input.wav`**: Izhodiščna zvočna datoteka.
 - **`input.TextGrid`**: Poravnana transkripcija v obliki TextGrid.
 - **`output.wav`**: Pot do izhodne anonimizirane zvočne datoteke.
-- **Opcijsko**: Seznam besed, ki jih želimo anonimizirati.
+- Opcijsko: Seznam besed, ki jih želimo anonimizirati.
 
 Skripta deluje v dveh načinih:
 

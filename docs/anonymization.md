@@ -31,7 +31,7 @@ The script accepts the following parameters:
 - **`input.wav`**: The original audio file.
 - **`input.TextGrid`**: The aligned transcription in **TextGrid** format.
 - **`output.wav`**: The path to the output anonymized audio file.
-- **Optional**: A list of words to anonymize.
+- Optional: A list of words to anonymize.
 
 The script operates in two modes:
 
