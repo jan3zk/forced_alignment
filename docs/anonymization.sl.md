@@ -20,7 +20,7 @@ Ta ukaz ustvari datoteke TextGrid, ki vsebujejo časovne oznake besed, kar omogo
 
 **Anonimizacija zvočne datoteke**
 
-Ko imamo TextGrid datoteko, lahko izvedemo anonimizacijo z uporabo priložene skripte `anonymize_audio.py`, ki besede, določene za anonimizacijo, nadomesti z zvokom piskanja. Skripto se kliče z naslednjim ukazom:
+Ko imamo TextGrid datoteko, lahko izvedemo anonimizacijo z uporabo skripte [`anonymize_audio.py`](../anonymize_audio.py), ki besede, določene za anonimizacijo, nadomesti z zvokom piskanja. Skripto se kliče z naslednjim ukazom:
 
 ```bash
 python anonymize_audio.py <input.wav> <input.TextGrid> <output.wav> [word1 word2 word3 ...]

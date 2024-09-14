@@ -20,7 +20,7 @@ This command generates **TextGrid** files with word time stamps, enabling precis
 
 **Audio File Anonymization**
 
-Once the **TextGrid** file is prepared, you can anonymize the audio using the provided `anonymize_audio.py` script, which replaces the specified words with a beeping sound. The script is called with the following command:
+Once the **TextGrid** file is prepared, you can anonymize the audio using the [`anonymize_audio.py`](../anonymize_audio.py) script, which replaces the specified words with a beeping sound. The script is called with the following command:
 
 ```bash
 python anonymize_audio.py <input.wav> <input.TextGrid> <output.wav> [word1 word2 word3 ...]
