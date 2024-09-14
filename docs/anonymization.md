@@ -1,6 +1,6 @@
-### Audio Anonymization
+# Audio Anonymization
 
-[![sl](https://img.shields.io/badge/lang-sl-blue.svg)](anonimization.sl.md)
+[![sl](https://img.shields.io/badge/lang-sl-blue.svg)](anonymization.sl.md)
 
 Audio anonymization is the process of modifying audio recordings to remove or alter personally identifiable information, thereby protecting the privacy of the speakers. In the context of linguistic and speech analysis, this often involves replacing personal names, locations, dates, and other private information with neutral or unrecognizable sounds, such as beeps.
 

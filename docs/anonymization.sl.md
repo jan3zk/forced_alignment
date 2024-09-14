@@ -1,6 +1,6 @@
 # Anonimizacija zvočnih posnetkov
 
-[![en](https://img.shields.io/badge/lang-en-blue.svg)](anonimization.md)
+[![en](https://img.shields.io/badge/lang-en-blue.svg)](anonymization.md)
 
 Anonimizacija zvočnih posnetkov je postopek, kjer zvočne posnetke prilagodimo tako, da se odstrani ali spremeni osebno prepoznavne informacije, kar omogoča varovanje zasebnosti govorcev. V kontekstu jezikovnih in govornih analiz se to pogosto nanaša na zamenjavo osebnih imen, krajev, datumov in drugih zasebnih informacij z nevtralnimi ali neprepoznavnimi zvoki, kot je piskanje.
 

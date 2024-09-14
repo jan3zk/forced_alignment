@@ -1,6 +1,6 @@
 # Slovene Speech and Transcription Alignment using Montreal Forced Aligner
 
-[![sl](https://img.shields.io/badge/lang-sl-green.svg)](README.sl.md)
+[![sl](https://img.shields.io/badge/lang-sl-blue.svg)](README.sl.md)
 
 This repository provides instructions for aligning transcriptions with corresponding audio files containing Slovene speech using the Montreal Forced Aligner (MFA). Follow the steps below to set up the environment and align your speech corpus.
 
@@ -182,36 +182,5 @@ python ctm2textgrid.py <input.ctm> <output.TextGrid>
 
 ## Use Case Examples
 
-### Audio Anonymization
-
-This section provides a practical example of how to anonymize audio recordings using forced alignment. The technique involves substituting utterances of words that contain personal information with a beep sound to enhance privacy.
-
-To begin the anonymization process, ensure you have your audio file in WAV format and the corresponding transcription in a TXT file. You can perform forced alignment by executing the following command, which generates a TextGrid file containing the temporal intervals of words within the transcription:
-
-```bash
-mfa align </directory/containing/input/wavs/and/txt/> <~/mfa_data/dictionary.txt> <path/to/acoustic_model.zip> </path/to/output/dir/>
-```
-
-Using the TextGrid file give by forced alignment of input audio and transcript files, the audio can be anonymized by running the following command:
-
-```bash
-python anonymize_audio.py <input.wav> <input.TextGrid> <output.wav>
-```
-
-that replaces the specified words with a beep sound in the output WAV file. The script [anonymize_audio.py](anonymize_audio.py) allows for a customizable list of words to be anonymized. If no specific words are provided, it defaults to using the [spaCy library](https://spacy.io/) to automatically detect and replace personal names in the audio.
-
-Additionally, the provided Jupyter Notebook [anonymization_example.ipynb](anonymization_example.ipynb) analyzes the influence of pre-anonymized transcriptions on the forced alignment process and offers a deeper exploration of the anonymization techniques used.
-
-### Overlap Analysis with Manually Annotated Prosodic Units
-
-The script [prosodic_unit_overlap.py](prosodic_unit_overlap.py) computes overlap ratios between the "PU" tier, which contains manually annotated prosodic units, and automatically computed tiers such as "pitch-reset", "intensity-reset", "speech-rate-reduction", "pause", and "speaker-change". To analyze the input TextGrid files, use the following command:
-
-```bash
-python prosodic_param_overlap.py </path/to/*.TextGrid> [results.csv]
-```
-
-The script [discourse_marker_overlap.py](discourse_marker_overlap.py) performs overlap analysis between discourse markers and manual annotations in "PU" tier:
-
-```bash
-python discourse_marker_overlap.py </path/to/*.TextGrid>
-```
+[Audio Anonymization](docs/anonymization.md)
+[Overlap Analysis](docs/overlap_analysis.md)
