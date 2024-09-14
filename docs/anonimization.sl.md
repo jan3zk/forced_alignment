@@ -6,7 +6,7 @@ Anonimizacija zvočnih posnetkov je postopek, kjer zvočne posnetke prilagodimo 
 
 ## Postopek anonimizacije
 
-Za izvedbo anonimizacije je najprej potrebno izvesti prisilno poravnavo med zvočnim posnetkom in njegovo transkripcijo, kar omogoča natančno določitev časovnih intervalov izgovorjenih besed. To lahko dosežemo z uporabo orodja Montreal Forced Aligner (MFA), ki ustvari TextGrid datoteke s časovnimi oznakami za vsako besedo ali fonem.
+Za izvedbo anonimizacije je najprej potrebno izvesti prisilno poravnavo med zvočnim posnetkom in njegovo transkripcijo, kar omogoča natančno določitev časovnih intervalov izgovorjenih besed. To lahko dosežemo z uporabo orodja Montreal Forced Aligner (MFA), ki ustvari TextGrid datoteke s časovnimi oznakami za vsako besedo in fonem.
 
 **Vsiljena poravnava z MFA**
 
