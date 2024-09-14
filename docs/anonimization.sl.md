@@ -16,22 +16,25 @@ Preden začnemo z anonimizacijo, moramo zvočne datoteke poravnati z njihovimi t
 mfa align </pot/do/mape/z/datotekami/wav/in/txt/> </pot/do/slovarja_izgovorjav.txt> </pot/do/akustičnega_modela.zip> </pot/do/poravnanih_izhodnih_datotek/>
 ```
 
-Ta ukaz ustvari datoteke TextGrid, ki vsebujejo časovne oznake besed, kar omogoča natančno anonimizacijo določenih besed. Podrobnejša navodila za poravnavo najdete v poglavju [Poravnava](../README.md#Poravnava)
-
+Ta ukaz ustvari datoteke TextGrid, ki vsebujejo časovne oznake besed, kar omogoča natančno anonimizacijo določenih besed. Podrobnejša navodila za poravnavo najdete [tukaj](../README.sl.md#Poravnava).
 
 **Anonimizacija zvočne datoteke**
 
 Ko imamo TextGrid datoteko, lahko izvedemo anonimizacijo z uporabo priložene skripte `anonymize_audio.py`, ki besede, določene za anonimizacijo, nadomesti z zvokom piskanja. Skripto se kliče z naslednjim ukazom:
+
 ```bash
 python anonymize_audio.py <input.wav> <input.TextGrid> <output.wav> [word1 word2 word3 ...]
 ```
+
 Skripta prejme naslednje vhodne parametre:
+
 - **`input.wav`**: Izhodiščna zvočna datoteka.
 - **`input.TextGrid`**: Poravnana transkripcija v obliki TextGrid.
 - **`output.wav`**: Pot do izhodne anonimizirane zvočne datoteke.
 - **Opcijsko**: Seznam besed, ki jih želimo anonimizirati.
 
 Skripta deluje v dveh načinih:
+
 - **Samodejna detekcija osebnih podatkov**: Če seznam besed za anonimizacijo ni podan, skripta uporabi knjižnico [spaCy](https://spacy.io/) za samodejno določitev besed z osebnimi podatki, kot so imena, kraji in drugi zasebni podatki.
 - **Ročna specifikacija besed za anonimizacijo**: Uporabnik lahko ročno določi seznam besed za anonimizacijo, kar omogoča boljši nadzor nad postopkom. Besede se lahko vnesejo kot dodatni vhodni parametri.
 
