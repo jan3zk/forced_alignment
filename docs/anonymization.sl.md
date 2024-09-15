@@ -35,7 +35,7 @@ Skripta prejme naslednje vhodne parametre:
 
 Skripta deluje v dveh načinih:
 
-- **Samodejna detekcija osebnih podatkov**: Če seznam besed za anonimizacijo ni podan, skripta uporabi knjižnico [spaCy](https://spacy.io/) za samodejno določitev besed z osebnimi podatki, kot so imena, kraji in drugi zasebni podatki.
+- **Samodejna detekcija zasebnih podatkov**: Če seznam besed za anonimizacijo ni podan, skripta uporabi knjižnico [spaCy](https://spacy.io/) za samodejno določitev besed z osebnimi podatki, kot so imena, kraji in drugi zasebni podatki.
 - **Ročna specifikacija besed za anonimizacijo**: Uporabnik lahko ročno določi seznam besed za anonimizacijo, kar omogoča boljši nadzor nad postopkom. Besede se lahko vnesejo kot dodatni vhodni parametri.
 
 Skripta nato pregleda TextGrid datoteko in najde časovne intervale, ki ustrezajo besedam za anonimizacijo, ter jih zamenja z zvokom piskanja v izhodni zvočni datoteki.

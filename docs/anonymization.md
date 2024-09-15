@@ -35,7 +35,7 @@ The script accepts the following parameters:
 
 The script operates in two modes:
 
-- **Automatic detection of personal data**: If no list of words for anonymization is provided, the script uses the [spaCy](https://spacy.io/) library to automatically detect words containing personal data, such as names, places, and other private information.
+- **Automatic detection of personal information**: If no list of words for anonymization is provided, the script uses the [spaCy](https://spacy.io/) library to automatically detect words containing personal data, such as names, places, and other private information.
 - **Manual specification of words for anonymization**: The user can manually specify a list of words to anonymize, providing greater control over the process. Words can be provided as additional input parameters.
 
 The script then scans the **TextGrid** file, finds the time intervals corresponding to the words to be anonymized, and replaces them with a beeping sound in the output audio file.
