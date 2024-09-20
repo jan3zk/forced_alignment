@@ -14,8 +14,9 @@ preferred-citation:
     given-names: "Simon"
     orcid: "https://orcid.org/0000-0002-9130-0345"
   title: "Utilizing Forced Alignment for Phonetic Analysis of Slovene Speech"
-  booktitle: "Proceedings of the Language Technologies and Digital Humanities conference 2024"
+  conference:
+    name: "JT-DH 2024"
+  collection-title: "Proceedings of the Language Technologies and Digital Humanities conference 2024"
   year: 2024
-  city: "Ljubljana"
-  country: "Slovenia"
+  address: "Ljubljana, Slovenia"
   url: "https://www.sdjt.si/wp/wp-content/uploads/2024/09/JT-DH_2024_Krizaj_Gros_Dobrisek.pdf"
