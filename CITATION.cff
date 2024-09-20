@@ -1,23 +1,21 @@
 cff-version: 1.2.0
 message: "If you use this software, please cite it as below."
-references:
-  - type: conference-paper
-    authors:
-      - family-names: Križaj
-        given-names: Janez
-        orcid: https://orcid.org/0000-0001-9581-2615
-      - family-names: Žganec Gros
-        given-names: Jerneja
-        orcid: https://orcid.org/0000-0001-5011-8486
-      - family-names: Dobrišek
-        given-names: Simon
-        orcid: https://orcid.org/0000-0002-9130-0345
-    title: "Utilizing Forced Alignment for Phonetic Analysis of Slovene Speech"
-    collection-title: "Proceedings of the Language Technologies and Digital Humanities conference 2024"
-    year: 2024
-    conference:
-      - name: JT-DH 2024
-        city: Ljubljana
-        country: Slovenia
-        date-start 2024-09-19
-  url: https://www.sdjt.si/wp/wp-content/uploads/2024/09/JT-DH_2024_Krizaj_Gros_Dobrisek.pdf
+title: "Utilizing Forced Alignment for Phonetic Analysis of Slovene Speech"
+preferred-citation:
+  type: conference-paper
+  authors:
+  - family-names: "Križaj"
+    given-names: "Janez"
+    orcid: "https://orcid.org/0000-0001-9581-2615"
+  - family-names: "Žganec Gros"
+    given-names: "Jerneja"
+    orcid: "https://orcid.org/0000-0001-5011-8486"
+  - family-names: "Dobrišek"
+    given-names: "Simon"
+    orcid: "https://orcid.org/0000-0002-9130-0345"
+  title: "Utilizing Forced Alignment for Phonetic Analysis of Slovene Speech"
+  booktitle: "Proceedings of the Language Technologies and Digital Humanities conference 2024"
+  year: 2024
+  city: "Ljubljana"
+  country: "Slovenia"
+  url: "https://www.sdjt.si/wp/wp-content/uploads/2024/09/JT-DH_2024_Krizaj_Gros_Dobrisek.pdf"
