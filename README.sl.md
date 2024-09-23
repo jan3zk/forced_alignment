@@ -42,7 +42,7 @@ Poravnava vhodnih datotek se vrši s pomočjo naučenega akustičnega modela in 
 mfa align </path/to/input/wavs/and/txt/> <~/mfa_data/dictionary.txt> </path/to/acoustic_model.zip> </path/to/aligned/outputs/>
 ```
 
-pri čemer slovar izgovorja lahko prenesete [tukaj](https://unilj-my.sharepoint.com/:t:/g/personal/janezkrfe_fe1_uni-lj_si/EWsrSJEG8fxIkmPL5w6G2KMB-dVH4RodUxD3V4Rzy4GLOQ). Poskrbite, da boste `/path/to/input/wavs/and/txt/` nadomestili z dejansko potjo do vhodnih podatkov, `/path/to/aligned/outputs/` pa z želeno lokacijo za poravnane izhodne datoteke. Zgornji ukaz bo izpisal datoteko TextGrid s poravnavo na ravni besed in fonemov za vsak vhodni par datotek WAV/TXT.
+pri čemer slovar izgovorjav lahko prenesete [tukaj](https://unilj-my.sharepoint.com/:t:/g/personal/janezkrfe_fe1_uni-lj_si/EWsrSJEG8fxIkmPL5w6G2KMB-dVH4RodUxD3V4Rzy4GLOQ). Poskrbite, da boste `/path/to/input/wavs/and/txt/` nadomestili z dejansko potjo do vhodnih podatkov, `/path/to/aligned/outputs/` pa z želeno lokacijo za poravnane izhodne datoteke. Zgornji ukaz bo izpisal datoteko TextGrid s poravnavo na ravni besed in fonemov za vsak vhodni par datotek WAV/TXT.
 
 ## Razširitev datotek TextGrid z dodatnimi nivoji
 
@@ -51,12 +51,13 @@ Knjižnica MFA zagotavlja poravnavo na ravni besed in fonemov. Poravnava na ravn
 ```bash
 python add_cnvrstl-syllables_tier.py </path/to/input.TextGrid> </path/to/input.trs> </path/to/output.TextGrid>
 ```
+
 ki doda novo vrstco s časovnimi intervali na nivoju zlogov v izhodno datoteko TextGrid. Na podoben način je mogoče dodati tudi naslednje vrstice:
 
 * [add_speaker-ID_tier.py](add_speaker-ID_tier.py): Skripta razčleni intervale govorcev iz datoteke XML (TEI) in jih kot novo vrstico "speaker-ID" doda v izhodno datoteko TextGrid.
 * [add_standardized-trs_tier.py](add_standardized-trs_tier.py): Skripta uskladi transkripcijo v standardizirani obliki  z intervali govorcev v datoteki TextGrid tako, da združi besede znotraj intervala vsakega govorca, in nato doda ta zapis kot vrstico z imenom "standardized-trs" v izhodno datoteko TextGrid.
 * [add_conversational-trs_tier.py](add_conversational-trs_tier.py): Skripta uskladi transkripcijo v pogovorni obliki z intervali govorcev v datoteki TextGrid, pri čemer združi besede znotraj vsakega intervala govorcev, nato pa ta zapis doda kot novo vrstico v izhodno datoteko TextGrid.
-*  [add_cnvrstl-wrd-sgmnt_tier.py](add_cnvrstl-wrd-sgmnt_tier.py): Skripta uskladi vhodno transkripcijo v pogovori obliki z besednimi intervali v vrstici "strd-wrd-sgmnt", tako da besede iz transkripcije ujema z ustreznimi časovnimi intervali, nato pa to poravnano transkripcijo doda kot novo vrstico v izhodno datoteko TextGrid. Število besed v vhodni transkripciji mora biti enako številu besed v vrstici "strd-wrd-sgmnt", da skripta deluje kot je predvideno.
+* [add_cnvrstl-wrd-sgmnt_tier.py](add_cnvrstl-wrd-sgmnt_tier.py): Skripta uskladi vhodno transkripcijo v pogovori obliki z besednimi intervali v vrstici "strd-wrd-sgmnt", tako da besede iz transkripcije ujema z ustreznimi časovnimi intervali, nato pa to poravnano transkripcijo doda kot novo vrstico v izhodno datoteko TextGrid. Število besed v vhodni transkripciji mora biti enako številu besed v vrstici "strd-wrd-sgmnt", da skripta deluje kot je predvideno.
 * [add_discourse-marker_tier.py](add_discourse-marker_tier.py): Skripta doda v izhodno datoteko TextGrid vrstico z oznakam kje se nahajajo diskurzni označevalci.
 * [add_pitch-reset_tier.py](add_pitch-reset_tier.py): Skripta vsebuje dve metodi za odkrivanje ponastavitev tonske višine: metodo "average-neighboring", ki primerja povprečno višino tona zloga s povprečjem njegovih sosedov in označuje pomembne razlike kot ponastavitve višine tona, ter metodo "intrasyllabic", ki preučuje spremembe višine tona znotraj enega zloga in prepozna ponastavitev višine tona, če razlika presega 4 poltone.
 * [add_intensity-reset_tier.py](add_intensity-reset_tier.py): Skripta uporablja dve metodi za odkrivanje ponastavitev glasnosti. Metoda "near" primerja povprečno intenziteto zloga s povprečjem njegovih dveh najbližjih sosedov, pri čemer pomembne razlike označi kot ponastavitve glasnosti. Nasprotno pa metoda "extended" primerja povprečno intenziteto zloga s povprečjem njegovih štirih najbližjih sosedov in označi pomembne razlike kot ponastavitev glasnosti.
