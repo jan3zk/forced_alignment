@@ -36,14 +36,17 @@ for file in "$directory"/*.wav; do
     channels=$(sox --i -c "$file")
 
     # Check the properties and convert if necessary
-    if [ "$sample_rate" != "44100" ] || [ "$encoding" != "Signed Integer PCM" ] || [ "$bit_depth" != "16" ] || [ "$channels" != "1" ]; then
+    if [ "$sample_rate" != "44100" ] || \
+       [ "$encoding" != "Signed Integer PCM" ] || \
+       [ "$bit_depth" != "16" ] || \
+       [ "$channels" != "1" ]; then
         echo "File '$file' is not in the required format. Converting..."
 
         # Create a temporary output file
         temp_file="${file%.wav}_converted.wav"
 
-        # Convert the file using sox
-        sox "$file" -r 44100 -e signed-integer -b 16 -c 1 "$temp_file"
+        # Convert the file using sox with gain adjustment to avoid clipping
+        sox --norm "$file" -r 44100 -e signed-integer -b 16 -c 1 "$temp_file"
 
         if [ $? -eq 0 ]; then
             echo "Conversion successful. Replacing the original file."
