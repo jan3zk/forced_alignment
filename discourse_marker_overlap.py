@@ -13,16 +13,6 @@ def get_group_from_label(label):
         return None
     label = label.upper()
     return label.split('-')[0]
-#    if not label:
-#        return None
-#    label = label.upper()
-#    parts = label.split('-')
-#    if len(parts) < 1:
-#        return None
-#    main_part = parts[0]
-#    if main_part.startswith('T'):
-#        return main_part[:2]
-#    return main_part[0]
 
 def get_subgroup_from_label(label):
     """Extract subgroup from classification label."""
