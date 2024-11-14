@@ -24,10 +24,10 @@ def get_subgroup_from_label(label):
 def check_boundary_overlap(interval1, interval2):
     """Check if intervals share any boundary points."""
     threshold = 0.01  # 10ms threshold for boundary matching
-    return (abs(interval1.maxTime - interval2.maxTime) < threshold or
-            abs(interval1.minTime - interval2.minTime) < threshold or
-            abs(interval1.maxTime - interval2.minTime) < threshold or
-            abs(interval1.minTime - interval2.maxTime) < threshold)
+    return (abs(interval1.maxTime - interval2.maxTime) < threshold or # End points match
+            abs(interval1.minTime - interval2.minTime) < threshold or # Start points match
+            abs(interval1.maxTime - interval2.minTime) < threshold or # End of 1 is start of 2
+            abs(interval1.minTime - interval2.maxTime) < threshold)   # Start of 1 is end of 2
 
 def analyze_dm_overlaps(pu_tier, dm_tier):
     """Analyze overlaps between actualDM 'af' marks and PU boundaries."""
