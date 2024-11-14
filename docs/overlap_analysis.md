@@ -28,14 +28,57 @@ Where `</path/to/*.TextGrid>` is the path to the TextGrid files to be analyzed, 
 
 ## Discourse Marker Overlap Analysis
 
-The script [`discourse_marker_overlap.py`](../discourse_marker_overlap.py) is intended to analyze the overlap between manually annotated prosodic units (PU tier) and discourse markers (DM), such as pauses in speech, emphasis, speaker changes, and other speech phenomena marked by DM.
+The script [`discourse_marker_overlap.py`](../discourse_marker_overlap.py) analyzes the overlap between discourse markers and prosodic unit boundaries in TextGrid files. It processes files containing annotated speech data where discourse markers and prosodic units have been marked in separate tiers.
 
-**Analysis Process:**
+### Features
 
-The script compares DM intervals with manually determined prosodic unit boundaries ("PU" tier) and calculates overlap ratios for each unique discourse marker. Both relative and absolute overlap ratios are provided for automatically detected DMs (in the "discourse-marker" tier) and manually confirmed DMs (in the "actualDM" tier).
+The script performs three types of analysis:
+1. Overlaps between "af" marks from the "actualDM" tier and prosodic unit boundaries
+2. Overlaps between discourse marker group labels (TI, TQ, TR, I, C) and prosodic unit boundaries
+3. Overlaps between discourse marker subgroup labels and prosodic unit boundaries
 
-**Command to Run the Analysis:**
+### Input Data Requirements
+
+The script expects TextGrid files with the following tiers:
+- "PU": Contains prosodic unit boundary markings
+- "actualDM": Contains discourse marker annotations with "af" marks
+- "actual-DM-classif": Contains discourse marker classifications in the format X-YY where:
+  - X[X] is the main group (TI, TQ, TR, I, C, ...)
+  - YY is the subgroup (e.g., MC, MO, PI, RI, RR, etc.)
+
+### Usage
 
 ```bash
-python discourse_marker_overlap.py </path/to/files/*.TextGrid>
+python discourse_marker_overlap.py <path_to_textgrid_file_or_directory>
 ```
+
+The script can process either:
+- A single TextGrid file
+- A directory containing multiple TextGrid files (using wildcards)
+
+Examples:
+```bash
+# Process a single file
+python discourse_marker_overlap.py path/to/file.TextGrid
+
+# Process all TextGrid files in a directory
+python discourse_marker_overlap.py "path/to/directory/*.TextGrid"
+```
+
+### Output
+
+The script provides detailed statistics for each processed file and total results across all files:
+
+1. ActualDM overlaps:
+   - Number and percentage of "af" marks that overlap with prosodic unit boundaries
+
+2. Group overlaps:
+   - Number and percentage of overlaps for each main group (TI, TQ, TR, I, C, ...)
+
+3. Subgroup overlaps:
+   - Number and percentage of overlaps for each subgroup
+
+Results are displayed in the format: `X/Y (Z%)` where:
+- X is the number of overlaps
+- Y is the total number of occurrences
+- Z is the percentage of overlaps
