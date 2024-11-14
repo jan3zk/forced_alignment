@@ -56,7 +56,7 @@ Skripta lahko obdela:
 - Posamezno datoteko TextGrid
 - Mapo z več datotekami TextGrid (z uporabo nadomestnih znakov)
 
-Primeri:
+Primeri klica skripte:
 ```bash
 # Obdelava posamezne datoteke
 python discourse_marker_overlap.py pot/do/datoteke.TextGrid

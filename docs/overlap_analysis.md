@@ -56,7 +56,7 @@ The script can process either:
 - A single TextGrid file
 - A directory containing multiple TextGrid files (using wildcards)
 
-Examples:
+Call examples:
 ```bash
 # Process a single file
 python discourse_marker_overlap.py path/to/file.TextGrid
