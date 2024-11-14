@@ -26,16 +26,60 @@ python prosodic_param_overlap.py </path/to/*.TextGrid> [results.csv]
 
 Kjer je `</path/to/*.TextGrid>` pot do datotek TextGrid, ki jih želimo analizirati, opcijski argument `[results.csv]` pa omogoča shranjevanje rezultatov analize v datoteko CSV.
 
-## Analiza prekrivanja diskurznih označevalcev
+## Analiza sovpadanja diskurznih označevalcev
 
-Skripta [`discourse_marker_overlap.py`](../discourse_marker_overlap.py) je namenjena analizi prekrivanja med ročno označenimi prozodičnimi enotami (vrstica "PU") in diskurznimi označevalci (DO), kot so premori v govoru, poudarki, spremembe govorcev in drugi govorni pojavi, ki jih zaznamujejo DO.
+Skripta [`discourse_marker_overlap.py`](../discourse_marker_overlap.py) analizira sovpadanje diskurznih označevalcev z mejami prozodičnih enot v datotekah TextGrid. Obdeluje datoteke, ki vsebujejo označene govorne podatke, kjer so diskurzni označevalci in prozodične enote označeni v ločenih vrsticah.
 
-**Postopek analize:**
+### Funkcionalnosti
 
-Skripta primerja intervale DO z ročno določenimi mejami prozodičnih enot (vrstica "PU") in izračuna kazalnike prekrivanja za vsak edinstven DO. Relativni in absolutni deleži ujemanj so podani tako za samodejno določene DO (vrstica "discourse-marker") kot tudi za ročno potrjene DO (vrstica "actualDM"). 
+Skripta izvaja tri vrste analiz:
+1. Sovpadanja med oznakami "af" iz vrstice "actualDM" in mejami prozodičnih enot
+2. Sovpadanja med oznakami skupin diskurznih označevalcev (TI, TQ, TR, I, C) in mejami prozodičnih enot
+3. Sovpadanja med oznakami podskupin diskurznih označevalcev in mejami prozodičnih enot
 
-**Ukaz za zagon analize:**
+### Zahteve za vhodne podatke
+
+Skripta pričakuje datoteke TextGrid z naslednjimi vrsticami:
+- "PU": Vsebuje označbe mej prozodičnih enot
+- "actualDM": Vsebuje označbe diskurznih označevalcev z oznako "af"
+- "actual-DM-classif": Vsebuje klasifikacije diskurznih označevalcev v formatu X-YY, kjer je:
+  - X[X] glavna skupina (TI, TQ, TR, I, C, ...)
+  - YY podskupina (npr. MC, MO, PI, RI, RR, itd.)
+
+### Uporaba
 
 ```bash
-python discourse_marker_overlap.py </pot/do/datotek/*.TextGrid>
+python discourse_marker_overlap.py <pot_do_datoteke_ali_mape_textgrid>
+```
+
+Skripta lahko obdela:
+- Posamezno datoteko TextGrid
+- Mapo z več datotekami TextGrid (z uporabo nadomestnih znakov)
+
+Primeri:
+```bash
+# Obdelava posamezne datoteke
+python discourse_marker_overlap.py pot/do/datoteke.TextGrid
+
+# Obdelava vseh datotek TextGrid v mapi
+python discourse_marker_overlap.py "pot/do/mape/*.TextGrid"
+```
+
+### Izpis rezultatov
+
+Skripta prikaže podrobno statistiko za vsako obdelano datoteko in skupne rezultate za vse datoteke:
+
+1. Sovpadanja oznak "af":
+   - Število in odstotek oznak "af", ki sovpadajo z mejami prozodičnih enot
+
+2. Sovpadanja skupin:
+   - Število in odstotek sovpadanj za vsako glavno skupino (TI, TQ, TR, I, C, ...)
+
+3. Sovpadanja podskupin:
+   - Število in odstotek sovpadanj za vsako podskupino
+
+Rezultati so prikazani v formatu: `X/Y (Z%)`, kjer je:
+- X število sovpadanj
+- Y skupno število pojavitev
+- Z odstotek sovpadanj
 ```
