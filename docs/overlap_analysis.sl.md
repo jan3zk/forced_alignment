@@ -43,7 +43,7 @@ Skripta pričakuje datoteke TextGrid z naslednjimi vrsticami:
 - "PU": Vsebuje označbe mej prozodičnih enot
 - "actualDM": Vsebuje označbe diskurznih označevalcev z oznako "af"
 - "actual-DM-classif": Vsebuje klasifikacije diskurznih označevalcev v formatu X-YY, kjer je:
-  - X[X] glavna skupina (TI, TQ, TR, I, C, ...)
+  - X[X] glavna skupina (TI, TQ, TR, I, C)
   - YY podskupina (npr. MC, MO, PI, RI, RR, itd.)
 
 ### Uporaba
@@ -73,7 +73,7 @@ Skripta prikaže podrobno statistiko za vsako obdelano datoteko in skupne rezult
    - Število in odstotek oznak "af", ki sovpadajo z mejami prozodičnih enot
 
 2. Sovpadanja skupin:
-   - Število in odstotek sovpadanj za vsako glavno skupino (TI, TQ, TR, I, C, ...)
+   - Število in odstotek sovpadanj za vsako glavno skupino (TI, TQ, TR, I, C)
 
 3. Sovpadanja podskupin:
    - Število in odstotek sovpadanj za vsako podskupino

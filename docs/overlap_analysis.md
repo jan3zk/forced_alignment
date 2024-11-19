@@ -43,7 +43,7 @@ The script expects TextGrid files with the following tiers:
 - "PU": Contains prosodic unit boundary markings
 - "actualDM": Contains discourse marker annotations with "af" marks
 - "actual-DM-classif": Contains discourse marker classifications in the format X-YY where:
-  - X[X] is the main group (TI, TQ, TR, I, C, ...)
+  - X[X] is the main group (TI, TQ, TR, I, C)
   - YY is the subgroup (e.g., MC, MO, PI, RI, RR, etc.)
 
 ### Usage
@@ -73,7 +73,7 @@ The script provides detailed statistics for each processed file and total result
    - Number and percentage of "af" marks that overlap with prosodic unit boundaries
 
 2. Group overlaps:
-   - Number and percentage of overlaps for each main group (TI, TQ, TR, I, C, ...)
+   - Number and percentage of overlaps for each main group (TI, TQ, TR, I, C)
 
 3. Subgroup overlaps:
    - Number and percentage of overlaps for each subgroup

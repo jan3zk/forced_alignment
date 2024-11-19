@@ -7,18 +7,29 @@ from collections import defaultdict
 def load_textgrid(filepath):
     return TextGrid.fromFile(filepath)
 
+def clean_label(label):
+    """Clean label by removing Unicode control characters."""
+    # List of Unicode control characters to remove
+    control_chars = ['\u202E']  # Right-to-Left Override
+    
+    # Remove each control character from the label
+    for char in control_chars:
+        label = label.replace(char, '')
+    
+    return label
+
 def get_group_from_label(label):
     """Extract main group (TI, TQ, TR, I, C, ...) from classification label."""
     if not label or '-' not in label:
         return None
-    label = label.upper()
+    label = clean_label(label.upper())
     return label.split('-')[0]
 
 def get_subgroup_from_label(label):
     """Extract subgroup from classification label."""
     if not label or '-' not in label:
         return None
-    label = label.upper()
+    label = clean_label(label.upper())
     return label.split('-')[1]
 
 def check_boundary_overlap(interval1, interval2):
@@ -55,19 +66,23 @@ def analyze_overlaps(pu_tier, classif_tier):
         subgroup_overlaps = defaultdict(int)
         group_totals = defaultdict(int)
         subgroup_totals = defaultdict(int)
+        full_labels = defaultdict(str)  # Store full label for each subgroup
         
         # First count total occurrences
         for classif_interval in classif_tier:
             if not classif_interval.mark:
                 continue
             
-            group = get_group_from_label(classif_interval.mark)
+            cleaned_mark = clean_label(classif_interval.mark)
+            
+            group = get_group_from_label(cleaned_mark)
             if group:
                 group_totals[group] += 1
                 
-            subgroup = get_subgroup_from_label(classif_interval.mark)
+            subgroup = get_subgroup_from_label(cleaned_mark)
             if subgroup:
                 subgroup_totals[subgroup] += 1
+                full_labels[subgroup] = cleaned_mark.upper()  # Store the cleaned full label
         
         # Then count overlaps
         for pu_interval in pu_tier:
@@ -79,19 +94,21 @@ def analyze_overlaps(pu_tier, classif_tier):
                     continue
                     
                 if check_boundary_overlap(classif_interval, pu_interval):
-                    group = get_group_from_label(classif_interval.mark)
+                    cleaned_mark = clean_label(classif_interval.mark)
+                    
+                    group = get_group_from_label(cleaned_mark)
                     if group:
                         group_overlaps[group] += 1
                         
-                    subgroup = get_subgroup_from_label(classif_interval.mark)
+                    subgroup = get_subgroup_from_label(cleaned_mark)
                     if subgroup:
                         subgroup_overlaps[subgroup] += 1
         
-        return group_overlaps, group_totals, subgroup_overlaps, subgroup_totals
+        return group_overlaps, group_totals, subgroup_overlaps, subgroup_totals, full_labels
     
     except Exception as e:
         print(f"Error during overlap analysis: {str(e)}")
-        return None, None, None, None
+        return None, None, None, None, None
 
 def format_ratio(overlaps, total):
     """Format overlap ratio as string with percentage."""
@@ -109,6 +126,7 @@ def process_files(paths):
     total_dm_count = 0
     processed_files = 0
     skipped_files = 0
+    full_labels = {}  # Store full labels across all files
     
     for filepath in glob.glob(paths):
         print(f"\nProcessing file: {os.path.basename(filepath)}")
@@ -133,12 +151,17 @@ def process_files(paths):
             
             # Analyze classification overlaps
             results = analyze_overlaps(pu_tier, classif_tier)
-            if results == (None, None, None, None):
+            if results == (None, None, None, None, None):
                 print(f"Error analyzing overlaps in {filepath}")
                 skipped_files += 1
                 continue
                 
-            group_overlaps, group_totals, subgroup_overlaps, subgroup_totals = results
+            group_overlaps, group_totals, subgroup_overlaps, subgroup_totals, file_labels = results
+            
+            # Update full_labels with new labels from this file
+            for subgroup, label in file_labels.items():
+                if subgroup not in full_labels:
+                    full_labels[subgroup] = label
             
             # Analyze DM overlaps
             dm_overlaps, dm_count = analyze_dm_overlaps(pu_tier, dm_tier)
@@ -165,7 +188,7 @@ def process_files(paths):
             print("\nSubgroup overlaps:")
             for subgroup in sorted(subgroup_totals.keys()):
                 ratio = format_ratio(subgroup_overlaps[subgroup], subgroup_totals[subgroup])
-                print(f"- Subgroup {subgroup}: {ratio}")
+                print(f"- {file_labels[subgroup]}: {ratio}")
                 
             processed_files += 1
             
@@ -192,7 +215,7 @@ def process_files(paths):
     print("\nSubgroup overlaps:")
     for subgroup in sorted(total_subgroup_counts.keys()):
         ratio = format_ratio(total_subgroup_overlaps[subgroup], total_subgroup_counts[subgroup])
-        print(f"- Subgroup {subgroup}: {ratio}")
+        print(f"- {full_labels[subgroup]}: {ratio}")
 
 if __name__ == '__main__':
     if len(sys.argv) < 2:
