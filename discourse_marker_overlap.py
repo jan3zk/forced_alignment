@@ -40,25 +40,6 @@ def check_boundary_overlap(interval1, interval2):
             abs(interval1.maxTime - interval2.minTime) < threshold or # End of 1 is start of 2
             abs(interval1.minTime - interval2.maxTime) < threshold)   # Start of 1 is end of 2
 
-def analyze_dm_overlaps(pu_tier, dm_tier):
-    """Analyze overlaps between actualDM 'af' marks and PU boundaries."""
-    overlaps = 0
-    total = 0
-    
-    # Count total 'af' occurrences
-    for dm_interval in dm_tier:
-        if dm_interval.mark == "af":
-            total += 1
-            # Check for overlap with any PU boundary
-            for pu_interval in pu_tier:
-                if not pu_interval.mark:
-                    continue
-                if check_boundary_overlap(dm_interval, pu_interval):
-                    overlaps += 1
-                    break  # Count only once per DM interval
-                    
-    return overlaps, total
-
 def analyze_overlaps(pu_tier, classif_tier):
     """Analyze overlaps between classification labels and prosodic unit boundaries."""
     try:
@@ -68,7 +49,7 @@ def analyze_overlaps(pu_tier, classif_tier):
         subgroup_totals = defaultdict(int)
         full_labels = defaultdict(str)  # Store full label for each subgroup
         
-        # First count total occurrences
+        # First count total occurrences and check for overlaps
         for classif_interval in classif_tier:
             if not classif_interval.mark:
                 continue
@@ -76,39 +57,59 @@ def analyze_overlaps(pu_tier, classif_tier):
             cleaned_mark = clean_label(classif_interval.mark)
             
             group = get_group_from_label(cleaned_mark)
+            subgroup = get_subgroup_from_label(cleaned_mark)
+            
+            # Count totals
             if group:
                 group_totals[group] += 1
-                
-            subgroup = get_subgroup_from_label(cleaned_mark)
             if subgroup:
                 subgroup_totals[subgroup] += 1
-                full_labels[subgroup] = cleaned_mark.upper()  # Store the cleaned full label
-        
-        # Then count overlaps
-        for pu_interval in pu_tier:
-            if not pu_interval.mark:
-                continue
-                
-            for classif_interval in classif_tier:
-                if not classif_interval.mark:
+                full_labels[subgroup] = cleaned_mark.upper()
+            
+            # Check for overlap with any PU boundary
+            has_overlap = False
+            for pu_interval in pu_tier:
+                if not pu_interval.mark:
                     continue
-                    
+                
                 if check_boundary_overlap(classif_interval, pu_interval):
-                    cleaned_mark = clean_label(classif_interval.mark)
-                    
-                    group = get_group_from_label(cleaned_mark)
-                    if group:
-                        group_overlaps[group] += 1
-                        
-                    subgroup = get_subgroup_from_label(cleaned_mark)
-                    if subgroup:
-                        subgroup_overlaps[subgroup] += 1
+                    has_overlap = True
+                    break  # Found an overlap, no need to check other PU intervals
+            
+            # If overlap found, increment counters
+            if has_overlap:
+                if group:
+                    group_overlaps[group] += 1
+                if subgroup:
+                    subgroup_overlaps[subgroup] += 1
         
         return group_overlaps, group_totals, subgroup_overlaps, subgroup_totals, full_labels
     
     except Exception as e:
         print(f"Error during overlap analysis: {str(e)}")
         return None, None, None, None, None
+
+def analyze_dm_overlaps(pu_tier, dm_tier):
+    """Analyze overlaps between actualDM 'af' marks and PU boundaries."""
+    overlaps = 0
+    total = 0
+    
+    # Iterate through DM intervals
+    for dm_interval in dm_tier:
+        if dm_interval.mark != "af":
+            continue
+            
+        total += 1
+        # Check for overlap with any PU boundary
+        for pu_interval in pu_tier:
+            if not pu_interval.mark:
+                continue
+                
+            if check_boundary_overlap(dm_interval, pu_interval):
+                overlaps += 1
+                break  # Count only once per DM interval
+                    
+    return overlaps, total
 
 def format_ratio(overlaps, total):
     """Format overlap ratio as string with percentage."""
