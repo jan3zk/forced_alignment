@@ -67,7 +67,16 @@ def flexible_compare(input_string, pattern):
     else:
         return input_string == pattern
 
-# TRS mode functions
+def find_next_turn_start_time(turn, root):
+    """Find the start time of the next Turn element."""
+    # Get all turns
+    all_turns = root.findall(".//Turn")
+    # Find current turn's index
+    for i, t in enumerate(all_turns):
+        if t == turn and i < len(all_turns) - 1:
+            return float(all_turns[i + 1].get('startTime'))
+    return None
+
 def parse_trs_file(trs_path):
     """Extract background intervals from TRS file."""
     tree = ET.parse(trs_path)
@@ -75,6 +84,7 @@ def parse_trs_file(trs_path):
     
     background_intervals = []
     
+    # Find all Turns
     for turn in root.findall(".//Turn"):
         elements = list(turn)
         i = 0
@@ -86,18 +96,30 @@ def parse_trs_file(trs_path):
                 if elem.tail is not None:
                     text = elem.tail.strip()
                 
+                # Find the closing Background tag
+                end_time = None
                 for j in range(i + 1, len(elements)):
                     next_elem = elements[j]
                     if next_elem.tag == 'Background' and next_elem.get('level') == 'off':
                         end_time = float(next_elem.get('time'))
-                        if text:
-                            background_intervals.append((
-                                int(start_time * 1000),
-                                int(end_time * 1000),
-                                text
-                            ))
-                        i = j
+                        i = j  # Skip to the closing tag
                         break
+                
+                # If no explicit end time found or start == end, use next turn's start time or current turn's end time
+                if end_time is None or end_time == start_time:
+                    next_turn_start = find_next_turn_start_time(turn, root)
+                    if next_turn_start:
+                        end_time = next_turn_start
+                    else:
+                        # Use current turn's end time
+                        end_time = float(turn.get('endTime'))
+                
+                if text and end_time > start_time:
+                    background_intervals.append((
+                        int(start_time * 1000),
+                        int(end_time * 1000),
+                        text
+                    ))
             i += 1
     
     print(f"Found {len(background_intervals)} background intervals to anonymize:")
