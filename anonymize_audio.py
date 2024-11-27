@@ -96,7 +96,7 @@ def parse_trs_file(trs_path):
                 if elem.tail is not None:
                     text = elem.tail.strip()
                 
-                # Find the closing Background tag
+                # Find the closing Background tag - only check for level="off"
                 end_time = None
                 for j in range(i + 1, len(elements)):
                     next_elem = elements[j]
@@ -114,7 +114,10 @@ def parse_trs_file(trs_path):
                         # Use current turn's end time
                         end_time = float(turn.get('endTime'))
                 
-                if text and end_time > start_time:
+                # Only check if end_time is valid and greater than start_time
+                if end_time and end_time > start_time:
+                    # Use empty string if no text is present
+                    text = text if text else ""
                     background_intervals.append((
                         int(start_time * 1000),
                         int(end_time * 1000),
@@ -125,7 +128,10 @@ def parse_trs_file(trs_path):
     print(f"Found {len(background_intervals)} background intervals to anonymize:")
     for start, end, text in background_intervals:
         print(f"  {start}ms - {end}ms (duration: {end-start}ms)")
-        print(f"  Text to anonymize: {text}")
+        if text:
+            print(f"  Text to anonymize: {text}")
+        else:
+            print("  No text associated with this interval")
     
     return background_intervals
 

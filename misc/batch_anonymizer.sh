@@ -51,7 +51,7 @@ for wav_file in "$SOURCE_DIR"/*.wav; do
     echo "Processing: $filename"
     
     # Run the Python script
-    if python anonymize_audio.py trs "$wav_file" "$trs_file" "$output_file"; then
+    if python ../anonymize_audio.py trs "$wav_file" "$trs_file" "$output_file"; then
         echo "Successfully processed: $filename"
         ((processed++))
     else
