@@ -37,7 +37,7 @@ def transform_textgrid(input_file, output_file):
     if tg.tiers and tg.tiers[-1].name == "confidence-level":
         tg.tiers.pop()
 
-    # Odstrani zadnjo pojavitve "actualDM", če je podvojena
+    # Odstrani zadnjo pojavitev "actualDM", če je podvojena
     actualDM_count = sum(1 for tier in tg.tiers if tier.name == "actualDM")
     if actualDM_count > 1:
         # Poiščemo indeks zadnje pojavitve in jo odstranimo
