@@ -2,7 +2,7 @@ import sys
 import os
 import glob
 from textgrid import TextGrid
-from collections import defaultdict
+from collections import defaultdict, Counter
 
 def load_textgrid(filepath):
     return TextGrid.fromFile(filepath)
@@ -35,10 +35,107 @@ def get_subgroup_from_label(label):
 def check_boundary_overlap(interval1, interval2):
     """Check if intervals share any boundary points."""
     threshold = 0.01  # 10ms threshold for boundary matching
-    return (abs(interval1.maxTime - interval2.maxTime) < threshold or # End points match
-            abs(interval1.minTime - interval2.minTime) < threshold or # Start points match
-            abs(interval1.maxTime - interval2.minTime) < threshold or # End of 1 is start of 2
-            abs(interval1.minTime - interval2.maxTime) < threshold)   # Start of 1 is end of 2
+    return (interval1.minTime <= interval2.minTime <= interval1.maxTime) or \
+           (interval1.minTime <= interval2.maxTime <= interval1.maxTime) or \
+           (interval1.maxTime - threshold <= interval2.minTime <= interval1.maxTime + threshold) or \
+           (interval1.minTime - threshold <= interval2.maxTime <= interval1.minTime + threshold)
+
+def check_interval_overlap(interval1, interval2):
+    """Check if intervals overlap substantially."""
+    return (interval1.minTime <= interval2.maxTime and interval2.minTime <= interval1.maxTime)
+
+def check_significant_overlap(interval1, interval2):
+    """Check if two intervals have significant overlap (>50%)."""
+    if not (interval1.minTime <= interval2.maxTime and interval2.minTime <= interval1.maxTime):
+        return False
+    
+    overlap_start = max(interval1.minTime, interval2.minTime)
+    overlap_end = min(interval1.maxTime, interval2.maxTime)
+    
+    overlap_duration = overlap_end - overlap_start
+    interval2_duration = interval2.maxTime - interval2.minTime
+    
+    # Check if overlap is significant relative to the word interval
+    return interval2_duration > 0 and (overlap_duration / interval2_duration) > 0.5
+
+def extract_discourse_markers(textgrid):
+    """
+    Extract discourse markers from strd-wrd-sgmnt tier and their classifications.
+    Properly handles multi-word discourse markers without capturing adjacent words.
+    
+    Returns:
+    - dict: Dictionary mapping group/subgroup to list of marker words with frequencies
+    """
+    try:
+        # Get required tiers
+        strd_wrd_sgmnt_tier = textgrid.getFirst('strd-wrd-sgmnt')
+        actualDM_tier = textgrid.getFirst('actualDM')
+        classif_tier = textgrid.getFirst('actual-DM-classif')
+        
+        if not strd_wrd_sgmnt_tier or not actualDM_tier or not classif_tier:
+            print("Required tiers not found in TextGrid")
+            return {}, {}
+        
+        # Dictionaries to store markers by group and subgroup
+        group_markers = defaultdict(Counter)
+        subgroup_markers = defaultdict(Counter)
+        
+        # Find all intervals with "af" marks in actualDM tier
+        for dm_interval in actualDM_tier:
+            if dm_interval.mark != "af":
+                continue
+            
+            # Find corresponding classification interval for more precise boundaries
+            classif_interval = None
+            for interval in classif_tier:
+                if check_interval_overlap(dm_interval, interval) and interval.mark:
+                    classif_interval = interval
+                    break
+            
+            if not classif_interval:
+                continue
+                
+            # Get classification information
+            classification = classif_interval.mark
+            group = get_group_from_label(classification)
+            subgroup = get_subgroup_from_label(classification)
+            
+            if not group and not subgroup:
+                continue
+                
+            # Find all word intervals that have significant overlap with the classification interval
+            overlapping_words = []
+            for word_interval in strd_wrd_sgmnt_tier:
+                if word_interval.mark.strip() and check_significant_overlap(classif_interval, word_interval):
+                    overlapping_words.append(word_interval)
+            
+            # Sort by start time to ensure correct word order
+            overlapping_words.sort(key=lambda x: x.minTime)
+            
+            # Concatenate to form the complete marker
+            if not overlapping_words:
+                continue
+                
+            marker_parts = [interval.mark.strip() for interval in overlapping_words]
+            marker_text = " ".join(marker_parts)
+            
+            # Strip punctuation at the end of the marker
+            marker_text = marker_text.rstrip('.,;:!?"\'')\
+            
+            # Store original casing but use lowercase for counting (case insensitive)
+            marker_text_lower = marker_text.lower()
+            
+            # Update counters
+            if group:
+                group_markers[group][marker_text_lower] += 1
+            if subgroup:
+                subgroup_markers[subgroup][marker_text_lower] += 1
+        
+        return group_markers, subgroup_markers
+        
+    except Exception as e:
+        print(f"Error extracting discourse markers: {str(e)}")
+        return {}, {}
 
 def analyze_overlaps(pu_tier, classif_tier):
     """Analyze overlaps between classification labels and prosodic unit boundaries."""
@@ -129,6 +226,10 @@ def process_files(paths):
     skipped_files = 0
     full_labels = {}  # Store full labels across all files
     
+    # Dictionaries to store total markers by group and subgroup
+    total_group_markers = defaultdict(Counter)
+    total_subgroup_markers = defaultdict(Counter)
+    
     for filepath in glob.glob(paths):
         print(f"\nProcessing file: {os.path.basename(filepath)}")
         
@@ -168,6 +269,28 @@ def process_files(paths):
             dm_overlaps, dm_count = analyze_dm_overlaps(pu_tier, dm_tier)
             total_dm_overlaps += dm_overlaps
             total_dm_count += dm_count
+            
+            # Extract discourse markers and their classifications
+            group_markers, subgroup_markers = extract_discourse_markers(tg)
+            
+            # Print discourse markers for this file
+            print("\nDiscourse markers by group:")
+            for group, markers in sorted(group_markers.items()):
+                marker_strings = [f"'{marker}' ({count})" for marker, count in markers.most_common()]
+                print(f"- Group {group}: {', '.join(marker_strings)}")
+            
+            print("\nDiscourse markers by subgroup:")
+            for subgroup, markers in sorted(subgroup_markers.items()):
+                if subgroup in file_labels:
+                    marker_strings = [f"'{marker}' ({count})" for marker, count in markers.most_common()]
+                    print(f"- {file_labels[subgroup]}: {', '.join(marker_strings)}")
+            
+            # Update total marker counts
+            for group, markers in group_markers.items():
+                total_group_markers[group].update(markers)
+            
+            for subgroup, markers in subgroup_markers.items():
+                total_subgroup_markers[subgroup].update(markers)
             
             # Add to totals
             for group in group_totals:
@@ -217,6 +340,18 @@ def process_files(paths):
     for subgroup in sorted(total_subgroup_counts.keys()):
         ratio = format_ratio(total_subgroup_overlaps[subgroup], total_subgroup_counts[subgroup])
         print(f"- {full_labels[subgroup]}: {ratio}")
+    
+    # Print total discourse markers
+    print("\nTotal discourse markers by group:")
+    for group, markers in sorted(total_group_markers.items()):
+        marker_strings = [f"'{marker}' ({count})" for marker, count in markers.most_common()]
+        print(f"\nGroup {group} markers (total: {sum(markers.values())}): {', '.join(marker_strings)}")
+    
+    print("\nTotal discourse markers by subgroup:")
+    for subgroup, markers in sorted(total_subgroup_markers.items()):
+        if subgroup in full_labels:
+            marker_strings = [f"'{marker}' ({count})" for marker, count in markers.most_common()]
+            print(f"\n{full_labels[subgroup]} markers (total: {sum(markers.values())}): {', '.join(marker_strings)}")
 
 if __name__ == '__main__':
     if len(sys.argv) < 2:
