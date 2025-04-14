@@ -25,14 +25,17 @@ def validate_grapheme_mapping(input_textgrid, verbose=False):
     # Find required tiers
     word_tier = None
     grapheme_tier = None
+    phone_tier = None
     
     for tier in tg.tiers:
         if tier.name in ["words", "strd-wrd-sgmnt"]:
             word_tier = tier
         elif tier.name == "graphemes":
             grapheme_tier = tier
+        elif tier.name == "phones":
+            phone_tier = tier
     
-    if not word_tier or not grapheme_tier:
+    if not word_tier or not grapheme_tier or not phone_tier:
         print("Error: Required tiers not found in TextGrid")
         return None
     
@@ -63,8 +66,19 @@ def validate_grapheme_mapping(input_textgrid, verbose=False):
                 if grapheme_interval.mark:  # Only include non-empty graphemes
                     word_graphemes.append(grapheme_interval.mark)
         
+        # Find all phone intervals within this word's time span
+        word_phones = []
+        for phone_interval in phone_tier:
+            # Check if the phone interval is within the word interval
+            if (phone_interval.minTime >= word_interval.minTime and 
+                phone_interval.maxTime <= word_interval.maxTime):
+                if phone_interval.mark:  # Only include non-empty phones
+                    word_phones.append(phone_interval.mark)
+        
         # Reconstruct the word from graphemes
         reconstructed_word = ''.join(word_graphemes).lower()
+        # Combine phones into a string
+        phones_string = ' '.join(word_phones)
         
         # Calculate similarity ratio
         similarity = difflib.SequenceMatcher(None, original_word, reconstructed_word).ratio()
@@ -73,20 +87,20 @@ def validate_grapheme_mapping(input_textgrid, verbose=False):
         if reconstructed_word == original_word:
             exact_matches += 1
             if len(match_examples) < 5:
-                match_examples.append((original_word, reconstructed_word))
+                match_examples.append((original_word, phones_string, reconstructed_word))
         # Check for close match
-        elif similarity > 1.0:
+        elif similarity >1.0:
             close_matches += 1
-            if len(match_examples) < 10:
-                match_examples.append((original_word, reconstructed_word, similarity))
+            if len(match_examples) < 100:
+                match_examples.append((original_word, phones_string, reconstructed_word, similarity))
         # Failed match
         else:
             failed_matches += 1
-            if len(fail_examples) < 10:
-                fail_examples.append((original_word, reconstructed_word, similarity))
+            #if len(fail_examples) < 100:
+            fail_examples.append((original_word, phones_string, reconstructed_word, similarity))
         
         if verbose:
-            print(f"Word: '{original_word}' → Reconstructed: '{reconstructed_word}' (Similarity: {similarity:.2f})")
+            print(f"Word: '{original_word}' → Phones: '{phones_string}' → Reconstructed: '{reconstructed_word}' (Similarity: {similarity:.2f})")
     
     # Calculate success rates
     exact_match_rate = exact_matches / total_words if total_words > 0 else 0
@@ -118,18 +132,18 @@ def print_results(results):
     print(f"Failed matches: {results['failed_matches']} ({results['failed_matches']/results['total_words']:.2%})")
     print(f"Overall success rate: {results['overall_success_rate']:.2%}")
     
-    if results['match_examples']:
-        print("\nSuccessful mapping examples:")
-        for example in results['match_examples']:
-            if len(example) == 2:
-                print(f"  '{example[0]}' → '{example[1]}' (Exact match)")
-            else:
-                print(f"  '{example[0]}' → '{example[1]}' (Similarity: {example[2]:.2f})")
+    #if results['match_examples']:
+    #    print("\nSuccessful mapping examples:")
+    #    for example in results['match_examples']:
+    #        if len(example) == 3:
+    #            print(f"  '{example[0]}' → '{example[1]}' → '{example[2]}' (Exact match)")
+    #        else:
+    #            print(f"  '{example[0]}' → '{example[1]}' → '{example[2]}' (Similarity: {example[3]:.2f})")
     
     if results['fail_examples']:
         print("\nFailed mapping examples:")
         for example in results['fail_examples']:
-            print(f"  '{example[0]}' → '{example[1]}' (Similarity: {example[2]:.2f})")
+            print(f"  '{example[0]}' → '{example[1]}' → '{example[2]}' (Similarity: {example[3]:.2f})")
 
 def main():
     """Main function to handle command line arguments"""
