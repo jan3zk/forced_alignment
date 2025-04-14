@@ -1,13 +1,13 @@
 import sys
 import os
 from textgrid import TextGrid, IntervalTier, Interval
-import difflib
 from collections import defaultdict
+import re
 
 def initialize_phoneme_grapheme_map():
     """Initialize a mapping between phonemes and potential graphemes in Slovene"""
     # Core mappings based on Slovene phonology
-    # Each phoneme can map to multiple possible graphemes
+    # Each phoneme maps to one or more possible graphemes
     pg_map = {
         # Vowels
         "a": ["a"],
@@ -19,8 +19,8 @@ def initialize_phoneme_grapheme_map():
         "E": ["e"],
         "\"E": ["e"],
         "\"E:": ["e"],
-        "@": ["e"],
-        "\"@": ["e"],
+        "@": ["e", ""],  # Schwa can be 'e' or silent
+        "\"@": ["e", ""],
         "i": ["i"],
         "\"i": ["i"],
         "\"i:": ["i"],
@@ -53,10 +53,10 @@ def initialize_phoneme_grapheme_map():
         "f": ["f"],
         "F": ["f"],
         "v": ["v"],
-        "w": ["v"],
+        "w": ["v", "l"],  # 'w' can map to 'v' or word-final 'l'
         "W": ["v"],
         "U": ["v"],
-        "s": ["s"],
+        "s": ["s", "z"],  # 's' can map to 's' or 'z' depending on context
         "z": ["z"],
         "S": ["š"],
         "Z": ["ž"],
@@ -73,11 +73,9 @@ def initialize_phoneme_grapheme_map():
         "l'": ["lj"],
         "r": ["r"],
         "j": ["j"],
-        # Special combinations
-        "v@": ["v"],  # Syllabic v
-        "r@": ["r"],  # Syllabic r
-        "@r": ["r"],  # Alternative syllabic r
-        "l@": ["l"],  # Syllabic l
+        
+        # Special contexts
+        "spn": [""],  # Special non-speech
     }
     return pg_map
 
@@ -96,163 +94,183 @@ def get_pronunciation_dict(dict_path):
         print(f"Warning: Dictionary file {dict_path} not found. Using default mappings only.")
     return pron_dict
 
-def merge_phoneme_sequences(phonemes):
-    """Merge phoneme sequences based on known patterns"""
-    merged_phonemes = []
-    i = 0
-    
-    while i < len(phonemes):
-        # Handle common special cases
-        if i < len(phonemes) - 1 and phonemes[i] == "v" and phonemes[i+1] == "@":
-            merged_phonemes.append("v@")
-            i += 2
-        elif i < len(phonemes) - 1 and phonemes[i] == "r" and phonemes[i+1] == "@":
-            merged_phonemes.append("r@")
-            i += 2
-        elif i < len(phonemes) - 1 and phonemes[i] == "@" and phonemes[i+1] == "r":
-            merged_phonemes.append("@r")
-            i += 2
-        elif i < len(phonemes) - 1 and phonemes[i] == "l" and phonemes[i+1] == "@":
-            merged_phonemes.append("l@")
-            i += 2
-        else:
-            merged_phonemes.append(phonemes[i])
-            i += 1
-    
-    return merged_phonemes
-
-def align_phonemes_to_graphemes(word, phonemes, pg_map, pron_dict=None):
+def align_phonemes_to_graphemes(word, phonemes):
     """
-    Align phonemes to graphemes using a combination of dictionary lookup and rule-based mapping.
+    Align phonemes to graphemes with improved Slovenian-specific mappings.
     
     Args:
-        word (str): The word in orthographic form
-        phonemes (list): List of phonemes
-        pg_map (dict): Phoneme-to-grapheme mapping dictionary
-        pron_dict (dict): Pronunciation dictionary
-        
+        word (str): The original word
+        phonemes (list): List of phoneme strings
+    
     Returns:
-        list: List of tuples (phoneme, corresponding_grapheme)
+        list: List of grapheme strings aligned with phonemes
     """
+    if not word or not phonemes:
+        return [""] * len(phonemes)
+    
     word = word.lower()
+    pg_map = initialize_phoneme_grapheme_map()
+    result = [""] * len(phonemes)
     
-    # Merge phoneme sequences that should be treated as a unit
-    merged_phonemes = merge_phoneme_sequences(phonemes)
+    # Special case handling for single-character words
+    if len(word) == 1:
+        if word == "v" and len(phonemes) == 1:
+            return ["v"]  # Always map single "v" to "v", not "u"
+        elif word == "d" and len(phonemes) == 1:
+            return ["d"]  # Always map single "d" to "d", not "t"
     
-    # Check if we have this word in our pronunciation dictionary
-    if pron_dict and word in pron_dict:
-        dict_phonemes = pron_dict[word]
-        # Merge dictionary phonemes too
-        merged_dict_phonemes = merge_phoneme_sequences(dict_phonemes)
-        # If the phoneme counts match exactly, we can use the dictionary pronunciation
-        if len(merged_dict_phonemes) == len(merged_phonemes):
-            return align_using_dictionary(word, merged_phonemes, merged_dict_phonemes, pg_map)
-    
-    # Fall back to sequence alignment approach
-    return align_sequences(word, merged_phonemes, pg_map)
-
-def align_using_dictionary(word, phonemes, dict_phonemes, pg_map):
-    """
-    Align phonemes to graphemes using dictionary pronunciation as a guide
-    """
-    # Create character alignment table based on dictionary pronunciation
-    chars = list(word)
-    char_index = 0
-    mappings = []
-
-    # For each phoneme in the dictionary pronunciation
-    for i, dict_phoneme in enumerate(dict_phonemes):
-        # Skip any phones that couldn't be aligned (this is a rough heuristic)
-        if i >= len(phonemes):
+    # Step 1: First pass - handle basic mappings
+    for i, phoneme in enumerate(phonemes):
+        # Skip special cases for now
+        if phoneme == "spn":
+            result[i] = ""
             continue
-            
-        actual_phoneme = phonemes[i]
         
-        # Find possible graphemes for this phoneme
-        possible_graphemes = pg_map.get(dict_phoneme, [dict_phoneme])
-        
-        # Try to find the corresponding grapheme in the word
-        grapheme = ""
-        for possible in possible_graphemes:
-            # Make sure we don't go out of bounds
-            if char_index < len(chars):
-                # Simple case: direct match
-                if chars[char_index] == possible:
-                    grapheme = chars[char_index]
-                    char_index += 1
-                    break
-                # Handle digraphs
-                elif char_index + len(possible) <= len(chars) and ''.join(chars[char_index:char_index+len(possible)]) == possible:
-                    grapheme = possible
-                    char_index += len(possible)
-                    break
-                # If no match, just use the current character
-                else:
-                    grapheme = chars[char_index] if char_index < len(chars) else ""
-                    char_index += 1
-        
-        mappings.append((actual_phoneme, grapheme))
-    
-    return mappings
-
-def align_sequences(word, phonemes, pg_map):
-    """
-    Align phonemes to graphemes using sequence alignment techniques
-    when dictionary lookup fails
-    """
-    chars = list(word)
-    
-    # Initialize mapping list
-    mappings = []
-    
-    # Use a greedy approach: assign each phoneme to the next available grapheme
-    char_index = 0
-    for phoneme in phonemes:
+        # Get possible graphemes for this phoneme
         possible_graphemes = pg_map.get(phoneme, [phoneme])
         
-        # Try to find a match in the remaining word
-        best_match = ""
-        best_match_len = 0
-        
-        for possible in possible_graphemes:
-            if char_index < len(chars):
-                # Check if the current character matches the start of this possible grapheme
-                if possible.startswith(chars[char_index]):
-                    if len(possible) > best_match_len:
-                        best_match = possible
-                        best_match_len = len(possible)
-        
-        # If we found a match, use it
-        if best_match:
-            mappings.append((phoneme, best_match))
-            char_index += len(best_match)
-        # Otherwise, assign the next character if available
-        elif char_index < len(chars):
-            mappings.append((phoneme, chars[char_index]))
-            char_index += 1
-        # If we've run out of characters, use empty string
+        # Handle specific phoneme cases
+        if phoneme == "Z":
+            # Z should always map to ž
+            result[i] = "ž"
+        elif phoneme == "@":
+            # Add special case for words with "l@j" sequence - schwa is silent here
+            if i > 0 and i < len(phonemes) - 1:
+                if phonemes[i-1] == "l" and phonemes[i+1] == "j":
+                    result[i] = ""
+                    continue
+                
+                # Special case for "r@l" sequence - schwa is often silent
+                if phonemes[i-1] == "r" and phonemes[i+1] == "l":
+                    result[i] = ""
+                    continue
+                
+                # Check if between consonants (likely to be silent)
+                prev_is_consonant = phonemes[i-1] not in "aeiouAEIOU@"
+                next_is_consonant = phonemes[i+1] not in "aeiouAEIOU@"
+                
+                if prev_is_consonant and next_is_consonant and phonemes[i+1] == "r":
+                    # Special case for @r sequence - schwa is usually silent
+                    result[i] = ""
+                elif "e" in word:
+                    # If 'e' is in the word, map schwa to 'e' UNLESS it's in a known silent context
+                    if (i+1 < len(phonemes) and (phonemes[i+1] == "n" or phonemes[i+1] == "l")):
+                        # Check if this is part of words like "liberalne" where @ before n should be silent
+                        result[i] = ""
+                    else:
+                        result[i] = "e"
+                else:
+                    # Otherwise, schwa is likely silent
+                    result[i] = ""
+            else:
+                # At beginning or end, default to 'e' if in word
+                if "e" in word:
+                    result[i] = "e"
+                else:
+                    result[i] = ""
         else:
-            mappings.append((phoneme, ""))
+            # For all other phonemes, use the first (most common) grapheme
+            if possible_graphemes:
+                result[i] = possible_graphemes[0]
+            else:
+                # Fallback - use the phoneme itself
+                result[i] = phoneme
     
-    # If we have leftover characters, distribute them to the last phoneme
-    if char_index < len(chars):
-        phoneme, grapheme = mappings[-1]
-        mappings[-1] = (phoneme, grapheme + ''.join(chars[char_index:]))
+    # Step 2: Second pass - apply Slovenian-specific rules
     
-    return mappings
+    # A. Handle 'w' at the end of words that should map to 'l'
+    for i in range(len(phonemes)):
+        if phonemes[i] == "w" and i == len(phonemes) - 1:  # Last phoneme
+            # Check if word ends with 'l' - common pattern in Slovenian past tense
+            if word.endswith('l'):
+                result[i] = "l"
+            # Check endings like -il, -el, -al which are common verb forms
+            elif word.endswith('il') or word.endswith('el') or word.endswith('al') or word.endswith('ul'):
+                result[i] = "l"
+    
+    # B. Handle 's' that should be 'z' in certain contexts
+    for i in range(len(phonemes)):
+        if phonemes[i] == "s":
+            # Words like "iz", "jaz" where 's' should be 'z'
+            if word == "iz" or word == "jaz":
+                result[i] = "z"
+            # 'is' at the beginning of words like "izhaja", "iskati"
+            elif i == 1 and i < len(phonemes) - 1 and phonemes[0] == "i":
+                # Check if original word starts with "iz" not "is"
+                if word.startswith("iz"):
+                    result[i] = "z"
+            # Check for 'raz' prefix
+            elif i > 0 and i < len(phonemes) - 1 and "".join(phonemes[i-1:i+2]) == "ras":
+                if word.startswith("raz"):
+                    result[i] = "z"
+    
+    # C. Handle 'ts' sequences (always 'c' in Slovenian)
+    for i in range(len(phonemes)):
+        if phonemes[i] == "ts":
+            result[i] = "c"
+    
+    # D. Handle 'g' vs 'k' (phonetic differences in words like "kdo")
+    for i in range(len(phonemes)):
+        if phonemes[i] == "g" and word.startswith("k"):
+            if i == 0:  # First phoneme
+                result[i] = "k"
+    
+    # E. Handle "obs" vs "ops" sequences
+    for i in range(len(phonemes) - 2):
+        if "".join(phonemes[i:i+3]) == "Ops" and word.startswith("obs"):
+            result[i] = "o"
+            result[i+1] = "b"
+            result[i+2] = "s"
+    
+    # F. Handle 'p' at the end of words that should be 'b'
+    for i in range(len(phonemes)):
+        if phonemes[i] == "p" and i == len(phonemes) - 1:  # Last phoneme
+            if word.endswith('b'):
+                result[i] = "b"
+    
+    # G. Handle 'w' at the beginning of words (often maps to 'v')
+    for i in range(len(phonemes)):
+        if phonemes[i] == "w" and i == 0:  # First phoneme
+            if word.startswith('v'):
+                result[i] = "v"
+    
+    # H. Handle common Slovenian prefixes
+    prefixes = {
+        "vz": ["w", "s"],  # vzpon → 'w s' should be 'vz'
+        "iz": ["i", "s"],  # izhaja → 'i s' should be 'iz'
+        "raz": ["r", "a", "s"],  # razprava → 'r a s' should be 'raz'
+        "obs": ["O", "p", "s"],  # obstaja → 'O p s' should be 'obs'
+    }
+    
+    for prefix, phoneme_pattern in prefixes.items():
+        if word.startswith(prefix) and len(phonemes) >= len(phoneme_pattern):
+            prefix_match = True
+            for i, p in enumerate(phoneme_pattern):
+                if i >= len(phonemes) or phonemes[i] != p:
+                    prefix_match = False
+                    break
+            
+            if prefix_match:
+                # Map the prefix phonemes to the correct orthography
+                for i, char in enumerate(prefix):
+                    if i < len(result):
+                        result[i] = char
+    
+    # I. Apply generic rule for @ before 'l', 'j', or 'n' in specific patterns
+    # This covers the examples and similar words
+    for i in range(len(phonemes) - 1):
+        if phonemes[i] == "@" and i > 0:
+            if (phonemes[i+1] == "j" or phonemes[i+1] == "l" or phonemes[i+1] == "n"):
+                # Make schwa silent in these contexts
+                result[i] = ""
+    
+    return result
 
 def add_phoneme_grapheme_mapping_tier(input_textgrid, output_textgrid, dict_path=None):
     """
     Add a tier showing graphemes mapping to a TextGrid file
-    
-    Args:
-        input_textgrid (str): Path to input TextGrid file
-        output_textgrid (str): Path to output TextGrid file
-        dict_path (str): Path to pronunciation dictionary file
+    with improved Slovenian-specific mappings
     """
-    # Initialize the phoneme-to-grapheme mapping
-    pg_map = initialize_phoneme_grapheme_map()
-    
     # Load the pronunciation dictionary if provided
     pron_dict = get_pronunciation_dict(dict_path) if dict_path else None
     
@@ -285,6 +303,9 @@ def add_phoneme_grapheme_mapping_tier(input_textgrid, output_textgrid, dict_path
                                minTime=phone_tier.minTime, 
                                maxTime=phone_tier.maxTime)
     
+    # Dictionary to track failed mappings for analysis
+    failed_mappings = []
+    
     # Process each word
     for word_interval in word_tier:
         word = word_interval.mark.strip()
@@ -306,51 +327,21 @@ def add_phoneme_grapheme_mapping_tier(input_textgrid, output_textgrid, dict_path
         # Get phoneme texts
         phoneme_texts = [p.mark for p in word_phonemes]
         
-        # Align phonemes to graphemes
-        mapping = align_phonemes_to_graphemes(word, phoneme_texts, pg_map, pron_dict)
+        # Align phonemes to graphemes with improved Slovenian-specific rules
+        graphemes = align_phonemes_to_graphemes(word, phoneme_texts)
         
-        # Create intervals for merged phoneme sequences
-        i = 0
-        while i < len(word_phonemes):
-            phone_text = word_phonemes[i].mark
-            
-            # Handle merged phoneme sequences
-            if i < len(word_phonemes) - 1 and phone_text == "v" and word_phonemes[i+1].mark == "@":
-                # Create a single interval for "v@" -> "v"
-                start_time = word_phonemes[i].minTime
-                end_time = word_phonemes[i+1].maxTime
-                grapheme = pg_map.get("v@", ["v"])[0]
-                mapping_tier.addInterval(Interval(start_time, end_time, grapheme))
-                i += 2
-            elif i < len(word_phonemes) - 1 and phone_text == "r" and word_phonemes[i+1].mark == "@":
-                # Create a single interval for "r@" -> "r"
-                start_time = word_phonemes[i].minTime
-                end_time = word_phonemes[i+1].maxTime
-                grapheme = pg_map.get("r@", ["r"])[0]
-                mapping_tier.addInterval(Interval(start_time, end_time, grapheme))
-                i += 2
-            elif i < len(word_phonemes) - 1 and phone_text == "@" and word_phonemes[i+1].mark == "r":
-                # Create a single interval for "@r" -> "r"
-                start_time = word_phonemes[i].minTime
-                end_time = word_phonemes[i+1].maxTime
-                grapheme = pg_map.get("@r", ["r"])[0]
-                mapping_tier.addInterval(Interval(start_time, end_time, grapheme))
-                i += 2
-            elif i < len(word_phonemes) - 1 and phone_text == "l" and word_phonemes[i+1].mark == "@":
-                # Create a single interval for "l@" -> "l"
-                start_time = word_phonemes[i].minTime
-                end_time = word_phonemes[i+1].maxTime
-                grapheme = pg_map.get("l@", ["l"])[0]
-                mapping_tier.addInterval(Interval(start_time, end_time, grapheme))
-                i += 2
-            else:
-                # Regular single phoneme mapping
-                if i < len(mapping):
-                    grapheme = mapping[i][1]
-                    mapping_tier.addInterval(
-                        Interval(word_phonemes[i].minTime, word_phonemes[i].maxTime, grapheme)
-                    )
-                i += 1
+        # Add intervals to the new tier while preserving time alignment
+        for i, phone_interval in enumerate(word_phonemes):
+            if i < len(graphemes):
+                mapping_tier.addInterval(
+                    Interval(phone_interval.minTime, phone_interval.maxTime, graphemes[i])
+                )
+        
+        # Check mapping quality for reporting
+        reconstructed = ''.join(graphemes)
+        if reconstructed.lower() != word.lower():
+            phonetic = ' '.join(phoneme_texts)
+            failed_mappings.append(f"  '{word}' → '{phonetic}' → '{reconstructed}'")
     
     # Add the new tier right after the phones tier
     tg.tiers.insert(phone_tier_index + 1, mapping_tier)
@@ -359,6 +350,12 @@ def add_phoneme_grapheme_mapping_tier(input_textgrid, output_textgrid, dict_path
     try:
         tg.write(output_textgrid)
         print(f"Graphemes tier added. TextGrid saved to {output_textgrid}")
+        
+        # Print failed mappings report if any
+        if failed_mappings:
+            print("\nFailed mapping examples:")
+            for mapping in failed_mappings:
+                print(mapping)
         return True
     except Exception as e:
         print(f"Error saving TextGrid file: {e}")
