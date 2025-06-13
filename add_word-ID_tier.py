@@ -3,6 +3,7 @@ import xml.etree.ElementTree as ET
 from textgrid import TextGrid, IntervalTier, Interval
 import string
 import re
+import difflib
 
 def parse_word_id(xml_file_path):
     # Parse the XML file
@@ -36,38 +37,43 @@ def word_id_intervals(strd_wrd_sgmnt, word_ids):
     # Remove intervals with square brackets (annonimized names that lack word-IDs)
     strd_wrd_sgmnt = [t for t in strd_wrd_sgmnt if '[' not in t[-1] and ']' not in t[-1]]
 
-    if len(words) == len(strd_wrd_sgmnt):
-        concatenated_intervals = strd_wrd_sgmnt
-    else:
-        # Concatenate the tuples from strd_wrd_sgmnt when they are part of the same word in words
-        concatenated_intervals = []
-        interval_index = 0
-        for word in words:
-            dash_count = sum(1 for i in range(len(word) - 1) if word[i] == '-' and not word[i + 1] in '.,;:!?')
-            intervals_to_concatenate = 1 + dash_count
-            # Start with the initial interval
-            start_time, end_time, combined_word = strd_wrd_sgmnt[interval_index]
-            interval_index += 1
-            # Concatenate additional intervals
-            for _ in range(dash_count):
-                end_time = strd_wrd_sgmnt[interval_index][1]
-                combined_word += strd_wrd_sgmnt[interval_index][2]
-                interval_index += 1
-            concatenated_intervals.append((start_time, end_time, combined_word))
+    fa_words = [interval[2] for interval in strd_wrd_sgmnt]
 
-    # Ensure word count matches
-    if len(words) != len(concatenated_intervals):
-        words_fa = [t[-1] for t in concatenated_intervals]
-        print("\n".join(f"{a} {b}" for a, b in zip(words, words_fa)))
-        raise ValueError("Word count in transcription and TextGrid do not match.")
-    
-    # Associate transcription words with their respective intervals
-    wordid_intervals = [
-        (interval[0], interval[1], ident) 
-        for interval, ident in zip(concatenated_intervals, ids)
-    ]
-    
-    return wordid_intervals
+    matcher = difflib.SequenceMatcher(None, fa_words, words)
+    aligned = []
+    for tag, i1, i2, j1, j2 in matcher.get_opcodes():
+        if tag in {"equal", "replace"}:
+            length = min(i2 - i1, j2 - j1)
+            for k in range(length):
+                interval = strd_wrd_sgmnt[i1 + k]
+                ident = ids[j1 + k]
+                aligned.append((interval[0], interval[1], ident))
+
+            if (j2 - j1) > length:
+                extra_ids = ids[j1 + length:j2]
+                if aligned:
+                    s, e, lbl = aligned[-1]
+                    aligned[-1] = (s, e, f"{lbl} {' '.join(extra_ids)}")
+            elif (i2 - i1) > length:
+                for x in range(i1 + length, i2):
+                    interval = strd_wrd_sgmnt[x]
+                    aligned.append((interval[0], interval[1], fa_words[x]))
+
+        elif tag == "delete":
+            for idx in range(i1, i2):
+                interval = strd_wrd_sgmnt[idx]
+                aligned.append((interval[0], interval[1], fa_words[idx]))
+
+        elif tag == "insert":
+            extra_ids = ids[j1:j2]
+            if aligned:
+                s, e, lbl = aligned[-1]
+                aligned[-1] = (s, e, f"{lbl} {' '.join(extra_ids)}")
+            else:
+                interval = strd_wrd_sgmnt[0]
+                aligned.append((interval[0], interval[1], ' '.join(extra_ids)))
+
+    return aligned
 
 def main(input_textgrid, input_xml, output_textgrid):
     # Parse XML to get speaker intervals
@@ -103,3 +109,4 @@ if __name__ == "__main__":
         print("Usage: python add_word-ID_tier.py [input.TextGrid] [input.xml] [output.TextGrid]")
     else:
         main(sys.argv[1], sys.argv[2], sys.argv[3])
+        
