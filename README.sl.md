@@ -111,7 +111,7 @@ Izhodna datoteka CSV vsebuje naslednje stolpce za posamezen fonem:
 Skripta [align.sh](align.sh) je zasnovana za avtomatizacijo procesa izvajanja prisilne poravnave večjega števila posnetkov in njihovih transkripcij. Skripta iterira skozi datoteke WAV v določeni mapi in izvede več operacij, vključno s vsiljeno poravnavo preko kratkih časovnih intervalov vhodnih parov datotek posnetek/transkripcija, ter dodajanjem zgoraj opisanih vrstic v izhodne datoteke TextGrid za namene kasnejše akustične analize. Skripto zaženete z naslednjim ukazom:
 
 ```bash
-./align.sh <wav_dir> <out_dir> <lexicon> <xml_dir> <duration>
+./align.sh <wav_dir> <out_dir> <lexicon> <acoustic_model> <g2p_model> <xml_dir> <duration>
 ```
 
 Skripta sprejme naslednje vhodne argumente:
@@ -119,8 +119,11 @@ Skripta sprejme naslednje vhodne argumente:
 * `wav_dir`: Pot do mape, ki vsebuje datoteke WAV.
 * `out_dir`: Pot do mape, kjer bodo shranjene izhodne datoteke in vmesne datoteke.
 * `lexicon`: Pot do slovarja, ki se uporablja za prisilno poravnavo z MFA.
+* `acoustic_model`: Pot do MFA akustičnega modela za poravnavo.
+* `g2p_model`: Pot do G2P modela za obravnavo besed izven slovarja.
 * `xml_dir`: Pot do mape, ki vsebuje datoteke XML, tj. transkripcije v formatu TEI.
 * `duration`: Število, ki določa dolžino avdio segmentov v sekundah nad katerimi se naknadno vrši vsiljena poravnava z MFA.Vrednost "Inf" pomeni, da segmentacija ne bo izvedena.
+* `enable_tiers` *(neobvezno)*: z vrednostjo `false` preskoči ustvarjanje dodatnih ravni. Privzeto `true`.
 
 **Akustične meritve na večjem številu posnetkov**
 

@@ -1,4 +1,4 @@
-# Slovene Speech and Transcription Alignment using Montreal Forced Aligner
+  # Slovene Speech and Transcription Alignment using Montreal Forced Aligner
 
 [![sl](https://img.shields.io/badge/lang-sl-blue.svg)](README.sl.md)
 
@@ -125,7 +125,7 @@ The output CSV file will contain the following columns for each phoneme:
 This Bash script [align.sh](align.sh) is designed to automate the process of performing forced alignment and adding multiple tiers to TextGrid files using a set of Python scripts. The script iterates through WAV files in a specified directory, performs multiple operations including forced alignment over short time intervals of input audio/trainscription pairs, and adding various tiers to the TextGrid files for detailed analysis. Execute the script using the following command:
 
 ```bash
-./align.sh <wav_dir> <out_dir> <lexicon> <xml_dir> <duration>
+./align.sh <wav_dir> <out_dir> <lexicon> <acoustic_model> <g2p_model> <xml_dir> <duration>
 ```
 
 The script accepts these input arguments:
@@ -133,8 +133,11 @@ The script accepts these input arguments:
 * `wav_dir`: Path to the directory containing WAV files.
 * `out_dir`: Path to the directory where output files and intermediate files will be stored.
 * `lexicon`: Path to the lexicon file used for MFA forced alignment.
+* `acoustic_model`: Path to the MFA acoustic model used for alignment.
+* `g2p_model`: Path to the G2P model used for out-of-vocabulary word handling.
 * `xml_dir`: Path to the directory containing XML files, i.e. transcriptions in TEI format.
 * `duration`: A floating-point number that defines the length of the audio segments in seconds. These segments are created from the input audio and transcriptions prior to MFA forced alignment. The value 'Inf' implies no segmentation will be performed.
+* `enable_tiers` *(optional)*: Set to `false` to skip creation of additional tiers. Defaults to `true`.
 
 **Processing acoustic measurements**
 

@@ -2,19 +2,21 @@
 set -e
 
 # Call examples:
-# ./align.sh "/storage/rsdo/korpus/GOS2.0/Artur-WAV/Artur-N*.wav" data/gos_processed/Artur-N /storage/janezk/mfa_data/lexicon_all.txt data/Gos.TEI.2.1/Artur-N 30
-# ./align.sh "/storage/rsdo/korpus/GOS2.0/Artur-WAV/Artur-N-G5033-P600031-avd.wav" data/gos_processed/Artur-N /storage/janezk/mfa_data/lexicon_all.txt data/Gos.TEI.2.1/Artur-N 30
-# ./align.sh "/storage/rsdo/korpus/MEZZANINE/GosVL/wav/*.wav" data/gos_processed/GosVL /storage/janezk/mfa_data/lexicon_all.txt data/Gos.TEI.2.1/GosVL 30
-# ./align.sh "/storage/rsdo/korpus/MEZZANINE/iriss/*.wav" data/iriss_processed /storage/janezk/mfa_data/lexicon_all.txt /storage/rsdo/korpus/MEZZANINE/iriss 30
-# ./align.sh "/storage/rsdo/korpus/MEZZANINE/SST/*.wav" data/SST_processed /storage/janezk/mfa_data/lexicon_all.txt /storage/rsdo/korpus/MEZZANINE/SST 30
+# ./align.sh "/storage/rsdo/korpus/GOS2.0/Artur-WAV/Artur-N*.wav" data/gos_processed/Artur-N /storage/janezk/mfa_data/lexicon_all.txt ./data/acoustic_model_optilex.zip ./data/OPTILEX_v3_g2p.zip data/Gos.TEI.2.1/Artur-N 30
+# ./align.sh "/storage/rsdo/korpus/GOS2.0/Artur-WAV/Artur-N-G5033-P600031-avd.wav" data/gos_processed/Artur-N /storage/janezk/mfa_data/lexicon_all.txt ./data/acoustic_model_optilex.zip ./data/OPTILEX_v3_g2p.zip data/Gos.TEI.2.1/Artur-N 30
+# ./align.sh "/storage/rsdo/korpus/MEZZANINE/GosVL/wav/*.wav" data/gos_processed/GosVL /storage/janezk/mfa_data/lexicon_all.txt ./data/acoustic_model_optilex.zip ./data/OPTILEX_v3_g2p.zip data/Gos.TEI.2.1/GosVL 30
+# ./align.sh "/storage/rsdo/korpus/MEZZANINE/iriss/*.wav" data/iriss_processed /storage/janezk/mfa_data/lexicon_all.txt ./data/acoustic_model_optilex.zip ./data/OPTILEX_v3_g2p.zip /storage/rsdo/korpus/MEZZANINE/iriss 30
+# ./align.sh "/storage/rsdo/korpus/MEZZANINE/SST/*.wav" data/SST_processed /storage/janezk/mfa_data/lexicon_all.txt ./data/acoustic_model_optilex.zip ./data/OPTILEX_v3_g2p.zip /storage/rsdo/korpus/MEZZANINE/SST 30
 
 # Assign paths
 wav_dir=$1 #directory or wav filepath
 out_dir=$2 #output directory
-lexicon=$3 #path to dictionalry
-xml_dir=$4 #directory or xml filepath
-duration=$5 #duration of fragments that are passed to forced alignment process or Inf for whole audio
-enable_tiers=${6:-true} #whether to add additional tiers, default is 'true'
+lexicon=$3 #path to pronunciation dictionary
+acoustic_model=${4:-./data/acoustic_model_optilex.zip} #path to MFA acoustic model
+g2p_model=${5:-./data/OPTILEX_v3_g2p.zip} #path to G2P model
+xml_dir=$6 #directory or xml filepath
+duration=$7 #duration of fragments that are passed to forced alignment process or Inf for whole audio
+enable_tiers=${8:-true} #whether to add additional tiers, default is 'true'
 
 cd $(dirname "$0")
 
@@ -58,7 +60,17 @@ for wav_file in "${wav_files[@]}"; do
 
         echo -e "\nPerforming MFA forced alignment ..."
         rm -f $out_dir/mfa_output/*.TextGrid
-        mfa align --clean --single_speaker "$out_dir/mfa_input" "$lexicon" ./data/acoustic_model_optilex.zip "$out_dir/mfa_output" --beam 300 --retry_beam 3000 --g2p_model_path ./data/OPTILEX_v3_g2p.zip
+        mfa align \
+            --clean \
+            --single_speaker \
+            "$out_dir/mfa_input" \
+            "$lexicon" \
+            "$acoustic_model" \
+            "$out_dir/mfa_output" \
+            --beam 300 \
+            --retry_beam 3000 \
+            --g2p_model_path "$g2p_model" \
+            --num_jobs 1
 
         if [ "$duration" != "Inf" ]; then
             echo -e "\nCombining partial TextGrids ..."
