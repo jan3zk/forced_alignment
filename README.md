@@ -82,7 +82,7 @@ Similary, other tiers can be added. A list of implemented tiers and their brief 
 
 ## Acoustic Measurements
 
-The script [acoustic_measurements.py](acoustic_measurements.py) computes various acoustic measurements from a given TextGrid file and WAV audio file, extracting phoneme durations, pitch-related features, formants, intensity, VOT (Voice Onset Time), COG (Center of Gravity), and related annotations. The computed values are then stored in a CSV file for analysis and further processing.
+The script [acoustic_measurements.py](acoustic_measurements.py) computes various acoustic measurements from a given TextGrid file and WAV audio file, extracting phoneme durations, pitch-related features, formants, intensity, sonority, VOT (Voice Onset Time), COG (Center of Gravity), and related annotations. The computed values are then stored in a CSV file for analysis and further processing.
 
 **Usage:**
 
@@ -109,6 +109,7 @@ The output CSV file will contain the following columns for each phoneme:
 * `F3Formant`: The F3 formant frequency (Hz)
 * `F4Formant`: The F4 formant frequency (Hz)
 * `Intensity`: The average intensity of the phoneme (dB)
+* `Sonority`: The sonority value of the phoneme
 * `VOT`: The voice onset time (seconds)
 * `COG`: The centroid of gravity of the phoneme (Hz)
 * `PreviousPhone`: The phoneme preceding the current phoneme

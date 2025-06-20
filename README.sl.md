@@ -68,7 +68,7 @@ ki doda novo vrstco s časovnimi intervali na nivoju zlogov v izhodno datoteko T
 
 ## Akustične Meritve
 
-Skripta [acoustic_measurements.py](acoustic_measurements.py) izračuna različne akustične meritve iz danih datotek TextGrid in WAV, kot so trajanje fonemov, akustične lastnosti povezane z višino tona, formante, glasnost, VOT (čas do začetka zvenečnosti), COG (težišče) in sorodne oznake. Izračunane vrednosti se nato shranijo v datoteko CSV za nadaljnjo analizo in obdelavo.
+Skripta [acoustic_measurements.py](acoustic_measurements.py) izračuna različne akustične meritve iz danih datotek TextGrid in WAV, kot so trajanje fonemov, akustične lastnosti povezane z višino tona, formante, glasnost, sonornost, VOT (čas do začetka zvenečnosti), COG (težišče) in sorodne oznake. Izračunane vrednosti se nato shranijo v datoteko CSV za nadaljnjo analizo in obdelavo.
 
 **Uporaba:**
 
@@ -95,6 +95,7 @@ Izhodna datoteka CSV vsebuje naslednje stolpce za posamezen fonem:
 * `F3Formant`: Frekvenca tretjega formanta (v Hz)
 * `F4Formant`: Frekvenca četrtega formanta (v Hz)
 * `Intensity`: Povprečna intenzivnost fonema (v dB)
+* `Sonority`: Vrednost sonornosti fonema
 * `VOT`: Čas do začetka zvenečnosti (v sekundah)
 * `COG`: Težišče fonema (v Hz)
 * `PreviousPhone`: Fonem pred trenutnim fonemom

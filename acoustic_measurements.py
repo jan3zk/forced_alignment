@@ -4,6 +4,7 @@ import csv
 import parselmouth
 import numpy as np
 from textgrid import TextGrid
+from extract_sonority import extract_sonority
 
 def compute_durations(tier):
     return [(interval.mark, "{:.2f}".format(interval.maxTime - interval.minTime)) for interval in tier]
@@ -109,6 +110,21 @@ def compute_cog(input_wav, tier, power=2):
         cog_values.append(round(cog, 1))
     return cog_values
 
+def compute_sonority(input_wav, tier):
+    """Return average sonority for each interval in ``tier``."""
+    sonority_vals, sonority_times = extract_sonority(input_wav, plot_graphs=False)
+    sonority_values = []
+    for interval in tier:
+        start_time = interval.minTime
+        end_time = interval.maxTime
+        indices = np.logical_and(sonority_times >= start_time, sonority_times <= end_time)
+        if np.any(indices):
+            avg_sonority = float(np.mean(sonority_vals[indices]))
+        else:
+            avg_sonority = 0.0
+        sonority_values.append(round(avg_sonority, 3))
+    return sonority_values
+
 def get_item(tier, item_tier):
     item_list = []
     for interval in tier:
@@ -132,6 +148,7 @@ def main(input_textgrid, input_wav, output_csv, level="phones"):
     pitch = compute_pitch(input_wav, tier)
     pitch_trend = compute_pitch_trend(input_wav, tier)
     intensity = compute_intensity(input_wav, tier)
+    sonority = compute_sonority(input_wav, tier)
 
     if level == "phones":
         formants = compute_formants(input_wav, tier)
@@ -152,6 +169,7 @@ def main(input_textgrid, input_wav, output_csv, level="phones"):
             ('F3Formant', formants['F3']),
             ('F4Formant', formants['F4']),
             ('Intensity', intensity),
+            ('Sonority', sonority),
             ('VOT', vot),
             ('COG', cog),
             ('PreviousPhone', previous_phone),
@@ -169,6 +187,7 @@ def main(input_textgrid, input_wav, output_csv, level="phones"):
             ('AvgPitch', pitch),
             ('PitchTrend', pitch_trend),
             ('Intensity', intensity),
+            ('Sonority', sonority),
         ]
 
     save_to_csv( [t[0] for t in csv_data],  [t[1] for t in csv_data], output_csv)
