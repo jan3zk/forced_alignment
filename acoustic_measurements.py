@@ -11,7 +11,9 @@ def compute_durations(tier):
 
 def compute_pitch(input_wav, tier, time_step=0.01, pitch_floor=75, pitch_ceiling=500):
     sound = parselmouth.Sound(input_wav)
-    pitch = sound.to_pitch(time_step=time_step, pitch_floor=pitch_floor, pitch_ceiling=pitch_ceiling)
+    pitch = sound.to_pitch_ac(time_step=time_step,
+                              pitch_floor=pitch_floor,
+                              pitch_ceiling=pitch_ceiling)
     pitch_values = pitch.selected_array['frequency']
     phone_pitches = []
     for interval in tier:
