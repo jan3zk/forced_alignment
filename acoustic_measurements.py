@@ -9,22 +9,55 @@ from extract_sonority import extract_sonority
 def compute_durations(tier):
     return [(interval.mark, "{:.2f}".format(interval.maxTime - interval.minTime)) for interval in tier]
 
-def compute_pitch(input_wav, tier, time_step=0.01, pitch_floor=75, pitch_ceiling=500):
+def compute_pitch(
+    input_wav,
+    tier,
+    time_step=0.01,
+    pitch_floor=75,
+    pitch_ceiling=500,
+    voiced_ratio_threshold=0.5,
+):
+    """Return average pitch for each interval in ``tier``.
+
+    Pitch is calculated using Praat's autocorrelation method to mirror the
+    behaviour of the Praat GUI.  Intervals are considered unvoiced when fewer
+    than ``voiced_ratio_threshold`` of the analysed frames contain a non-zero
+    pitch value.  This guards against spurious pitch detections in voiceless
+    segments (e.g. voiceless consonants).
+    """
+
     sound = parselmouth.Sound(input_wav)
-    pitch = sound.to_pitch_ac(time_step=time_step,
-                              pitch_floor=pitch_floor,
-                              pitch_ceiling=pitch_ceiling)
-    pitch_values = pitch.selected_array['frequency']
+    pitch = sound.to_pitch_ac(
+        time_step=time_step,
+        pitch_floor=pitch_floor,
+        pitch_ceiling=pitch_ceiling,
+    )
+
+    pitch_values = pitch.selected_array["frequency"]
+    times = pitch.xs()
     phone_pitches = []
+
     for interval in tier:
         start_time = interval.minTime
         end_time = interval.maxTime
-        pitch_interval = pitch_values[np.logical_and(pitch.xs() >= start_time, pitch.xs() <= end_time)]
-        # Filter out 0 values which represent unvoiced parts
-        pitch_interval = pitch_interval[pitch_interval != 0]
-        # Calculate the average pitch
-        avg_phone_pitch = np.mean(pitch_interval) if len(pitch_interval) > 0 else 0
-        phone_pitches.append(round(avg_phone_pitch, 1))
+
+        indices = np.logical_and(times >= start_time, times <= end_time)
+        interval_values = pitch_values[indices]
+
+        if len(interval_values) == 0:
+            phone_pitches.append(0.0)
+            continue
+
+        nonzero = interval_values[interval_values != 0]
+        voiced_ratio = len(nonzero) / len(interval_values)
+
+        if voiced_ratio < voiced_ratio_threshold:
+            avg_phone_pitch = 0.0
+        else:
+            avg_phone_pitch = np.mean(nonzero) if len(nonzero) > 0 else 0.0
+
+        phone_pitches.append(round(float(avg_phone_pitch), 1))
+
     return phone_pitches
 
 def compute_pitch_trend(input_wav, tier):
