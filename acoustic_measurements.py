@@ -62,7 +62,6 @@ def compute_formants(input_wav, tier):
 def compute_intensity(input_wav, tier, intensity_threshold=50):
     sound = parselmouth.Sound(input_wav)
     intensity = sound.to_intensity()
-    intensity_values = intensity.values[0]  # Assuming one channel
     phone_intensities = []
     for interval in tier:
         start_time = interval.minTime
@@ -86,20 +85,19 @@ def compute_vot(input_wav, tier):
         start_index_pitch = int(start_time // pitch.time_step)
         end_index_pitch = int(end_time // pitch.time_step)
         pitch_interval = pitch_values[start_index_pitch:end_index_pitch]
-        # Assuming VOT as the time difference between the midpoint of the phone and the onset of voicing
-        midpoint = (start_time + end_time) / 2
+        # VOT is measured from the end of the phone to the onset of voicing
         cutoff_frequency = 100  # Adjust as needed based on your data
         # Find the first pitch value above the cutoff frequency (indicating voicing onset)
         for i, pitch_value in enumerate(pitch_interval):
             if pitch_value > cutoff_frequency:
-                vot = midpoint - ((start_index_pitch + i) * pitch.time_step)
+                vot = end_time - ((start_index_pitch + i) * pitch.time_step)
                 break
         else:
             vot = 0.0  # If voicing onset not found, set VOT to 0.0
         vot_values.append(round(vot, 3))
     return vot_values
 
-def compute_cog(input_wav, tier, power=1):
+def compute_cog(input_wav, tier, power=2):
     snd = parselmouth.Sound(input_wav)
     cog_values = []
     for interval in tier:
@@ -134,7 +132,7 @@ def main(input_textgrid, input_wav, output_csv, level="phones"):
     pitch = compute_pitch(input_wav, tier)
     pitch_trend = compute_pitch_trend(input_wav, tier)
     intensity = compute_intensity(input_wav, tier)
-    
+
     if level == "phones":
         formants = compute_formants(input_wav, tier)
         vot = compute_vot(input_wav, tier)
@@ -177,7 +175,9 @@ def main(input_textgrid, input_wav, output_csv, level="phones"):
     print(f"Acoustic measurements saved to {output_csv}")
 
 if __name__ == "__main__":
-    if len(sys.argv) != 5:
-        print("Usage: python acoustic_measurements.py [input.TextGrid] [input.wav] [output.csv] [level]")
-    else:
+    if len(sys.argv) == 4:
+        main(sys.argv[1], sys.argv[2], sys.argv[3])
+    elif len(sys.argv) == 5:
         main(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4])
+    else:
+        print("Usage: python acoustic_measurements.py [input.TextGrid] [input.wav] [output.csv] [level (optional, default='phones')]")
