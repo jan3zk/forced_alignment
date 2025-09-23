@@ -1,6 +1,6 @@
 cff-version: 1.2.0
 message: "If you use this software, please cite it as below."
-title: "Utilizing Forced Alignment for Phonetic Analysis of Slovene Speech"
+title: "Forced-alignment-sl 1.0: Vsiljena poravnava govora za slovenščino"
 preferred-citation:
   type: conference-paper
   authors:
@@ -20,3 +20,18 @@ preferred-citation:
   year: 2024
   address: "Ljubljana, Slovenia"
   url: "https://www.sdjt.si/wp/wp-content/uploads/2024/09/JT-DH_2024_Krizaj_Gros_Dobrisek.pdf"
+
+references:
+  - type: software
+    authors:
+    - family-names: "Križaj"
+      given-names: "Janez"
+    - family-names: "Dobrišek"
+      given-names: "Simon"
+    - family-names: "Žganec Gros"
+      given-names: "Jerneja"
+    title: "Forced-alignment-sl 1.0: Vsiljena poravnava govora za slovenščino"
+    year: 2025
+    repository-code: "https://github.com/jan3zk/forced_alignment"
+    institution:
+      name: "Fakulteta za elektrotehniko, Univerza v Ljubljani"

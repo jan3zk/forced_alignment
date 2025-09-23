@@ -174,3 +174,43 @@ python ctm2textgrid.py <input.ctm> <output.TextGrid>
 
 * [Anonimizacija zvočnih posnetkov](docs/anonymization.sl.md)
 * [Analiza prekrivanja z ročno označenimi prozodičnimi enotami](docs/overlap_analysis.sl.md)
+
+## Kako citirati
+
+Če pri svojem raziskovalnem delu uporabljate to orodje, prosimo, da navedete katerega od virov:
+
+### 1. Članek
+
+**APA**  
+Križaj, J., Žganec Gros, J., & Dobrišek, S. (2024). *Utilizing Forced Alignment for Phonetic Analysis of Slovene Speech*.  
+V *Proceedings of the Language Technologies and Digital Humanities conference 2024 (JT-DH 2024)*, Ljubljana, Slovenia.  
+[PDF](https://www.sdjt.si/wp/wp-content/uploads/2024/09/JT-DH_2024_Krizaj_Gros_Dobrisek.pdf)
+
+**BibTeX**
+```bibtex
+@inproceedings{krizaj2024forcedalignment,
+  author    = {Križaj, Janez and Žganec Gros, Jerneja and Dobrišek, Simon},
+  title     = {Utilizing Forced Alignment for Phonetic Analysis of Slovene Speech},
+  booktitle = {Proceedings of the Language Technologies and Digital Humanities conference 2024},
+  year      = {2024},
+  address   = {Ljubljana, Slovenia},
+  url       = {https://www.sdjt.si/wp/wp-content/uploads/2024/09/JT-DH_2024_Krizaj_Gros_Dobrisek.pdf}
+}
+```
+
+### 2. Programsko orodje
+
+**APA**
+Križaj, J., Dobrišek, S., & Žganec Gros, J. (2025). Forced-alignment-sl 1.0: Vsiljena poravnava govora za slovenščino [Computer software].
+Fakulteta za elektrotehniko, Univerza v Ljubljani. Dostopno na: https://github.com/jan3zk/forced_alignment
+
+**BibTeX**
+```bibtex
+@misc{forcedalignment_sl_1_0,
+  author       = {Križaj, Janez and Dobrišek, Simon and Žganec Gros, Jerneja},
+  title        = {Forced-alignment-sl 1.0: Vsiljena poravnava govora za slovenščino},
+  year         = {2025},
+  howpublished = {\url{https://github.com/jan3zk/forced_alignment}},
+  note         = {Fakulteta za elektrotehniko, Univerza v Ljubljani}
+}
+```
