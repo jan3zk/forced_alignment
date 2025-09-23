@@ -21,6 +21,13 @@ def align_transcription_to_words(strd_wrd_sgmnt, transcription):
     words = [w for w in words if w and not all(ch in string.punctuation for ch in w)]
     # Remove elements containing only '–', '+', '-'
     words = [w for w in words if w not in {"-", "+", "–"}]
+    # Strip leading/trailing punctuation so tokens like "čakam," match FA output
+    stripped_words = []
+    for w in words:
+        normalized = w.strip(string.punctuation)
+        if normalized:
+            stripped_words.append(normalized)
+    words = stripped_words
 
     # Remove empty or whitespace-only word intervals
     strd_wrd_sgmnt = [interval for interval in strd_wrd_sgmnt if interval[2].strip()]
@@ -31,6 +38,17 @@ def align_transcription_to_words(strd_wrd_sgmnt, transcription):
     aligned = []
     for tag, i1, i2, j1, j2 in matcher.get_opcodes():
         if tag in {"equal", "replace"}:
+            if tag == "replace":
+                fa_len = i2 - i1
+                word_len = j2 - j1
+                if word_len == 1 and fa_len > 1:
+                    candidate = words[j1]
+                    split_parts = [part for part in re.split(r"[-\u2010-\u2015]", candidate) if part]
+                    if len(split_parts) == fa_len:
+                        for offset, part in enumerate(split_parts):
+                            interval = strd_wrd_sgmnt[i1 + offset]
+                            aligned.append((interval[0], interval[1], part))
+                        continue
             length = min(i2 - i1, j2 - j1)
             for k in range(length):
                 interval = strd_wrd_sgmnt[i1 + k]
