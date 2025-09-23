@@ -5,7 +5,41 @@ Convert pronunciation dictionary to Montreal Forced Aligner (MFA) format.
 
 import argparse
 import sys
+import unicodedata
 from pathlib import Path
+
+
+# Prefixes whose final "d" combines with a following "z" to form a cross-
+# morpheme cluster that should stay split (e.g., "nad + z...").
+DZ_MORPH_PREFIXES = {
+    "med",
+    "nad",
+    "najod",
+    "nenad",
+    "od",
+    "pod",
+    "pred",
+    "predpred",
+    "preod",
+    "samonad",
+    "videonad",
+}
+
+
+# Prefixes where "d" belongs to the prefix and the following "ž" starts the
+# stem, so the surface "dž" should be emitted as separate phones.
+DZ_CARON_MORPH_PREFIXES = {
+    "nad",
+    "neod",
+    "od",
+    "pod",
+    "pred",
+    "spod",
+}
+
+
+SPECIAL_DZ_CHARS = {"ǳ"}
+SPECIAL_DZ_CARON_CHARS = {"ǆ"}
 
 
 def load_phone_set(phone_set_file):
@@ -62,6 +96,86 @@ def parse_pronunciation(pron_string, phone_set, strict=False):
     return phones
 
 
+def _normalize_word(word):
+    """Normalize orthography for consistent affricate detection."""
+    return unicodedata.normalize("NFC", word).casefold()
+
+
+def _expected_affricate_counts(word):
+    """Count how many affricates are implied by the word's spelling."""
+    normalized = _normalize_word(word)
+    counts = {"ts": 0, "tS": 0, "dz": 0, "dZ": 0}
+    i = 0
+
+    while i < len(normalized):
+        # Treat "ch" digraphs as postalveolar affricates (e.g., ch = tS)
+        if normalized.startswith("ch", i):
+            counts["tS"] += 1
+            i += 2
+            continue
+
+        if normalized.startswith("dz", i):
+            prefix_end = normalized[: i + 1]
+            if prefix_end not in DZ_MORPH_PREFIXES:
+                counts["dz"] += 1
+            i += 2
+            continue
+
+        if normalized.startswith("dž", i):
+            prefix_end = normalized[: i + 1]
+            if prefix_end not in DZ_CARON_MORPH_PREFIXES:
+                counts["dZ"] += 1
+            i += 2
+            continue
+
+        char = normalized[i]
+        if char == "c":
+            counts["ts"] += 1
+        elif char in {"č", "ć"}:
+            counts["tS"] += 1
+        elif char in SPECIAL_DZ_CHARS:
+            counts["dz"] += 1
+        elif char in SPECIAL_DZ_CARON_CHARS:
+            if normalized[: i + 1] not in DZ_CARON_MORPH_PREFIXES:
+                counts["dZ"] += 1
+
+        i += 1
+
+    return counts
+
+
+def _split_extra_affricates(word, phones, phone_set):
+    """Split affricates that are not supported by the spelling."""
+    counts = _expected_affricate_counts(word)
+    adjusted = phones
+
+    for phone, replacement in (
+        ("ts", ["t", "s"]),
+        ("tS", ["t", "S"]),
+        ("dz", ["d", "z"]),
+        ("dZ", ["d", "Z"]),
+    ):
+        available = sum(1 for p in adjusted if p == phone)
+        expected = counts.get(phone, 0)
+
+        # Nothing to change or replacements not in the phone set
+        if available <= expected or any(r not in phone_set for r in replacement):
+            continue
+
+        to_split = available - expected
+        new_phones = []
+        for p in adjusted:
+            if p == phone and to_split > 0:
+                new_phones.extend(replacement)
+                to_split -= 1
+            else:
+                new_phones.append(p)
+
+        adjusted = new_phones
+
+    return adjusted
+
+
 def convert_dictionary(input_file, output_file, phone_set_file, debug=False, strict=False):
     """Convert the dictionary from the original format to MFA format."""
     # Load phone set
@@ -100,8 +214,10 @@ def convert_dictionary(input_file, output_file, phone_set_file, debug=False, str
             for pron in pron_variants:
                 # Parse the pronunciation into individual phones
                 phones = parse_pronunciation(pron, phone_set, strict)
-                
+
                 if phones:
+                    phones = _split_extra_affricates(word, phones, phone_set)
+
                     # Write to output file
                     outfile.write(f"{word}\t{' '.join(phones)}\n")
                     processed_count += 1
