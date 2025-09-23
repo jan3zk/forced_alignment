@@ -16,7 +16,7 @@ for textgrid_file in $textgrid_dir/*.TextGrid; do
     if [ $counter -ge 1 ]; then
         base_name=$(basename $textgrid_file)
         wav_file=$wav_dir/${base_name/.TextGrid/.wav}
-        csv_file=$csv_dir/${base_name/.TextGrid/.$level.csv}
+        csv_file=$csv_dir/${base_name/.TextGrid/.csv}
         echo -e "\nFiles ($counter):"
         echo wav_file=\"$wav_file\"
         echo textgrid_file=\"$textgrid_file\"
