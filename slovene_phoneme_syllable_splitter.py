@@ -8,7 +8,7 @@ def get_vowel_phonemes(pdict):
     if pdict.lower() == 'gos':
         return ["@", "a", "e", "E", "i", "o", "O", "u"] #Gos
     else:
-        return ["a", "\"a", "\"a:", "e", "\"e:", "E", "\"E", "\"E:", "@", "\"@", "i", "\"i", "\"i:", "I", "o", "\"o:", "O", "\"O", "\"O:", "u", "\"u", "\"u:"] #Optilex
+        return ["a", "\"a", "\"a:", "e", "\"e:", "E", "\"E", "\"E:", "@", "\"@", "i", "\"i", "\"i:", "o", "\"o:", "O", "\"O", "\"O:", "u", "\"u", "\"u:"] #Optilex
 
 
 def get_sonorant_phonemes(pdict):
@@ -16,7 +16,7 @@ def get_sonorant_phonemes(pdict):
     if pdict.lower() == 'gos':
         return ["m", "n", "n'", "N", "v", "w", "W", "l", "l'", "r", "j"] #Gos
     else:
-        return ["m", "n", "n'", "N", "v", "w", "W", "U", "l", "l'", "r", "j"] #Optilex
+        return ["m", "n", "n'", "N", "v", "w", "W", "U", "l", "l'", "r", "j", "I"] #Optilex
 
 
 def get_voiced_obstruent_phonemes(pdict):
