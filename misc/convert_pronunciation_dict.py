@@ -107,10 +107,22 @@ def _expected_affricate_counts(word):
     counts = {"ts": 0, "tS": 0, "dz": 0, "dZ": 0}
     i = 0
 
-    while i < len(normalized):
+    length = len(normalized)
+
+    while i < length:
         # Treat "ch" digraphs as postalveolar affricates (e.g., ch = tS)
         if normalized.startswith("ch", i):
             counts["tS"] += 1
+            i += 2
+            continue
+
+        if normalized.startswith("tz", i):
+            counts["ts"] += 1
+            i += 2
+            continue
+
+        if normalized.startswith("zh", i):
+            counts["ts"] += 1
             i += 2
             continue
 
@@ -128,11 +140,20 @@ def _expected_affricate_counts(word):
             i += 2
             continue
 
+        if normalized.startswith("ts", i):
+            prev = normalized[i - 1] if i > 0 else ""
+            if prev not in {"t", "d"}:
+                counts["ts"] += 1
+            i += 2
+            continue
+
         char = normalized[i]
         if char == "c":
             counts["ts"] += 1
         elif char in {"č", "ć"}:
             counts["tS"] += 1
+            if i + 1 < length and normalized[i + 1] == "b":
+                counts["dZ"] += 1
         elif char in SPECIAL_DZ_CHARS:
             counts["dz"] += 1
         elif char in SPECIAL_DZ_CARON_CHARS:
