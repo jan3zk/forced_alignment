@@ -106,31 +106,75 @@ def compute_intensity(input_wav, tier, intensity_threshold=50):
         phone_intensities.append(round(avg_phone_intensity, 1))
     return phone_intensities
 
-def compute_vot(input_wav, tier):
+def compute_vot(
+    input_wav,
+    tier,
+    pitch_time_step=0.01,
+    pitch_floor=75,
+    pitch_ceiling=500,
+    f0_threshold=75,
+    min_voiced_frames=2,
+    max_search_after=0.2,
+):
+    """Compute VOT per interval.
+
+    Definition used: time from the end of the phone (treated as release)
+    to the onset of voicing (first reliable F0 > ``f0_threshold``). If
+    voicing is already present before the phone end (prevoicing), VOT is
+    negative and measured as -(release - voicing onset).
+    """
+
     sound = parselmouth.Sound(input_wav)
-    intensity = sound.to_intensity()
-    intensity_values = intensity.values[0]  # Assuming one channel
-    pitch = sound.to_pitch()
-    pitch_values = pitch.selected_array['frequency']
+    pitch = sound.to_pitch_ac(
+        time_step=pitch_time_step, pitch_floor=pitch_floor, pitch_ceiling=pitch_ceiling
+    )
+    times = pitch.xs()
+    f0 = pitch.selected_array["frequency"]
+    is_voiced = f0 > f0_threshold
+
     vot_values = []
+    n = len(times)
+
     for interval in tier:
-        start_time = interval.minTime
         end_time = interval.maxTime
-        start_index = int(start_time // intensity.time_step)
-        end_index = int(end_time // intensity.time_step)
-        start_index_pitch = int(start_time // pitch.time_step)
-        end_index_pitch = int(end_time // pitch.time_step)
-        pitch_interval = pitch_values[start_index_pitch:end_index_pitch]
-        # VOT is measured from the end of the phone to the onset of voicing
-        cutoff_frequency = 100  # Adjust as needed based on your data
-        # Find the first pitch value above the cutoff frequency (indicating voicing onset)
-        for i, pitch_value in enumerate(pitch_interval):
-            if pitch_value > cutoff_frequency:
-                vot = end_time - ((start_index_pitch + i) * pitch.time_step)
-                break
-        else:
-            vot = 0.0  # If voicing onset not found, set VOT to 0.0
-        vot_values.append(round(vot, 3))
+
+        # Index at/just after the phone end
+        idx_end = int(np.searchsorted(times, end_time, side="left"))
+        idx_end = max(0, min(idx_end, n - 1))
+
+        # Check for prevoicing (voicing already present before release)
+        prev_idx = max(0, idx_end - 1)
+        vot = None
+
+        if is_voiced[prev_idx]:
+            # Find the start of the voiced run that leads into the release
+            k = prev_idx
+            while k > 0 and is_voiced[k - 1]:
+                k -= 1
+            # Require a minimum number of voiced frames to be robust
+            if (prev_idx - k + 1) >= min_voiced_frames:
+                vot = -(end_time - float(times[k]))
+
+        if vot is None:
+            # Find first reliable voiced frame after release within a max window
+            after_max_time = end_time + max_search_after
+            j_start = idx_end
+            j_stop = int(np.searchsorted(times, after_max_time, side="left"))
+            j_stop = max(j_start, min(j_stop, n - 1))
+
+            j_found = None
+            for j in range(j_start, j_stop + 1):
+                # Require ``min_voiced_frames`` consecutive voiced frames
+                end_j = j + min_voiced_frames
+                if end_j <= n and np.all(is_voiced[j:end_j]):
+                    j_found = j
+                    break
+            if j_found is not None:
+                vot = float(times[j_found]) - end_time
+            else:
+                vot = 0.0
+
+        vot_values.append(round(float(vot), 3))
     return vot_values
 
 def compute_cog(input_wav, tier, power=2):
@@ -142,7 +186,11 @@ def compute_cog(input_wav, tier, power=2):
         # Calculate the spectral centroid for the audio interval
         spectrum = audio_interval.to_spectrum()
         cog = spectrum.get_center_of_gravity(power)
-        cog_values.append(round(cog, 1))
+        # Guard against NaN from silent/very short segments
+        if cog is None or (isinstance(cog, float) and np.isnan(cog)):
+            cog_values.append(0.0)
+        else:
+            cog_values.append(round(float(cog), 1))
     return cog_values
 
 def compute_sonority(input_wav, tier):
