@@ -1,6 +1,7 @@
 import os
 import sys
 import csv
+import xml.etree.ElementTree as ET
 import parselmouth
 import numpy as np
 from textgrid import TextGrid
@@ -218,13 +219,77 @@ def get_item(tier, item_tier):
         item_list.append(corresponding_item)
     return item_list
 
+def get_optional_item(tier, textgrid, tier_name):
+    try:
+        item_tier = textgrid.getFirst(tier_name)
+    except Exception:
+        return [''] * len(tier)
+    return get_item(tier, item_tier)
+
+def phone_context(tier, offset):
+    labels = [interval.mark for interval in tier]
+    context = []
+    for idx in range(len(labels)):
+        other_idx = idx + offset
+        if 0 <= other_idx < len(labels):
+            context.append(labels[other_idx])
+        else:
+            context.append('')
+    return context
+
+def discover_xml_path(input_textgrid):
+    audio_id = os.path.splitext(os.path.basename(input_textgrid))[0].replace("-avd", "")
+    candidates = [
+        os.path.join("data", "Gos.TEI.2.1", "Artur-J", audio_id + ".xml"),
+        os.path.join("data", "Gos.TEI.2.1", "Artur-P", audio_id + ".xml"),
+        os.path.join("data", "Gos.TEI.2.1", "Artur-N", audio_id + ".xml"),
+        os.path.join("/storage", "janezk", "databases", "Arhiv", "nrobida_izbor", audio_id + ".xml"),
+    ]
+    for candidate in candidates:
+        if os.path.exists(candidate):
+            return candidate
+    return None
+
+def parse_msd_by_token_id(xml_file_path):
+    if not xml_file_path or not os.path.exists(xml_file_path):
+        return {}
+
+    tree = ET.parse(xml_file_path)
+    root = tree.getroot()
+    tei_ns = "http://www.tei-c.org/ns/1.0"
+    xml_ns = "http://www.w3.org/XML/1998/namespace"
+    token_tags = {f"{{{tei_ns}}}w", f"{{{tei_ns}}}pc"}
+
+    msd_by_token_id = {}
+    for elem in root.iter():
+        if elem.tag not in token_tags:
+            continue
+        token_id = elem.get(f"{{{xml_ns}}}id", "")
+        msd = elem.get("ana", "")
+        if msd.startswith("mte:"):
+            msd = msd[4:]
+        if token_id:
+            msd_by_token_id[token_id] = msd
+    return msd_by_token_id
+
+def msd_for_token_ids(token_ids, msd_by_token_id):
+    values = []
+    for label in token_ids:
+        ids = label.split()
+        msds = [msd_by_token_id.get(token_id, "") for token_id in ids]
+        values.append(" ".join(msd for msd in msds if msd))
+    return values
+
 def save_to_csv(header, data, output_csv):
+    output_dir = os.path.dirname(output_csv)
+    if output_dir:
+        os.makedirs(output_dir, exist_ok=True)
     with open(output_csv, mode='w', newline='', encoding="utf-8-sig") as file:
         writer = csv.writer(file)
         writer.writerow(header)
         writer.writerows(zip(*data))
 
-def main(input_textgrid, input_wav, output_csv, level="phones"):
+def main(input_textgrid, input_wav, output_csv, level="phones", input_xml=None):
     tg = TextGrid.fromFile(input_textgrid)
     tier = tg.getFirst(level)
     duration = compute_durations(tier)
@@ -237,9 +302,14 @@ def main(input_textgrid, input_wav, output_csv, level="phones"):
         formants = compute_formants(input_wav, tier)
         vot = compute_vot(input_wav, tier)
         cog = compute_cog(input_wav, tier)
-        previous_phone = [''] + [interval.mark for interval in tier[:-1]]
-        next_phone = [interval.mark for interval in tier[1:]] + ['']
+        prev_phone_1 = phone_context(tier, -1)
+        prev_phone_2 = phone_context(tier, -2)
+        next_phone_1 = phone_context(tier, 1)
+        next_phone_2 = phone_context(tier, 2)
         word = get_item(tier, tg.getFirst("strd-wrd-sgmnt"))
+        token_id = get_optional_item(tier, tg, "word-ID")
+        xml_path = input_xml if input_xml else discover_xml_path(input_textgrid)
+        msd = msd_for_token_ids(token_id, parse_msd_by_token_id(xml_path))
         sentence = get_item(tier, tg.getFirst("standardized-trs"))
         speakerID = get_item(tier, tg.getFirst("speaker-ID"))
         audioID = [os.path.splitext(os.path.basename(input_textgrid))[0].replace("-avd",'')] * len(duration)
@@ -255,9 +325,13 @@ def main(input_textgrid, input_wav, output_csv, level="phones"):
             ('Sonority', sonority),
             ('VOT', vot),
             ('COG', cog),
-            ('PreviousPhone', previous_phone),
-            ('NextPhone', next_phone),
+            ('prev_phone_1', prev_phone_1),
+            ('prev_phone_2', prev_phone_2),
+            ('next_phone_1', next_phone_1),
+            ('next_phone_2', next_phone_2),
             ('Word', word),
+            ('TokenID', token_id),
+            ('MSD', msd),
             ('Sentence', sentence),
             ('AudioID', audioID),
             ('SpeakerID', speakerID),
@@ -281,5 +355,7 @@ if __name__ == "__main__":
         main(sys.argv[1], sys.argv[2], sys.argv[3])
     elif len(sys.argv) == 5:
         main(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4])
+    elif len(sys.argv) == 6:
+        main(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5])
     else:
-        print("Usage: python acoustic_measurements.py [input.TextGrid] [input.wav] [output.csv] [level (optional, default='phones')]")
+        print("Usage: python acoustic_measurements.py [input.TextGrid] [input.wav] [output.csv] [level (optional, default='phones')] [input.xml (optional)]")
