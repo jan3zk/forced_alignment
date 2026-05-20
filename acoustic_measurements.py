@@ -7,6 +7,10 @@ import numpy as np
 from textgrid import TextGrid
 from extract_sonority import extract_sonority
 
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+MSD_MAPPING_PATH = os.path.join(SCRIPT_DIR, "data", "Gos.TEI.2.1", "mte-msd.xml")
+_MSD_EN_TO_SL = None
+
 def compute_durations(tier):
     return [(interval.mark, "{:.2f}".format(interval.maxTime - interval.minTime)) for interval in tier]
 
@@ -265,12 +269,20 @@ def parse_msd_by_token_id(xml_file_path):
         if elem.tag not in token_tags:
             continue
         token_id = elem.get(f"{{{xml_ns}}}id", "")
-        msd = elem.get("ana", "")
-        if msd.startswith("mte:"):
-            msd = msd[4:]
+        msd = normalize_msd_value(elem.get("ana", ""))
         if token_id:
             msd_by_token_id[token_id] = msd
     return msd_by_token_id
+
+def normalize_msd_value(msd):
+    values = []
+    for value in (msd or "").split():
+        if value.startswith("mte:"):
+            value = value[4:]
+        if value.startswith("#"):
+            value = value[1:]
+        values.append(value)
+    return " ".join(values)
 
 def msd_for_token_ids(token_ids, msd_by_token_id):
     values = []
@@ -280,12 +292,47 @@ def msd_for_token_ids(token_ids, msd_by_token_id):
         values.append(" ".join(msd for msd in msds if msd))
     return values
 
-def save_to_csv(header, data, output_csv):
-    output_dir = os.path.dirname(output_csv)
+def load_msd_en_to_sl():
+    global _MSD_EN_TO_SL
+    if _MSD_EN_TO_SL is not None:
+        return _MSD_EN_TO_SL
+
+    tree = ET.parse(MSD_MAPPING_PATH)
+    root = tree.getroot()
+    tei_ns = "http://www.tei-c.org/ns/1.0"
+    xml_ns = "http://www.w3.org/XML/1998/namespace"
+
+    mapping = {}
+    for fs in root.findall(f".//{{{tei_ns}}}fs"):
+        if fs.get(f"{{{xml_ns}}}lang") != "en":
+            continue
+        msd_en = fs.get(f"{{{xml_ns}}}id")
+        corresp = fs.get("corresp", "")
+        if msd_en and corresp.startswith("#"):
+            mapping[msd_en] = corresp[1:]
+
+    _MSD_EN_TO_SL = mapping
+    return _MSD_EN_TO_SL
+
+def msd_en_to_sl(msd_values):
+    mapping = load_msd_en_to_sl()
+    converted_values = []
+    for msd in msd_values:
+        converted = []
+        for value in (msd or "").split():
+            if value not in mapping:
+                raise ValueError(f"Missing Slovene MSD mapping for {value}")
+            converted.append(mapping[value])
+        converted_values.append(" ".join(converted))
+    return converted_values
+
+def save_to_csv(header, data, output_path):
+    output_dir = os.path.dirname(output_path)
     if output_dir:
         os.makedirs(output_dir, exist_ok=True)
-    with open(output_csv, mode='w', newline='', encoding="utf-8-sig") as file:
-        writer = csv.writer(file)
+    delimiter = "\t" if os.path.splitext(output_path)[1].lower() == ".tsv" else ","
+    with open(output_path, mode='w', newline='', encoding="utf-8-sig") as file:
+        writer = csv.writer(file, delimiter=delimiter)
         writer.writerow(header)
         writer.writerows(zip(*data))
 
@@ -309,7 +356,8 @@ def main(input_textgrid, input_wav, output_csv, level="phones", input_xml=None):
         word = get_item(tier, tg.getFirst("strd-wrd-sgmnt"))
         token_id = get_optional_item(tier, tg, "word-ID")
         xml_path = input_xml if input_xml else discover_xml_path(input_textgrid)
-        msd = msd_for_token_ids(token_id, parse_msd_by_token_id(xml_path))
+        msd_en = msd_for_token_ids(token_id, parse_msd_by_token_id(xml_path))
+        msd_sl = msd_en_to_sl(msd_en)
         sentence = get_item(tier, tg.getFirst("standardized-trs"))
         speakerID = get_item(tier, tg.getFirst("speaker-ID"))
         audioID = [os.path.splitext(os.path.basename(input_textgrid))[0].replace("-avd",'')] * len(duration)
@@ -331,7 +379,8 @@ def main(input_textgrid, input_wav, output_csv, level="phones", input_xml=None):
             ('next_phone_2', next_phone_2),
             ('Word', word),
             ('TokenID', token_id),
-            ('MSD', msd),
+            ('MSD_en', msd_en),
+            ('MSD_sl', msd_sl),
             ('Sentence', sentence),
             ('AudioID', audioID),
             ('SpeakerID', speakerID),
@@ -358,4 +407,4 @@ if __name__ == "__main__":
     elif len(sys.argv) == 6:
         main(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5])
     else:
-        print("Usage: python acoustic_measurements.py [input.TextGrid] [input.wav] [output.csv] [level (optional, default='phones')] [input.xml (optional)]")
+        print("Usage: python acoustic_measurements.py [input.TextGrid] [input.wav] [output.csv|output.tsv] [level (optional, default='phones')] [input.xml (optional)]")
